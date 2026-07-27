@@ -7,7 +7,7 @@ export default function Header() {
       <div className="border-b border-ink-300/20 bg-white text-xs text-ink-500">
         <div className="mx-auto flex max-w-shell items-center justify-between px-4 py-2">
           <nav className="flex items-center gap-4">
-            <span className="font-medium text-ink-700">نوفل هَب</span>
+            <span className="font-medium text-ink-700">عالم الروايات</span>
             <span className="text-ink-300">|</span>
             <a href="#" className="hover:text-brand">
               موقع القارئات
