@@ -42,7 +42,7 @@ export default function Header() {
           <div className="ph-block h-12 w-12 rounded-lg text-lg">📚</div>
           <div>
             <p className="text-2xl font-bold leading-tight text-ink-900">
-              نوفل<span className="text-brand">هَب</span>
+              عالم<span className="text-brand">الروايات</span>
             </p>
             <p className="text-[11px] tracking-wide text-ink-500">
               مجموعة القراءة · الموقع الرئيسي
