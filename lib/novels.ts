@@ -169,6 +169,12 @@ export async function getCategoriesWithCounts(): Promise<
   }));
 }
 
+// كل الروايات اللي تحت تصنيف معيّن (اسم التصنيف بالضبط) — لصفحة التصنيف الحقيقية
+export async function getNovelsByCategory(categoryName: string): Promise<Novel[]> {
+  const all = await getNovels();
+  return all.filter((n) => parseCategories(n.category).includes(categoryName));
+}
+
 // روايات مشابهة (بينها تصنيف مشترك واحد على الأقل) لعرضها في صفحة التفاصيل
 export async function getRelatedNovels(
   category: string | null,

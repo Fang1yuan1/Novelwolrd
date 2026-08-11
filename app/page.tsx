@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import HeroBanner from "@/components/HeroBanner";
+import CategoriesSection from "@/components/CategoriesSection";
 import EditorPicks from "@/components/EditorPicks";
 import AdSlot from "@/components/AdSlot";
 import RankingGrid from "@/components/RankingGrid";
@@ -27,6 +28,8 @@ export default function Home() {
             <HeroBanner />
           </div>
         </div>
+
+        <CategoriesSection />
 
         <EditorPicks />
 
