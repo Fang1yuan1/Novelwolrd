@@ -156,7 +156,7 @@ export default function EditNovelPage() {
       }
     }
 
-    const { error } = await supabase
+    const { data: updatedRows, error } = await supabase
       .from('novels')
       .update({
         title: title.trim(),
@@ -167,12 +167,22 @@ export default function EditNovelPage() {
         status,
         tags: tags.trim() || null,
       })
-      .eq('id', id);
+      .eq('id', id)
+      .select();
 
     setSubmitting(false);
 
     if (error) {
       setResult({ ok: false, message: error.message });
+      return;
+    }
+
+    if (!updatedRows || updatedRows.length === 0) {
+      setResult({
+        ok: false,
+        message:
+          'الحفظ لم يتم فعليًا — على الأرجح صلاحيات (RLS) في جدول novels لا تسمح بالتعديل. تأكد من وجود سياسة UPDATE على الجدول.',
+      });
       return;
     }
 
