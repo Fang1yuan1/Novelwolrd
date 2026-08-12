@@ -1,81 +1,81 @@
-import { getNovelById, getChaptersByNovel, groupChaptersByVolume } from "@/lib/novels";
-import { notFound } from "next/navigation";export const dynamic = "force-dynamic";
-export default async function NovelPage({
+import { getNovelById, getChapterByNumber } from "@/lib/novels";
+import { notFound } from "next/navigation";
+
+export const dynamic = "force-dynamic";
+
+export default async function ChapterPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; number: string }>;
 }) {
-  const { id } = await params;
+  const { id, number } = await params;
   const novel = await getNovelById(id);
 
   if (!novel) {
     notFound();
   }
 
-  const chapters = await getChaptersByNovel(id);
-  const volumes = groupChaptersByVolume(chapters);
+  const chapter = await getChapterByNumber(id, number);
+
+  if (!chapter) {
+    notFound();
+  }
+
+  const currentNumber = Number(number);
+  const prevNumber = currentNumber - 1;
+  const nextNumber = currentNumber + 1;
 
   return (
     <div className="min-h-screen bg-surface">
       <main className="mx-auto flex max-w-shell flex-col gap-3 px-3 py-4">
-        <a href="/" className="text-[11px] text-ink-500 hover:text-brand">
-          ← الرئيسية
-        </a>
+        <div className="flex items-center justify-between text-[11px] text-ink-500">
+          <a href={`/novel/${novel.id}`} className="hover:text-brand">
+            ← {novel.title}
+          </a>
+          <a href="/" className="hover:text-brand">
+            الرئيسية
+          </a>
+        </div>
 
-        <div className="flex flex-col gap-3 rounded bg-white p-3 border border-ink-300/15 sm:flex-row">
-          <span className="ph-block aspect-[3/4] w-32 shrink-0 rounded text-[11px] sm:w-40">
-            الغلاف
-          </span>
-          <div className="min-w-0 flex-1">
-            <h1 className="mb-1 text-xl font-bold text-ink-900">{novel.title}</h1>
-            {novel.category && (
-              <span className="mb-2 inline-block rounded bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand">
-                {novel.category}
-              </span>
-            )}
-            <p className="mb-2 text-[11px] text-ink-300">{chapters.length} فصل</p>
-            <p className="text-sm leading-relaxed text-ink-700">
-              {novel.description || "لا يوجد وصف لهذا العمل بعد."}
-            </p>
+        <div className="rounded bg-white p-4 border border-ink-300/15">
+          <h1 className="mb-1 text-lg font-bold text-ink-900">
+            الفصل {chapter.chapter_number}
+            {chapter.title ? ` — ${chapter.title}` : ""}
+          </h1>
+          {chapter.volume && (
+            <p className="mb-4 text-[11px] text-ink-300">{chapter.volume}</p>
+          )}
+
+          <div className="whitespace-pre-wrap text-[15px] leading-loose text-ink-900">
+            {chapter.content}
           </div>
         </div>
 
-        <div className="rounded bg-white p-3 border border-ink-300/15">
-          <h2 className="mb-2 border-b border-ink-300/20 pb-2 text-sm font-bold text-ink-900">
-            الفصول
-          </h2>
-
-          {chapters.length === 0 ? (
-            <p className="py-6 text-center text-sm text-ink-300">
-              لم تُرفع فصول لهذا العمل بعد.
-            </p>
+        <div className="flex items-center justify-between rounded bg-white p-3 border border-ink-300/15">
+          {prevNumber >= 1 ? (
+            <a
+              href={`/novel/${novel.id}/chapter/${prevNumber}`}
+              className="rounded bg-surface px-3 py-2 text-sm font-medium text-ink-700 hover:text-brand"
+            >
+              → الفصل السابق
+            </a>
           ) : (
-            <div className="flex flex-col gap-3">
-              {volumes.map((v) => (
-                <details key={v.volume} open className="group">
-                  <summary className="cursor-pointer list-none rounded bg-surface px-2 py-1.5 text-sm font-semibold text-ink-900">
-                    {v.volume}
-                    <span className="ms-2 text-[11px] font-normal text-ink-300">
-                      ({v.chapters.length} فصل)
-                    </span>
-                  </summary>
-                  <ul className="mt-1 grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {v.chapters.map((ch) => (
-                      <li key={ch.id}>
-                        <a
-                          href={`/novel/${novel.id}/chapter/${ch.chapter_number}`}
-                          className="line-clamp-1 block rounded px-2 py-1.5 text-[13px] text-ink-700 hover:bg-surface hover:text-brand"
-                        >
-                          الفصل {ch.chapter_number}
-                          {ch.title ? ` — ${ch.title}` : ""}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ))}
-            </div>
+            <span className="px-3 py-2 text-sm text-ink-300">→ الفصل السابق</span>
           )}
+
+          <a
+            href={`/novel/${novel.id}`}
+            className="rounded bg-surface px-3 py-2 text-sm font-medium text-ink-700 hover:text-brand"
+          >
+            الفهرس
+          </a>
+
+          <a
+            href={`/novel/${novel.id}/chapter/${nextNumber}`}
+            className="rounded bg-brand px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+          >
+            الفصل التالي ←
+          </a>
         </div>
       </main>
     </div>
