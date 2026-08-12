@@ -104,6 +104,38 @@ export function groupChaptersByVolume(
   }));
 }
 
+// الفصل السابق والتالي (برقمهم فقط) — لبناء أزرار التنقل في صفحة القراءة
+export async function getAdjacentChapterNumbers(
+  novelId: number | string,
+  chapterNumber: number
+): Promise<{ prev: number | null; next: number | null }> {
+  if (!supabase) return { prev: null, next: null };
+
+  const [{ data: prevData }, { data: nextData }] = await Promise.all([
+    supabase
+      .from("chapters")
+      .select("chapter_number")
+      .eq("novel_id", novelId)
+      .lt("chapter_number", chapterNumber)
+      .order("chapter_number", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("chapters")
+      .select("chapter_number")
+      .eq("novel_id", novelId)
+      .gt("chapter_number", chapterNumber)
+      .order("chapter_number", { ascending: true })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  return {
+    prev: prevData?.chapter_number ?? null,
+    next: nextData?.chapter_number ?? null,
+  };
+}
+
 // عدد الفصول لرواية معيّنة (بدون سحب المحتوى الكامل)
 export async function getChapterCount(novelId: number | string): Promise<number> {
   if (!supabase) return 0;
@@ -167,12 +199,6 @@ export async function getCategoriesWithCounts(): Promise<
     category,
     count,
   }));
-}
-
-// كل الروايات اللي تحت تصنيف معيّن (اسم التصنيف بالضبط) — لصفحة التصنيف الحقيقية
-export async function getNovelsByCategory(categoryName: string): Promise<Novel[]> {
-  const all = await getNovels();
-  return all.filter((n) => parseCategories(n.category).includes(categoryName));
 }
 
 // روايات مشابهة (بينها تصنيف مشترك واحد على الأقل) لعرضها في صفحة التفاصيل

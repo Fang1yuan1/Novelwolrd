@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
 import HeroBanner from "@/components/HeroBanner";
-import CategoriesSection from "@/components/CategoriesSection";
 import EditorPicks from "@/components/EditorPicks";
 import AdSlot from "@/components/AdSlot";
 import RankingGrid from "@/components/RankingGrid";
@@ -21,9 +21,12 @@ export default function Home() {
       <Navbar />
 
       <main className="mx-auto flex max-w-shell flex-col gap-2 px-3 py-2">
-        <CategoriesSection />
-
-        <HeroBanner />
+        <div className="flex flex-col gap-2 lg:flex-row">
+          <Sidebar />
+          <div className="flex-1">
+            <HeroBanner />
+          </div>
+        </div>
 
         <EditorPicks />
 

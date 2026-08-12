@@ -1,5 +1,5 @@
 import RankingSection, { type RankingListData } from "./RankingSection";
-import { getCategoriesWithCounts, getNovels, parseCategories } from "@/lib/novels";
+import { getCategoriesWithCounts, getNovels } from "@/lib/novels";
 import { rankingLists as placeholderRankingLists } from "@/lib/placeholder-data";
 
 export default async function RankingGrid() {
@@ -9,27 +9,20 @@ export default async function RankingGrid() {
   let lists: RankingListData[] = [];
 
   if (categories.length > 0 && novels.length > 0) {
-    lists = categories
-      .map((c) => {
-        const novelsInCategory = novels.filter((n) =>
-          parseCategories(n.category).includes(c.category)
-        );
-        return {
-          id: c.category,
-          title: c.category,
-          badge: `${c.count} عمل`,
-          entries: novelsInCategory.slice(0, 10).map((n, idx) => ({
-            rank: idx + 1,
-            title: n.title,
-            href: `/novel/${n.id}`,
-          })),
-        };
-      })
-      .filter((list) => list.entries.length > 0)
-      .slice(0, 5);
-  }
-
-  if (lists.length === 0) {
+    lists = categories.slice(0, 5).map((c) => {
+      const novelsInCategory = novels.filter((n) => n.category === c.category);
+      return {
+        id: c.category,
+        title: c.category,
+        badge: `${c.count} عمل`,
+        entries: novelsInCategory.slice(0, 10).map((n, idx) => ({
+          rank: idx + 1,
+          title: n.title,
+          href: `/novel/${n.id}`,
+        })),
+      };
+    });
+  } else {
     lists = placeholderRankingLists;
   }
 

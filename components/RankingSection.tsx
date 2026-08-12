@@ -4,8 +4,6 @@ export type RankingListData = { id: string; title: string; badge: string; entrie
 export default function RankingSection({ list }: { list: RankingListData }) {
   const [top, ...others] = list.entries;
 
-  if (!top) return null;
-
   return (
     <div className="rounded bg-white p-2 border border-ink-300/15">
       <div className="mb-2 flex items-center justify-between border-b border-ink-300/20 pb-2">

@@ -11,9 +11,8 @@ export default async function Sidebar() {
           label: c.category,
           count: `${c.count} رواية`,
           icon: "📖",
-          href: `/category/${encodeURIComponent(c.category)}`,
         }))
-      : placeholderGenres.map((g) => ({ ...g, href: "#" }));
+      : placeholderGenres;
 
   return (
     <aside
@@ -24,7 +23,7 @@ export default async function Sidebar() {
         {items.map((g) => (
           <li key={g.id}>
             <a
-              href={g.href}
+              href="#"
               className="flex items-center gap-2 rounded px-2 py-2 text-sm text-ink-700 hover:bg-surface hover:text-brand"
             >
               <span className="text-[15px]" aria-hidden>
