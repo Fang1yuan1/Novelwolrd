@@ -1,4 +1,8 @@
-export default function AuthorNoteBox({ author }: { author: string | null }) {
+export default function AuthorNoteBox({
+  author,
+}: {
+  author?: string | null;
+}) {
   return (
     <div className="rounded bg-white p-3 border border-ink-300/15">
       <p className="mb-1.5 text-[11px] font-semibold text-ink-500">

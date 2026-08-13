@@ -75,7 +75,7 @@ export default function ChapterReaderClient({
   content,
 }: {
   novelId: number | string;
-  chapterTitle: string;
+  chapterTitle: string | null;
   chapterNumber: number;
   content: string;
 }) {
