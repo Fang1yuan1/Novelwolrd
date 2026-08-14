@@ -174,7 +174,7 @@ export default function ChapterPageClient({
 
         <div className="flex flex-col gap-3">
           {/* Main column */}
-          <div className="min-w-0 flex-1 ps-16">
+          <div className="min-w-0 flex-1 ps-14">
             {/* Book info card — bordered, matches qidian's outlined panel */}
             <div
               className="mb-3 flex flex-col items-center gap-2 rounded-2xl border px-5 py-6 text-center"
@@ -261,7 +261,10 @@ export default function ChapterPageClient({
                   {wordCount.toLocaleString("ar-EG")} حرف
                 </span>
               </h2>
-              <div className="whitespace-pre-wrap leading-loose" style={{ fontSize }}>
+              <div
+                className="whitespace-pre-wrap leading-loose text-justify"
+                style={{ fontSize }}
+              >
                 {chapter.content}
               </div>
             </div>
