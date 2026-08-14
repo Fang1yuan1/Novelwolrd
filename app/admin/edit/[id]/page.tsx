@@ -22,6 +22,14 @@ type Novel = {
   tags: string | null;
 };
 
+type ChapterRow = {
+  id: number;
+  chapter_number: number;
+  title: string | null;
+  volume: string | null;
+  content: string;
+};
+
 export default function EditNovelPage() {
   const params = useParams();
   const id = params?.id as string;
@@ -47,6 +55,128 @@ export default function EditNovelPage() {
   const [result, setResult] = useState<
     { ok: true } | { ok: false; message: string } | null
   >(null);
+
+  // إدارة الفصول
+  const [chapters, setChapters] = useState<ChapterRow[]>([]);
+  const [loadingChapters, setLoadingChapters] = useState(true);
+  const [newChapterNumber, setNewChapterNumber] = useState('');
+  const [newChapterTitle, setNewChapterTitle] = useState('');
+  const [newChapterVolume, setNewChapterVolume] = useState('');
+  const [newChapterContent, setNewChapterContent] = useState('');
+  const [addingChapter, setAddingChapter] = useState(false);
+  const [chapterResult, setChapterResult] = useState<
+    { ok: true } | { ok: false; message: string } | null
+  >(null);
+
+  // حذف الرواية
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  async function loadChapters() {
+    if (!id) return;
+    setLoadingChapters(true);
+    const { data } = await supabase
+      .from('chapters')
+      .select('id, chapter_number, title, volume, content')
+      .eq('novel_id', id)
+      .order('chapter_number', { ascending: true });
+    setChapters((data as ChapterRow[]) || []);
+    setLoadingChapters(false);
+  }
+
+  useEffect(() => {
+    loadChapters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  async function handleAddChapter(e: React.FormEvent) {
+    e.preventDefault();
+    setChapterResult(null);
+
+    const num = Number(newChapterNumber);
+    if (!num || num < 1) {
+      setChapterResult({ ok: false, message: 'رقم الفصل مطلوب ويجب أن يكون رقمًا صحيحًا.' });
+      return;
+    }
+    if (!newChapterContent.trim()) {
+      setChapterResult({ ok: false, message: 'محتوى الفصل مطلوب.' });
+      return;
+    }
+
+    setAddingChapter(true);
+    const { error } = await supabase.from('chapters').insert({
+      novel_id: Number(id),
+      chapter_number: num,
+      title: newChapterTitle.trim() || null,
+      volume: newChapterVolume.trim() || null,
+      content: newChapterContent,
+    });
+    setAddingChapter(false);
+
+    if (error) {
+      setChapterResult({ ok: false, message: error.message });
+      return;
+    }
+
+    setNewChapterNumber('');
+    setNewChapterTitle('');
+    setNewChapterVolume('');
+    setNewChapterContent('');
+    setChapterResult({ ok: true });
+    loadChapters();
+  }
+
+  async function handleDeleteChapter(chapterId: number, chapterNumber: number) {
+    if (!confirm(`متأكد إنك عايز تحذف الفصل ${chapterNumber}؟ الإجراء ده لا يمكن التراجع عنه.`)) {
+      return;
+    }
+    const { error } = await supabase.from('chapters').delete().eq('id', chapterId);
+    if (error) {
+      alert(`فشل الحذف: ${error.message}`);
+      return;
+    }
+    loadChapters();
+  }
+
+  async function handleDeleteNovel() {
+    setDeleteError('');
+    if (deleteConfirmText.trim() !== title.trim()) {
+      setDeleteError('اكتب عنوان الرواية بالظبط للتأكيد.');
+      return;
+    }
+    setDeleting(true);
+
+    const { error: chaptersError } = await supabase
+      .from('chapters')
+      .delete()
+      .eq('novel_id', id);
+    if (chaptersError) {
+      setDeleting(false);
+      setDeleteError(`فشل حذف فصول الرواية: ${chaptersError.message}`);
+      return;
+    }
+
+    const { error: novelError, data } = await supabase
+      .from('novels')
+      .delete()
+      .eq('id', id)
+      .select();
+    setDeleting(false);
+
+    if (novelError) {
+      setDeleteError(`فشل حذف الرواية: ${novelError.message}`);
+      return;
+    }
+    if (!data || data.length === 0) {
+      setDeleteError(
+        'الحذف لم يتم فعليًا — على الأرجح صلاحيات (RLS) في جدول novels لا تسمح بالحذف. تأكد من وجود سياسة DELETE على الجدول.'
+      );
+      return;
+    }
+
+    window.location.href = '/admin/edit';
+  }
 
   useEffect(() => {
     async function load() {
@@ -213,6 +343,7 @@ export default function EditNovelPage() {
   return (
     <div dir="rtl" className="mx-auto max-w-2xl px-4 py-8 font-sans text-ink-900">
       <div className="mb-4 flex flex-wrap gap-3 text-[13px] text-ink-500">
+        <a href="/admin" className="hover:text-brand">← لوحة التحكم</a>
         <a href="/admin/edit" className="hover:text-brand">← كل الروايات</a>
         <a href={`/novel/${id}`} className="hover:text-brand">عرض صفحة الرواية</a>
       </div>
@@ -382,6 +513,132 @@ export default function EditNovelPage() {
           </div>
         )}
       </form>
+
+      {/* إدارة الفصول */}
+      <div className="mt-10 border-t border-ink-300/20 pt-6">
+        <h2 className="mb-1 text-lg font-bold">الفصول ({chapters.length})</h2>
+        <p className="mb-4 text-[13px] text-ink-500">
+          لرفع دفعة فصول دفعة واحدة عبر ملف JSON، استخدم{' '}
+          <a href="/admin/upload" className="text-brand hover:underline">صفحة رفع الفصول</a>.
+        </p>
+
+        {loadingChapters ? (
+          <p className="text-[13px] text-ink-300">جارٍ تحميل الفصول…</p>
+        ) : chapters.length === 0 ? (
+          <p className="mb-4 text-[13px] text-ink-300">لا توجد فصول مضافة لهذه الرواية بعد.</p>
+        ) : (
+          <ul className="mb-4 flex max-h-80 flex-col gap-1 overflow-y-auto rounded border border-ink-300/20 p-2">
+            {chapters.map((c) => (
+              <li
+                key={c.id}
+                className="flex items-center justify-between gap-2 rounded px-2 py-1.5 text-[13px] hover:bg-surface"
+              >
+                <span className="min-w-0 truncate">
+                  الفصل {c.chapter_number}
+                  {c.title ? ` — ${c.title}` : ''}
+                  <span className="text-[11px] text-ink-300"> ({c.content.length.toLocaleString('ar-EG')} حرف)</span>
+                </span>
+                <span className="flex shrink-0 gap-2">
+                  <a
+                    href={`/novel/${id}/chapter/${c.chapter_number}`}
+                    className="text-[12px] text-ink-500 hover:text-brand"
+                  >
+                    عرض
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteChapter(c.id, c.chapter_number)}
+                    className="text-[12px] text-red-600 hover:underline"
+                  >
+                    حذف
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={handleAddChapter} className="flex flex-col gap-3 rounded border border-ink-300/20 p-3">
+          <h3 className="text-sm font-semibold">إضافة فصل جديد</h3>
+          <div className="flex gap-3">
+            <Field label="رقم الفصل *">
+              <input
+                value={newChapterNumber}
+                onChange={(e) => setNewChapterNumber(e.target.value)}
+                type="number"
+                min={1}
+                className="w-24 rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+              />
+            </Field>
+            <Field label="المجلد (اختياري)">
+              <input
+                value={newChapterVolume}
+                onChange={(e) => setNewChapterVolume(e.target.value)}
+                className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+              />
+            </Field>
+          </div>
+          <Field label="عنوان الفصل (اختياري)">
+            <input
+              value={newChapterTitle}
+              onChange={(e) => setNewChapterTitle(e.target.value)}
+              className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+            />
+          </Field>
+          <Field label="محتوى الفصل *">
+            <textarea
+              value={newChapterContent}
+              onChange={(e) => setNewChapterContent(e.target.value)}
+              rows={8}
+              className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+            />
+          </Field>
+          <button
+            type="submit"
+            disabled={addingChapter}
+            className="self-start rounded bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark disabled:opacity-50"
+          >
+            {addingChapter ? 'جارٍ الإضافة…' : '+ إضافة الفصل'}
+          </button>
+
+          {chapterResult && chapterResult.ok && (
+            <div className="rounded border border-green-300 bg-green-50 p-3 text-[13px] text-green-800">
+              ✅ تم إضافة الفصل.
+            </div>
+          )}
+          {chapterResult && !chapterResult.ok && (
+            <div className="rounded border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">
+              ❌ {chapterResult.message}
+            </div>
+          )}
+        </form>
+      </div>
+
+      {/* حذف الرواية — منطقة خطر */}
+      <div className="mt-10 rounded border border-red-300 p-4">
+        <h2 className="mb-1 text-sm font-bold text-red-700">حذف الرواية نهائيًا</h2>
+        <p className="mb-3 text-[12px] text-red-700/80">
+          هذا الإجراء سيحذف الرواية وكل فصولها ({chapters.length} فصل) نهائيًا ولا يمكن التراجع
+          عنه. اكتب عنوان الرواية بالضبط ({title}) للتأكيد.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value)}
+            placeholder={title}
+            className="flex-1 rounded border border-red-300 px-3 py-2 text-sm outline-none focus:border-red-500"
+          />
+          <button
+            type="button"
+            onClick={handleDeleteNovel}
+            disabled={deleting}
+            className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          >
+            {deleting ? 'جارٍ الحذف…' : 'حذف الرواية نهائيًا'}
+          </button>
+        </div>
+        {deleteError && <p className="mt-2 text-[12px] text-red-700">❌ {deleteError}</p>}
+      </div>
     </div>
   );
 }

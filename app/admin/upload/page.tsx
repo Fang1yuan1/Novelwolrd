@@ -63,6 +63,10 @@ export default function UploadChaptersPage() {
 
   return (
     <div style={{ padding: 20, fontFamily: 'sans-serif', direction: 'rtl', maxWidth: 600, margin: '0 auto' }}>
+      <a href="/admin" style={{ display: 'inline-block', marginBottom: 8, fontSize: 13 }}>
+        ← لوحة التحكم
+      </a>
+      <br />
       <a href="/admin/novel" style={{ display: 'inline-block', marginBottom: 16, fontSize: 13 }}>
         ← إضافة رواية جديدة
       </a>

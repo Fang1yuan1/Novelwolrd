@@ -39,6 +39,7 @@ export default function EditNovelListPage() {
   return (
     <div dir="rtl" className="mx-auto max-w-2xl px-4 py-8 font-sans text-ink-900">
       <div className="mb-4 flex flex-wrap gap-3 text-[13px] text-ink-500">
+        <a href="/admin" className="hover:text-brand">← لوحة التحكم</a>
         <a href="/admin/novel" className="hover:text-brand">← إضافة رواية جديدة</a>
         <a href="/admin/categories" className="hover:text-brand">← إدارة التصنيفات</a>
       </div>

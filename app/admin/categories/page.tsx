@@ -86,6 +86,10 @@ export default function CategoriesAdminPage() {
 
   return (
     <div dir="rtl" className="mx-auto max-w-2xl px-4 py-8 font-sans text-ink-900">
+      <a href="/admin" className="mb-1 inline-block text-[13px] text-ink-500 hover:text-brand">
+        ← لوحة التحكم
+      </a>
+      <br />
       <a href="/admin/novel" className="mb-4 inline-block text-[13px] text-ink-500 hover:text-brand">
         ← إضافة رواية جديدة
       </a>
