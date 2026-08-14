@@ -124,9 +124,9 @@ export default function ChapterReaderClient({
     theme === "light" ? "الوضع النهاري" : theme === "night" ? "الوضع الليلي" : "وضع القراءة الدافئ";
 
   return (
-    <div className="flex items-start gap-2">
-      {/* Right-hand floating rail (matches qidian's fixed sidebar) — becomes a horizontal strip on small screens */}
-      <div className="order-2 flex shrink-0 flex-row gap-1 rounded bg-white border border-ink-300/15 p-1 lg:sticky lg:top-4 lg:flex-col lg:gap-2 lg:p-2">
+    <div className="flex flex-col gap-2 lg:flex-row lg:items-start">
+      {/* Right-hand floating rail (matches qidian's sidebar) — horizontal bar on mobile, vertical sidebar on desktop */}
+      <div className="flex flex-wrap justify-center gap-1 rounded bg-white border border-ink-300/15 p-1 lg:sticky lg:top-4 lg:w-16 lg:shrink-0 lg:flex-col lg:flex-nowrap lg:justify-start lg:gap-2 lg:p-2">
         <RailButton icon="📖" label="الفهرس" href={`/novel/${novelId}`} title="الفهرس الكامل" />
         <RailButton icon="ℹ️" label="تفاصيل" href={`/novel/${novelId}`} title="تفاصيل الرواية" />
         <RailButton
@@ -170,9 +170,9 @@ export default function ChapterReaderClient({
         </div>
       </div>
 
-      {/* Reading content */}
+      {/* Reading content — only this box changes color/theme, never the rest of the page */}
       <div
-        className="order-1 min-w-0 flex-1 rounded p-4 border transition-colors"
+        className="min-w-0 flex-1 rounded p-4 border transition-colors"
         style={{ backgroundColor: styles.bg, color: styles.text, borderColor: styles.border }}
       >
         <h1 className="mb-4 text-lg font-bold" style={{ fontSize: fontSize + 4 }}>
