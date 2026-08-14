@@ -31,6 +31,7 @@ function RailChip({
   disabled,
   active,
   title,
+  compact,
   chipBg,
   chipText,
   activeBg,
@@ -43,6 +44,7 @@ function RailChip({
   disabled?: boolean;
   active?: boolean;
   title?: string;
+  compact?: boolean;
   chipBg: string;
   chipText: string;
   activeBg: string;
@@ -58,12 +60,15 @@ function RailChip({
       <span aria-hidden className="text-base leading-none">
         {icon}
       </span>
-      <span className="whitespace-nowrap text-[10px] leading-none">{label}</span>
+      {!compact && (
+        <span className="whitespace-nowrap text-[10px] leading-none">{label}</span>
+      )}
     </>
   );
 
-  const className =
-    "flex flex-col items-center justify-center gap-1 rounded-lg px-2.5 py-2.5 transition-colors lg:px-2 lg:py-3";
+  const className = compact
+    ? "flex flex-col items-center justify-center rounded-lg p-2 transition-colors"
+    : "flex flex-col items-center justify-center gap-1 rounded-lg px-2.5 py-2.5 transition-colors lg:px-2 lg:py-3";
 
   if (href && !disabled) {
     return (
@@ -167,53 +172,9 @@ export default function ChapterPageClient({
           </a>
         </div>
 
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
-          {/* Right icon rail — sits beside content on desktop (RTL: first child = right side), stacks on top on mobile */}
-          <div className="grid grid-cols-4 gap-1.5 lg:sticky lg:top-4 lg:grid-cols-1 lg:w-20 lg:shrink-0 lg:gap-2">
-            <RailChip icon="📖" label="الفهرس" href={`/novel/${novel.id}`} title="الفهرس الكامل" {...chipProps} />
-            <RailChip icon="ℹ️" label="التفاصيل" href={`/novel/${novel.id}`} title="تفاصيل الرواية" {...chipProps} />
-            <RailChip
-              icon="➕"
-              label="المكتبة"
-              disabled
-              title="يتطلب تسجيل دخول (قريبًا)"
-              {...chipProps}
-            />
-            <RailChip icon="🗳️" label="التصويت" href={`/novel/${novel.id}`} title="التصويت غير مفعّل بعد" {...chipProps} />
-            <RailChip
-              icon={themeIcon}
-              label={themeLabel}
-              onClick={cycleTheme}
-              active
-              title="تبديل وضع القراءة"
-              {...chipProps}
-            />
-            <div className="col-span-2 grid grid-cols-2 gap-1.5 lg:col-span-1 lg:grid-cols-1">
-              <button
-                type="button"
-                onClick={() => cycleFontSize(1)}
-                disabled={fontSizeIdx === FONT_SIZES.length - 1}
-                title="تكبير الخط"
-                style={{ backgroundColor: p.chipBg, color: p.chipText }}
-                className="rounded-lg px-2.5 py-2.5 text-sm font-bold disabled:opacity-30 lg:py-2"
-              >
-                حجم الخط أ+
-              </button>
-              <button
-                type="button"
-                onClick={() => cycleFontSize(-1)}
-                disabled={fontSizeIdx === 0}
-                title="تصغير الخط"
-                style={{ backgroundColor: p.chipBg, color: p.chipText }}
-                className="rounded-lg px-2.5 py-2.5 text-xs font-bold disabled:opacity-30 lg:py-2"
-              >
-                أ-
-              </button>
-            </div>
-          </div>
-
+        <div className="flex flex-col gap-3">
           {/* Main column */}
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 ps-16">
             {/* Book info card — bordered, matches qidian's outlined panel */}
             <div
               className="mb-3 flex flex-col items-center gap-2 rounded-2xl border px-5 py-6 text-center"
@@ -372,6 +333,53 @@ export default function ChapterPageClient({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Right icon rail — fixed to the viewport edge on every screen size, matches reference layout exactly */}
+      <div
+        className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-1.5 rounded-xl p-1.5"
+        style={{ backgroundColor: p.chipBg }}
+      >
+        <RailChip icon="📖" label="الفهرس" href={`/novel/${novel.id}`} title="الفهرس الكامل" compact {...chipProps} />
+        <RailChip icon="ℹ️" label="التفاصيل" href={`/novel/${novel.id}`} title="تفاصيل الرواية" compact {...chipProps} />
+        <RailChip
+          icon="➕"
+          label="المكتبة"
+          disabled
+          title="يتطلب تسجيل دخول (قريبًا)"
+          compact
+          {...chipProps}
+        />
+        <RailChip icon="🗳️" label="التصويت" href={`/novel/${novel.id}`} title="التصويت غير مفعّل بعد" compact {...chipProps} />
+        <RailChip
+          icon={themeIcon}
+          label={themeLabel}
+          onClick={cycleTheme}
+          active
+          title="تبديل وضع القراءة"
+          compact
+          {...chipProps}
+        />
+        <button
+          type="button"
+          onClick={() => cycleFontSize(1)}
+          disabled={fontSizeIdx === FONT_SIZES.length - 1}
+          title="تكبير الخط"
+          style={{ backgroundColor: p.chipBg, color: p.chipText }}
+          className="rounded-lg px-2 py-2 text-sm font-bold disabled:opacity-30"
+        >
+          أ+
+        </button>
+        <button
+          type="button"
+          onClick={() => cycleFontSize(-1)}
+          disabled={fontSizeIdx === 0}
+          title="تصغير الخط"
+          style={{ backgroundColor: p.chipBg, color: p.chipText }}
+          className="rounded-lg px-2 py-2 text-xs font-bold disabled:opacity-30"
+        >
+          أ-
+        </button>
       </div>
 
       {/* Left feedback rail — fixed, desktop only, matches qidian's left strip */}
