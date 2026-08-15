@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
+import {
+  READER_PALETTES,
+  READER_FONTS,
+  READER_WIDTHS,
+  type ReaderTheme,
+  type ReaderFontId,
+  type ReaderWidthId,
+} from "@/lib/reader-theme";
+import SettingsModal from "./SettingsModal";
 
 const FONT_SIZES = [15, 17, 19, 21, 23];
 const STORAGE_KEY = "novelwolrd-reader-prefs";
@@ -46,37 +54,6 @@ function IconVote() {
     </svg>
   );
 }
-function IconSun() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <circle cx="12" cy="12" r="4.2" />
-      <line x1="12" y1="2.5" x2="12" y2="5" />
-      <line x1="12" y1="19" x2="12" y2="21.5" />
-      <line x1="4.2" y1="4.2" x2="6" y2="6" />
-      <line x1="18" y1="18" x2="19.8" y2="19.8" />
-      <line x1="2.5" y1="12" x2="5" y2="12" />
-      <line x1="19" y1="12" x2="21.5" y2="12" />
-      <line x1="4.2" y1="19.8" x2="6" y2="18" />
-      <line x1="18" y1="6" x2="19.8" y2="4.2" />
-    </svg>
-  );
-}
-function IconMoon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
-      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" />
-    </svg>
-  );
-}
-function IconCup() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 8h11v6a5.5 5.5 0 0 1-5.5 5.5H10A5.5 5.5 0 0 1 5 14V8Z" />
-      <path d="M16 9.5h1.5a2.5 2.5 0 0 1 0 5H16" />
-      <line x1="4" y1="21" x2="17" y2="21" />
-    </svg>
-  );
-}
 function IconComment() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
@@ -97,6 +74,14 @@ function IconWarning() {
       <path d="M12 4 21 19H3L12 4Z" />
       <line x1="12" y1="10" x2="12" y2="14.5" />
       <circle cx="12" cy="16.8" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IconGear() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2.06 2.06 0 1 1-2.9 2.9l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V20a2.06 2.06 0 1 1-4.12 0v-.1a1.7 1.7 0 0 0-1.1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2.06 2.06 0 1 1-2.9-2.9l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H4a2.06 2.06 0 1 1 0-4.12h.1a1.7 1.7 0 0 0 1.56-1.1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2.06 2.06 0 1 1 2.9-2.9l.06.06a1.7 1.7 0 0 0 1.87.34H10a1.7 1.7 0 0 0 1.03-1.56V4a2.06 2.06 0 1 1 4.12 0v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2.06 2.06 0 1 1 2.9 2.9l-.06.06a1.7 1.7 0 0 0-.34 1.87V10a1.7 1.7 0 0 0 1.56 1.03H20a2.06 2.06 0 1 1 0 4.12h-.1a1.7 1.7 0 0 0-1.56 1.03Z" />
     </svg>
   );
 }
@@ -200,6 +185,10 @@ export default function ChapterPageClient({
 }) {
   const [theme, setTheme] = useState<ReaderTheme>("light");
   const [fontSizeIdx, setFontSizeIdx] = useState(1);
+  const [fontFamilyId, setFontFamilyId] = useState<ReaderFontId>("sans");
+  const [widthId, setWidthId] = useState<ReaderWidthId>("auto");
+  const [showAuthorNote, setShowAuthorNote] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -210,6 +199,9 @@ export default function ChapterPageClient({
         const saved = JSON.parse(raw);
         if (saved.theme) setTheme(saved.theme);
         if (typeof saved.fontSizeIdx === "number") setFontSizeIdx(saved.fontSizeIdx);
+        if (saved.fontFamilyId) setFontFamilyId(saved.fontFamilyId);
+        if (saved.widthId) setWidthId(saved.widthId);
+        if (typeof saved.showAuthorNote === "boolean") setShowAuthorNote(saved.showAuthorNote);
       }
     } catch {
       // ignore — defaults are fine
@@ -219,30 +211,27 @@ export default function ChapterPageClient({
   useEffect(() => {
     if (!mounted) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme, fontSizeIdx }));
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ theme, fontSizeIdx, fontFamilyId, widthId, showAuthorNote })
+      );
     } catch {
       // ignore persistence failures
     }
-  }, [theme, fontSizeIdx, mounted]);
+  }, [theme, fontSizeIdx, fontFamilyId, widthId, showAuthorNote, mounted]);
 
   const p = READER_PALETTES[theme];
   const fontSize = FONT_SIZES[fontSizeIdx];
+  const fontFamily = READER_FONTS.find((f) => f.id === fontFamilyId)?.family;
+  const contentMaxWidth = READER_WIDTHS.find((w) => w.id === widthId)?.px;
 
-  const cycleFontSize = (dir: 1 | -1) =>
-    setFontSizeIdx((i) => Math.min(FONT_SIZES.length - 1, Math.max(0, i + dir)));
-
-  const cycleTheme = () =>
-    setTheme((t) => (t === "light" ? "night" : t === "night" ? "sepia" : "light"));
-
-  const themeIcon = theme === "night" ? <IconMoon /> : theme === "sepia" ? <IconCup /> : <IconSun />;
-  const themeLabel = theme === "night" ? "ليلي" : theme === "sepia" ? "دافئ" : "نهاري";
+  const wordCount = chapter.content ? chapter.content.length : 0;
 
   const publishDate = new Date(novel.created_at).toLocaleDateString("ar-EG", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
-  const wordCount = chapter.content ? chapter.content.length : 0;
 
   const chipProps = {
     chipBg: p.chipBg,
@@ -254,7 +243,7 @@ export default function ChapterPageClient({
   return (
     <div
       className="min-h-screen transition-colors"
-      style={{ backgroundColor: p.pageBg, color: p.text }}
+      style={{ backgroundColor: p.pageBg, color: p.text, fontFamily }}
     >
       <div className="mx-auto flex max-w-shell flex-col gap-3 px-3 py-4">
         {/* Breadcrumb */}
@@ -269,7 +258,10 @@ export default function ChapterPageClient({
 
         <div className="flex flex-col gap-3">
           {/* Main column */}
-          <div className="min-w-0 flex-1 ps-14">
+          <div
+            className="min-w-0 flex-1 ps-14"
+            style={contentMaxWidth ? { maxWidth: contentMaxWidth, marginInlineEnd: "auto" } : undefined}
+          >
             {/* Book info card — bordered, matches qidian's outlined panel */}
             <div
               className="mb-3 flex flex-col items-center gap-2 rounded-2xl border px-5 py-6 text-center"
@@ -364,18 +356,20 @@ export default function ChapterPageClient({
               </div>
             </div>
 
-            {/* Author note — honest empty state */}
-            <div
-              className="mb-3 rounded-2xl border px-4 py-3"
-              style={{ borderColor: p.cardBorder }}
-            >
-              <p className="mb-1 text-[11px] font-semibold" style={{ color: p.mutedText }}>
-                كلمة الكاتب{novel.author ? ` — ${novel.author}` : ""}
-              </p>
-              <p className="text-[12px] leading-relaxed" style={{ color: p.mutedText }}>
-                لا توجد ملاحظة من الكاتب على هذا الفصل بعد.
-              </p>
-            </div>
+            {/* Author note — honest empty state, can be hidden via settings */}
+            {showAuthorNote && (
+              <div
+                className="mb-3 rounded-2xl border px-4 py-3"
+                style={{ borderColor: p.cardBorder }}
+              >
+                <p className="mb-1 text-[11px] font-semibold" style={{ color: p.mutedText }}>
+                  كلمة الكاتب{novel.author ? ` — ${novel.author}` : ""}
+                </p>
+                <p className="text-[12px] leading-relaxed" style={{ color: p.mutedText }}>
+                  لا توجد ملاحظة من الكاتب على هذا الفصل بعد.
+                </p>
+              </div>
+            )}
 
             {/* Support / tip — honest zero state */}
             <div
@@ -433,9 +427,9 @@ export default function ChapterPageClient({
         </div>
       </div>
 
-      {/* Right icon rail — fixed to the viewport edge on every screen size, matches reference layout exactly */}
+      {/* Right icon rail — pill-shaped, fixed to the viewport edge on every screen size */}
       <div
-        className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-1.5 rounded-xl p-1.5"
+        className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2.5 rounded-[28px] p-2"
         style={{ backgroundColor: p.chipBg }}
       >
         <RailChip icon={<IconList />} label="الفهرس" href={`/novel/${novel.id}`} title="الفهرس الكامل" compact {...chipProps} />
@@ -450,33 +444,13 @@ export default function ChapterPageClient({
         />
         <RailChip icon={<IconVote />} label="التصويت" href={`/novel/${novel.id}`} title="التصويت غير مفعّل بعد" compact {...chipProps} />
         <RailChip
-          icon={themeIcon}
-          label={themeLabel}
-          onClick={cycleTheme}
-          title="تبديل وضع القراءة"
+          icon={<IconGear />}
+          label="الإعدادات"
+          onClick={() => setSettingsOpen(true)}
+          title="إعدادات القراءة"
           compact
           {...chipProps}
         />
-        <button
-          type="button"
-          onClick={() => cycleFontSize(1)}
-          disabled={fontSizeIdx === FONT_SIZES.length - 1}
-          title="تكبير الخط"
-          style={{ backgroundColor: p.chipBg, color: p.chipText }}
-          className="rounded-lg px-2 py-2 text-sm font-bold disabled:opacity-30"
-        >
-          أ+
-        </button>
-        <button
-          type="button"
-          onClick={() => cycleFontSize(-1)}
-          disabled={fontSizeIdx === 0}
-          title="تصغير الخط"
-          style={{ backgroundColor: p.chipBg, color: p.chipText }}
-          className="rounded-lg px-2 py-2 text-xs font-bold disabled:opacity-30"
-        >
-          أ-
-        </button>
       </div>
 
       {/* Left feedback rail — fixed, desktop only, matches qidian's left strip */}
@@ -503,6 +477,23 @@ export default function ChapterPageClient({
           ملاحظات
         </a>
       </div>
+
+      {settingsOpen && (
+        <SettingsModal
+          onClose={() => setSettingsOpen(false)}
+          theme={theme}
+          setTheme={setTheme}
+          fontSizeIdx={fontSizeIdx}
+          setFontSizeIdx={setFontSizeIdx}
+          fontSizes={FONT_SIZES}
+          fontFamilyId={fontFamilyId}
+          setFontFamilyId={setFontFamilyId}
+          widthId={widthId}
+          setWidthId={setWidthId}
+          showAuthorNote={showAuthorNote}
+          setShowAuthorNote={setShowAuthorNote}
+        />
+      )}
     </div>
   );
 }
