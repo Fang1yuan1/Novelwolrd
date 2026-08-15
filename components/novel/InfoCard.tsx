@@ -121,12 +121,6 @@ export default function InfoCard({
           >
             التصويت التفاعلي
           </a>
-          <button
-            type="button"
-            className="rounded bg-brand px-3 py-1.5 text-[13px] font-medium text-white hover:bg-brand-dark"
-          >
-            📱 امسح لقراءة الرواية من جوالك
-          </button>
         </div>
       </div>
     </div>
