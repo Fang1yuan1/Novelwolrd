@@ -70,6 +70,7 @@ export default function EditNovelPage() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [rangeFrom, setRangeFrom] = useState('');
   const [rangeTo, setRangeTo] = useState('');
+  const [chaptersLoadError, setChaptersLoadError] = useState('');
 
   // حذف الرواية
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -79,11 +80,18 @@ export default function EditNovelPage() {
   async function loadChapters() {
     if (!id) return;
     setLoadingChapters(true);
-    const { data } = await supabase
+    setChaptersLoadError('');
+    const { data, error } = await supabase
       .from('chapters')
       .select('id, chapter_number, title, volume, content')
       .eq('novel_id', id)
       .order('chapter_number', { ascending: true });
+    if (error) {
+      setChaptersLoadError(error.message);
+      setChapters([]);
+      setLoadingChapters(false);
+      return;
+    }
     setChapters((data as ChapterRow[]) || []);
     setLoadingChapters(false);
   }
@@ -576,6 +584,14 @@ export default function EditNovelPage() {
 
         {loadingChapters ? (
           <p className="text-[13px] text-ink-300">جارٍ تحميل الفصول…</p>
+        ) : chaptersLoadError ? (
+          <div className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-[13px] text-red-800">
+            ❌ فشل تحميل الفصول: {chaptersLoadError}
+            <br />
+            على الأرجح صلاحية SELECT ناقصة في RLS لجدول chapters، أو مشكلة اتصال. جرّب:
+            <br />
+            <code className="text-[11px]">create policy "select chapters" on chapters for select using (true);</code>
+          </div>
         ) : chapters.length === 0 ? (
           <p className="mb-4 text-[13px] text-ink-300">لا توجد فصول مضافة لهذه الرواية بعد.</p>
         ) : (
