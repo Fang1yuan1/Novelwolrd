@@ -27,21 +27,62 @@ function IconList() {
     </svg>
   );
 }
-function IconInfo() {
+function IconBook() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <circle cx="12" cy="12" r="9" />
-      <line x1="12" y1="11" x2="12" y2="16.5" strokeLinecap="round" />
-      <circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M4 5.5c2-1 5-1 8 0v13c-3-1-6-1-8 0V5.5Z" />
+      <path d="M20 5.5c-2-1-5-1-8 0v13c3-1 6-1 8 0V5.5Z" />
     </svg>
   );
 }
-function IconBookmarkPlus() {
+function IconShelfPlus() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="5" width="12" height="4.5" rx="1" />
+      <rect x="3" y="14.5" width="12" height="4.5" rx="1" />
+      <circle cx="18.5" cy="7" r="4" />
+      <line x1="18.5" y1="5" x2="18.5" y2="9" />
+      <line x1="16.5" y1="7" x2="20.5" y2="7" />
+    </svg>
+  );
+}
+function IconSun() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <circle cx="12" cy="12" r="4.2" />
+      <line x1="12" y1="2.5" x2="12" y2="5" />
+      <line x1="12" y1="19" x2="12" y2="21.5" />
+      <line x1="4.2" y1="4.2" x2="6" y2="6" />
+      <line x1="18" y1="18" x2="19.8" y2="19.8" />
+      <line x1="2.5" y1="12" x2="5" y2="12" />
+      <line x1="19" y1="12" x2="21.5" y2="12" />
+      <line x1="4.2" y1="19.8" x2="6" y2="18" />
+      <line x1="18" y1="6" x2="19.8" y2="4.2" />
+    </svg>
+  );
+}
+function IconMoon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
-      <path d="M6 4h12v16l-6-4-6 4V4Z" />
-      <line x1="9" y1="9.5" x2="15" y2="9.5" strokeLinecap="round" />
-      <line x1="12" y1="6.5" x2="12" y2="12.5" strokeLinecap="round" />
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" />
+    </svg>
+  );
+}
+function IconSliders() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <line x1="4" y1="7" x2="20" y2="7" />
+      <circle cx="9" cy="7" r="2.1" fill="currentColor" stroke="none" />
+      <line x1="4" y1="17" x2="20" y2="17" />
+      <circle cx="15" cy="17" r="2.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IconPhone() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+      <rect x="7" y="2.5" width="10" height="19" rx="2" />
+      <line x1="11" y1="18.3" x2="13" y2="18.3" />
     </svg>
   );
 }
@@ -112,6 +153,7 @@ function RailChip({
   active,
   title,
   compact,
+  imageIcon,
   chipBg,
   chipText,
   activeBg,
@@ -125,15 +167,18 @@ function RailChip({
   active?: boolean;
   title?: string;
   compact?: boolean;
+  imageIcon?: boolean;
   chipBg: string;
   chipText: string;
   activeBg: string;
   activeText: string;
 }) {
-  const style = {
-    backgroundColor: active ? activeBg : chipBg,
-    color: disabled ? chipText + "80" : active ? activeText : chipText,
-  };
+  const style = imageIcon
+    ? { opacity: disabled ? 0.45 : 1 }
+    : {
+        backgroundColor: active ? activeBg : chipBg,
+        color: disabled ? chipText + "80" : active ? activeText : chipText,
+      };
 
   const inner = (
     <>
@@ -146,9 +191,11 @@ function RailChip({
     </>
   );
 
-  const className = compact
-    ? "flex flex-col items-center justify-center rounded-lg p-2 transition-colors"
-    : "flex flex-col items-center justify-center gap-1 rounded-lg px-2.5 py-2.5 transition-colors lg:px-2 lg:py-3";
+  const className = imageIcon
+    ? "flex flex-col items-center justify-center gap-1 transition-opacity"
+    : compact
+      ? "flex flex-col items-center justify-center rounded-lg p-2 transition-colors"
+      : "flex flex-col items-center justify-center gap-1 rounded-lg px-2.5 py-2.5 transition-colors lg:px-2 lg:py-3";
 
   if (href && !disabled) {
     return (
@@ -427,28 +474,62 @@ export default function ChapterPageClient({
         </div>
       </div>
 
-      {/* Right icon rail — pill-shaped, fixed to the viewport edge on every screen size */}
-      <div
-        className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2.5 rounded-[28px] p-2"
-        style={{ backgroundColor: p.chipBg }}
-      >
-        <RailChip icon={<IconList />} label="الفهرس" href={`/novel/${novel.id}`} title="الفهرس الكامل" compact {...chipProps} />
-        <RailChip icon={<IconInfo />} label="التفاصيل" href={`/novel/${novel.id}`} title="تفاصيل الرواية" compact {...chipProps} />
+      {/* Right icon rail — individual chips (real cropped icons), matches reference exactly */}
+      <div className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
         <RailChip
-          icon={<IconBookmarkPlus />}
+          icon={<img src="/icons/list.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          label="الفهرس"
+          href={`/novel/${novel.id}`}
+          title="الفهرس الكامل"
+          imageIcon
+          {...chipProps}
+        />
+        <RailChip
+          icon={<img src="/icons/book.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          label="التفاصيل"
+          href={`/novel/${novel.id}`}
+          title="تفاصيل الرواية"
+          imageIcon
+          {...chipProps}
+        />
+        <RailChip
+          icon={<img src="/icons/shelf.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
           label="المكتبة"
           disabled
           title="يتطلب تسجيل دخول (قريبًا)"
-          compact
+          imageIcon
           {...chipProps}
         />
-        <RailChip icon={<IconVote />} label="التصويت" href={`/novel/${novel.id}`} title="التصويت غير مفعّل بعد" compact {...chipProps} />
         <RailChip
-          icon={<IconGear />}
+          icon={<img src="/icons/vote.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          label="التصويت"
+          href={`/novel/${novel.id}`}
+          title="التصويت غير مفعّل بعد"
+          imageIcon
+          {...chipProps}
+        />
+        <RailChip
+          icon={<img src="/icons/sun.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          label={theme === "night" ? "ليلي" : "نهاري"}
+          onClick={() => setTheme(theme === "night" ? "light" : "night")}
+          title="تبديل سريع بين النهاري والليلي"
+          imageIcon
+          {...chipProps}
+        />
+        <RailChip
+          icon={<img src="/icons/sliders.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
           label="الإعدادات"
           onClick={() => setSettingsOpen(true)}
           title="إعدادات القراءة"
-          compact
+          imageIcon
+          {...chipProps}
+        />
+        <RailChip
+          icon={<img src="/icons/phone.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          label="التطبيق"
+          disabled
+          title="لا يوجد تطبيق موبايل للموقع بعد"
+          imageIcon
           {...chipProps}
         />
       </div>
