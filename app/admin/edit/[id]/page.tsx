@@ -26,7 +26,6 @@ type ChapterRow = {
   id: number;
   chapter_number: number;
   title: string | null;
-  volume: string | null;
   content: string;
 };
 
@@ -61,7 +60,6 @@ export default function EditNovelPage() {
   const [loadingChapters, setLoadingChapters] = useState(true);
   const [newChapterNumber, setNewChapterNumber] = useState('');
   const [newChapterTitle, setNewChapterTitle] = useState('');
-  const [newChapterVolume, setNewChapterVolume] = useState('');
   const [newChapterContent, setNewChapterContent] = useState('');
   const [addingChapter, setAddingChapter] = useState(false);
   const [chapterResult, setChapterResult] = useState<
@@ -83,7 +81,7 @@ export default function EditNovelPage() {
     setChaptersLoadError('');
     const { data, error } = await supabase
       .from('chapters')
-      .select('id, chapter_number, title, volume, content')
+      .select('id, chapter_number, title, content')
       .eq('novel_id', id)
       .order('chapter_number', { ascending: true });
     if (error) {
@@ -120,7 +118,6 @@ export default function EditNovelPage() {
       novel_id: Number(id),
       chapter_number: num,
       title: newChapterTitle.trim() || null,
-      volume: newChapterVolume.trim() || null,
       content: newChapterContent,
     });
     setAddingChapter(false);
@@ -132,7 +129,6 @@ export default function EditNovelPage() {
 
     setNewChapterNumber('');
     setNewChapterTitle('');
-    setNewChapterVolume('');
     setNewChapterContent('');
     setChapterResult({ ok: true });
     loadChapters();
@@ -669,24 +665,15 @@ export default function EditNovelPage() {
 
         <form onSubmit={handleAddChapter} className="flex flex-col gap-3 rounded border border-ink-300/20 p-3">
           <h3 className="text-sm font-semibold">إضافة فصل جديد</h3>
-          <div className="flex gap-3">
-            <Field label="رقم الفصل *">
-              <input
-                value={newChapterNumber}
-                onChange={(e) => setNewChapterNumber(e.target.value)}
-                type="number"
-                min={1}
-                className="w-24 rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
-              />
-            </Field>
-            <Field label="المجلد (اختياري)">
-              <input
-                value={newChapterVolume}
-                onChange={(e) => setNewChapterVolume(e.target.value)}
-                className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
-              />
-            </Field>
-          </div>
+          <Field label="رقم الفصل *">
+            <input
+              value={newChapterNumber}
+              onChange={(e) => setNewChapterNumber(e.target.value)}
+              type="number"
+              min={1}
+              className="w-24 rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+            />
+          </Field>
           <Field label="عنوان الفصل (اختياري)">
             <input
               value={newChapterTitle}
