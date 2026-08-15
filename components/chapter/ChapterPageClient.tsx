@@ -6,6 +6,101 @@ import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 const FONT_SIZES = [15, 17, 19, 21, 23];
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 
+// أيقونات خطية بسيطة (بدون إيموجي) — تطابق أسلوب qidian المرجعي
+function IconList() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <line x1="8" y1="6" x2="20" y2="6" />
+      <line x1="8" y1="12" x2="20" y2="12" />
+      <line x1="8" y1="18" x2="20" y2="18" />
+      <circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IconInfo() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="9" />
+      <line x1="12" y1="11" x2="12" y2="16.5" strokeLinecap="round" />
+      <circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IconBookmarkPlus() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+      <path d="M6 4h12v16l-6-4-6 4V4Z" />
+      <line x1="9" y1="9.5" x2="15" y2="9.5" strokeLinecap="round" />
+      <line x1="12" y1="6.5" x2="12" y2="12.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconVote() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M5 9h14v10H5z" />
+      <path d="M9 9V6a3 3 0 0 1 6 0v3" />
+      <line x1="12" y1="13" x2="12" y2="16" />
+    </svg>
+  );
+}
+function IconSun() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <circle cx="12" cy="12" r="4.2" />
+      <line x1="12" y1="2.5" x2="12" y2="5" />
+      <line x1="12" y1="19" x2="12" y2="21.5" />
+      <line x1="4.2" y1="4.2" x2="6" y2="6" />
+      <line x1="18" y1="18" x2="19.8" y2="19.8" />
+      <line x1="2.5" y1="12" x2="5" y2="12" />
+      <line x1="19" y1="12" x2="21.5" y2="12" />
+      <line x1="4.2" y1="19.8" x2="6" y2="18" />
+      <line x1="18" y1="6" x2="19.8" y2="4.2" />
+    </svg>
+  );
+}
+function IconMoon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" />
+    </svg>
+  );
+}
+function IconCup() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 8h11v6a5.5 5.5 0 0 1-5.5 5.5H10A5.5 5.5 0 0 1 5 14V8Z" />
+      <path d="M16 9.5h1.5a2.5 2.5 0 0 1 0 5H16" />
+      <line x1="4" y1="21" x2="17" y2="21" />
+    </svg>
+  );
+}
+function IconComment() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M4 5h16v11H9l-4 4V5Z" />
+    </svg>
+  );
+}
+function IconBookmark() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+      <path d="M6 4h12v16l-6-4-6 4V4Z" />
+    </svg>
+  );
+}
+function IconWarning() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M12 4 21 19H3L12 4Z" />
+      <line x1="12" y1="10" x2="12" y2="14.5" />
+      <circle cx="12" cy="16.8" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 type NovelData = {
   id: number;
   title: string;
@@ -37,7 +132,7 @@ function RailChip({
   activeBg,
   activeText,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   href?: string;
   onClick?: () => void;
@@ -57,7 +152,7 @@ function RailChip({
 
   const inner = (
     <>
-      <span aria-hidden className="text-base leading-none">
+      <span aria-hidden className="flex items-center justify-center leading-none">
         {icon}
       </span>
       {!compact && (
@@ -139,7 +234,7 @@ export default function ChapterPageClient({
   const cycleTheme = () =>
     setTheme((t) => (t === "light" ? "night" : t === "night" ? "sepia" : "light"));
 
-  const themeIcon = theme === "night" ? "🌙" : theme === "sepia" ? "☕" : "☀️";
+  const themeIcon = theme === "night" ? <IconMoon /> : theme === "sepia" ? <IconCup /> : <IconSun />;
   const themeLabel = theme === "night" ? "ليلي" : theme === "sepia" ? "دافئ" : "نهاري";
 
   const publishDate = new Date(novel.created_at).toLocaleDateString("ar-EG", {
@@ -236,16 +331,16 @@ export default function ChapterPageClient({
               style={{ borderColor: p.divider, color: p.mutedText }}
             >
               <span className="flex items-center gap-1.5">
-                <span aria-hidden>💬</span>
+                <IconComment />
                 لا توجد تعليقات على هذا الفصل بعد
               </span>
               <button
                 type="button"
                 disabled
                 title="حفظ الفصل — يتطلب حساب (قريبًا)"
-                className="text-base opacity-60"
+                className="opacity-60"
               >
-                🔖
+                <IconBookmark />
               </button>
             </div>
 
@@ -343,22 +438,21 @@ export default function ChapterPageClient({
         className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-1.5 rounded-xl p-1.5"
         style={{ backgroundColor: p.chipBg }}
       >
-        <RailChip icon="📖" label="الفهرس" href={`/novel/${novel.id}`} title="الفهرس الكامل" compact {...chipProps} />
-        <RailChip icon="ℹ️" label="التفاصيل" href={`/novel/${novel.id}`} title="تفاصيل الرواية" compact {...chipProps} />
+        <RailChip icon={<IconList />} label="الفهرس" href={`/novel/${novel.id}`} title="الفهرس الكامل" compact {...chipProps} />
+        <RailChip icon={<IconInfo />} label="التفاصيل" href={`/novel/${novel.id}`} title="تفاصيل الرواية" compact {...chipProps} />
         <RailChip
-          icon="➕"
+          icon={<IconBookmarkPlus />}
           label="المكتبة"
           disabled
           title="يتطلب تسجيل دخول (قريبًا)"
           compact
           {...chipProps}
         />
-        <RailChip icon="🗳️" label="التصويت" href={`/novel/${novel.id}`} title="التصويت غير مفعّل بعد" compact {...chipProps} />
+        <RailChip icon={<IconVote />} label="التصويت" href={`/novel/${novel.id}`} title="التصويت غير مفعّل بعد" compact {...chipProps} />
         <RailChip
           icon={themeIcon}
           label={themeLabel}
           onClick={cycleTheme}
-          active
           title="تبديل وضع القراءة"
           compact
           {...chipProps}
@@ -396,9 +490,7 @@ export default function ChapterPageClient({
           className="flex flex-col items-center gap-0.5 rounded px-2 py-2 text-[10px]"
           style={{ color: p.chipText }}
         >
-          <span aria-hidden className="text-base">
-            ⚠️
-          </span>
+          <IconWarning />
           إبلاغ
         </a>
         <a
@@ -407,9 +499,7 @@ export default function ChapterPageClient({
           className="flex flex-col items-center gap-0.5 rounded px-2 py-2 text-[10px]"
           style={{ color: p.chipText }}
         >
-          <span aria-hidden className="text-base">
-            💬
-          </span>
+          <IconComment />
           ملاحظات
         </a>
       </div>

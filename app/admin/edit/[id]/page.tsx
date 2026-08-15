@@ -67,6 +67,9 @@ export default function EditNovelPage() {
   const [chapterResult, setChapterResult] = useState<
     { ok: true } | { ok: false; message: string } | null
   >(null);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [rangeFrom, setRangeFrom] = useState('');
+  const [rangeTo, setRangeTo] = useState('');
 
   // حذف الرواية
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -136,6 +139,55 @@ export default function EditNovelPage() {
       alert(`فشل الحذف: ${error.message}`);
       return;
     }
+    loadChapters();
+  }
+
+  async function handleDeleteAllChapters() {
+    if (chapters.length === 0) return;
+    if (
+      !confirm(
+        `متأكد إنك عايز تحذف كل الفصول (${chapters.length} فصل) لهذه الرواية؟ الإجراء ده لا يمكن التراجع عنه.`
+      )
+    ) {
+      return;
+    }
+    setBulkDeleting(true);
+    const { error } = await supabase.from('chapters').delete().eq('novel_id', id);
+    setBulkDeleting(false);
+    if (error) {
+      alert(`فشل الحذف: ${error.message}`);
+      return;
+    }
+    loadChapters();
+  }
+
+  async function handleDeleteRange(e: React.FormEvent) {
+    e.preventDefault();
+    const from = Number(rangeFrom);
+    const to = Number(rangeTo);
+    if (!from || !to || from > to) {
+      alert('أدخل نطاق فصول صحيح (من رقم أصغر أو يساوي إلى رقم أكبر).');
+      return;
+    }
+    if (
+      !confirm(`متأكد إنك عايز تحذف الفصول من ${from} إلى ${to}؟ الإجراء ده لا يمكن التراجع عنه.`)
+    ) {
+      return;
+    }
+    setBulkDeleting(true);
+    const { error } = await supabase
+      .from('chapters')
+      .delete()
+      .eq('novel_id', id)
+      .gte('chapter_number', from)
+      .lte('chapter_number', to);
+    setBulkDeleting(false);
+    if (error) {
+      alert(`فشل الحذف: ${error.message}`);
+      return;
+    }
+    setRangeFrom('');
+    setRangeTo('');
     loadChapters();
   }
 
@@ -527,7 +579,47 @@ export default function EditNovelPage() {
         ) : chapters.length === 0 ? (
           <p className="mb-4 text-[13px] text-ink-300">لا توجد فصول مضافة لهذه الرواية بعد.</p>
         ) : (
-          <ul className="mb-4 flex max-h-80 flex-col gap-1 overflow-y-auto rounded border border-ink-300/20 p-2">
+          <>
+            {/* حذف بالجملة */}
+            <div className="mb-3 flex flex-col gap-2 rounded border border-red-200 bg-red-50/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <form onSubmit={handleDeleteRange} className="flex flex-wrap items-center gap-2">
+                <span className="text-[12px] text-ink-700">حذف نطاق: من</span>
+                <input
+                  value={rangeFrom}
+                  onChange={(e) => setRangeFrom(e.target.value)}
+                  type="number"
+                  min={1}
+                  placeholder="1"
+                  className="w-16 rounded border border-ink-300/40 px-2 py-1 text-[12px] outline-none focus:border-red-400"
+                />
+                <span className="text-[12px] text-ink-700">إلى</span>
+                <input
+                  value={rangeTo}
+                  onChange={(e) => setRangeTo(e.target.value)}
+                  type="number"
+                  min={1}
+                  placeholder="10"
+                  className="w-16 rounded border border-ink-300/40 px-2 py-1 text-[12px] outline-none focus:border-red-400"
+                />
+                <button
+                  type="submit"
+                  disabled={bulkDeleting}
+                  className="rounded bg-red-600 px-3 py-1 text-[12px] font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                >
+                  حذف النطاق
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={handleDeleteAllChapters}
+                disabled={bulkDeleting}
+                className="rounded border border-red-600 px-3 py-1.5 text-[12px] font-medium text-red-700 hover:bg-red-600 hover:text-white disabled:opacity-50"
+              >
+                {bulkDeleting ? 'جارٍ الحذف…' : `🗑 حذف كل الفصول (${chapters.length})`}
+              </button>
+            </div>
+
+            <ul className="mb-4 flex max-h-80 flex-col gap-1 overflow-y-auto rounded border border-ink-300/20 p-2">
             {chapters.map((c) => (
               <li
                 key={c.id}
@@ -556,6 +648,7 @@ export default function EditNovelPage() {
               </li>
             ))}
           </ul>
+          </>
         )}
 
         <form onSubmit={handleAddChapter} className="flex flex-col gap-3 rounded border border-ink-300/20 p-3">
