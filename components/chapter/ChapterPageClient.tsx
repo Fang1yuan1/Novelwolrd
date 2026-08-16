@@ -474,10 +474,10 @@ export default function ChapterPageClient({
         </div>
       </div>
 
-      {/* Right icon rail — individual chips (real cropped icons), matches reference exactly */}
+      {/* Right icon rail — real icons matching reference exactly, transparent background */}
       <div className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
         <RailChip
-          icon={<img src="/icons/list.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          icon={<img src={theme === "night" ? "/icons/list.png" : "/icons/list-light.png"} alt="" className="w-12 h-auto" />}
           label="الفهرس"
           href={`/novel/${novel.id}`}
           title="الفهرس الكامل"
@@ -485,7 +485,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src="/icons/book.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          icon={<img src={theme === "night" ? "/icons/book.png" : "/icons/book-light.png"} alt="" className="w-12 h-auto" />}
           label="التفاصيل"
           href={`/novel/${novel.id}`}
           title="تفاصيل الرواية"
@@ -493,7 +493,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src="/icons/shelf.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          icon={<img src={theme === "night" ? "/icons/shelf.png" : "/icons/shelf-light.png"} alt="" className="w-12 h-auto" />}
           label="المكتبة"
           disabled
           title="يتطلب تسجيل دخول (قريبًا)"
@@ -501,7 +501,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src="/icons/vote.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          icon={<img src={theme === "night" ? "/icons/vote.png" : "/icons/vote-light.png"} alt="" className="w-12 h-auto" />}
           label="التصويت"
           href={`/novel/${novel.id}`}
           title="التصويت غير مفعّل بعد"
@@ -509,26 +509,10 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src="/icons/sun.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
-          label={theme === "night" ? "ليلي" : "نهاري"}
-          onClick={() => setTheme(theme === "night" ? "light" : "night")}
-          title="تبديل سريع بين النهاري والليلي"
-          imageIcon
-          {...chipProps}
-        />
-        <RailChip
-          icon={<img src="/icons/sliders.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
+          icon={<img src={theme === "night" ? "/icons/sliders.png" : "/icons/sliders-light.png"} alt="" className="w-12 h-auto" />}
           label="الإعدادات"
           onClick={() => setSettingsOpen(true)}
           title="إعدادات القراءة"
-          imageIcon
-          {...chipProps}
-        />
-        <RailChip
-          icon={<img src="/icons/phone.png" alt="" className="h-11 w-11 rounded-xl object-cover" />}
-          label="التطبيق"
-          disabled
-          title="لا يوجد تطبيق موبايل للموقع بعد"
           imageIcon
           {...chipProps}
         />
