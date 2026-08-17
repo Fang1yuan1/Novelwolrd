@@ -174,7 +174,7 @@ function RailChip({
   activeText: string;
 }) {
   const style = imageIcon
-    ? { opacity: disabled ? 0.45 : 1 }
+    ? { filter: disabled ? "grayscale(1)" : "none", opacity: disabled ? 0.55 : 1 }
     : {
         backgroundColor: active ? activeBg : chipBg,
         color: disabled ? chipText + "80" : active ? activeText : chipText,
@@ -477,7 +477,7 @@ export default function ChapterPageClient({
       {/* Right icon rail — real icons matching reference exactly, transparent background */}
       <div className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/list.png" : "/icons/list-light.png"} alt="" className="w-12 h-auto" />}
+          icon={<img src={theme === "night" ? "/icons/list.png" : "/icons/list-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="الفهرس"
           href={`/novel/${novel.id}`}
           title="الفهرس الكامل"
@@ -485,7 +485,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/book.png" : "/icons/book-light.png"} alt="" className="w-12 h-auto" />}
+          icon={<img src={theme === "night" ? "/icons/book.png" : "/icons/book-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="التفاصيل"
           href={`/novel/${novel.id}`}
           title="تفاصيل الرواية"
@@ -493,7 +493,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/shelf.png" : "/icons/shelf-light.png"} alt="" className="w-12 h-auto" />}
+          icon={<img src={theme === "night" ? "/icons/shelf.png" : "/icons/shelf-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="المكتبة"
           disabled
           title="يتطلب تسجيل دخول (قريبًا)"
@@ -501,7 +501,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/vote.png" : "/icons/vote-light.png"} alt="" className="w-12 h-auto" />}
+          icon={<img src={theme === "night" ? "/icons/vote.png" : "/icons/vote-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="التصويت"
           href={`/novel/${novel.id}`}
           title="التصويت غير مفعّل بعد"
@@ -509,7 +509,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/sliders.png" : "/icons/sliders-light.png"} alt="" className="w-12 h-auto" />}
+          icon={<img src={theme === "night" ? "/icons/sliders.png" : "/icons/sliders-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="الإعدادات"
           onClick={() => setSettingsOpen(true)}
           title="إعدادات القراءة"
