@@ -1,4 +1,5 @@
 import { getCategories } from "@/lib/categories";
+import CategoryIcon from "@/components/CategoryIcon";
 
 export default async function CategoriesSection() {
   const categories = await getCategories();
@@ -21,9 +22,7 @@ export default async function CategoriesSection() {
               href={`/category/${encodeURIComponent(c.name)}`}
               className="flex flex-col items-center gap-1 rounded px-2 py-3 text-center hover:bg-surface"
             >
-              <span className="text-xl" aria-hidden>
-                {c.icon || "📚"}
-              </span>
+              <CategoryIcon icon={c.icon} className="text-xl" imgClassName="h-7 w-7 object-contain" />
               <span className="line-clamp-1 text-[12px] font-medium text-ink-700">
                 {c.name}
               </span>

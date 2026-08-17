@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import CategoryIcon from '@/components/CategoryIcon';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +18,24 @@ type Category = {
 
 const SUGGESTED_ICONS = ['📚', '🐉', '✨', '🥋', '🗡️', '🏙️', '📖', '⚔️', '🏛️', '🎮', '🏆', '🚀', '🌌', '🔍', '🌙', '💕', '😱', '😂', '🕵️'];
 
+// أيقونات الصور الجاهزة (مقصوصة من التصميم المرجعي) — تُستخدم بدل الإيموجي لو حبيت
+const IMAGE_ICONS = [
+  { label: 'ألعاب', path: '/icons/categories/games.png' },
+  { label: 'تاريخ', path: '/icons/categories/history.png' },
+  { label: 'حرب واستراتيجية', path: '/icons/categories/war-strategy.png' },
+  { label: 'حياة حضرية', path: '/icons/categories/urban-life.png' },
+  { label: 'خيال علمي', path: '/icons/categories/scifi.png' },
+  { label: 'خيال ملحمي', path: '/icons/categories/epic-fantasy.png' },
+  { label: 'روايات خفيفة', path: '/icons/categories/light-novels.png' },
+  { label: 'رياضة', path: '/icons/categories/sports.png' },
+  { label: 'غموض', path: '/icons/categories/mystery.png' },
+  { label: 'فنون قتالية', path: '/icons/categories/martial-arts.png' },
+  { label: 'واقعية', path: '/icons/categories/realistic.png' },
+  { label: 'عجائبي', path: '/icons/categories/fantasy-whimsical.png' },
+  { label: 'شينشيا (خلود)', path: '/icons/categories/xianxia.png' },
+  { label: 'عوالم لا نهائية', path: '/icons/categories/infinite-worlds.png' },
+];
+
 export default function CategoriesAdminPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +46,9 @@ export default function CategoriesAdminPage() {
   const [error, setError] = useState('');
 
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editIcon, setEditIcon] = useState('');
+  const [savingIcon, setSavingIcon] = useState(false);
 
   async function loadCategories() {
     setLoading(true);
@@ -81,6 +103,26 @@ export default function CategoriesAdminPage() {
       alert(`فشل الحذف: ${deleteError.message}`);
       return;
     }
+    await loadCategories();
+  }
+
+  function startEditIcon(c: Category) {
+    setEditingId(c.id);
+    setEditIcon(c.icon || '');
+  }
+
+  async function saveIcon(id: number) {
+    setSavingIcon(true);
+    const { error: updateError } = await supabase
+      .from('categories')
+      .update({ icon: editIcon.trim() })
+      .eq('id', id);
+    setSavingIcon(false);
+    if (updateError) {
+      alert(`فشل الحفظ: ${updateError.message}`);
+      return;
+    }
+    setEditingId(null);
     await loadCategories();
   }
 
@@ -155,21 +197,66 @@ export default function CategoriesAdminPage() {
       ) : (
         <ul className="flex flex-col gap-2">
           {categories.map((c) => (
-            <li
-              key={c.id}
-              className="flex items-center justify-between rounded border border-ink-300/20 px-3 py-2"
-            >
-              <span className="flex items-center gap-2 text-sm">
-                <span className="text-lg">{c.icon || '📚'}</span>
-                <span>{c.name}</span>
-              </span>
-              <button
-                onClick={() => handleDelete(c.id)}
-                disabled={deletingId === c.id}
-                className="text-[12px] text-ink-300 hover:text-red-600 disabled:opacity-50"
-              >
-                {deletingId === c.id ? 'جارٍ الحذف…' : 'حذف'}
-              </button>
+            <li key={c.id} className="rounded border border-ink-300/20 px-3 py-2">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-sm">
+                  <CategoryIcon icon={c.icon} className="text-lg" imgClassName="h-6 w-6 object-contain" />
+                  <span>{c.name}</span>
+                </span>
+                <span className="flex gap-3">
+                  <button
+                    onClick={() => (editingId === c.id ? setEditingId(null) : startEditIcon(c))}
+                    className="text-[12px] text-ink-300 hover:text-brand"
+                  >
+                    {editingId === c.id ? 'إلغاء' : 'تعديل الأيقونة'}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    disabled={deletingId === c.id}
+                    className="text-[12px] text-ink-300 hover:text-red-600 disabled:opacity-50"
+                  >
+                    {deletingId === c.id ? 'جارٍ الحذف…' : 'حذف'}
+                  </button>
+                </span>
+              </div>
+
+              {editingId === c.id && (
+                <div className="mt-3 flex flex-col gap-2 border-t border-ink-300/15 pt-3">
+                  <div className="flex gap-2">
+                    <input
+                      value={editIcon}
+                      onChange={(e) => setEditIcon(e.target.value)}
+                      placeholder="إيموجي أو مسار صورة زي /icons/categories/games.png"
+                      className="flex-1 rounded border border-ink-300/40 px-3 py-2 text-[12px] outline-none focus:border-brand"
+                    />
+                    <button
+                      onClick={() => saveIcon(c.id)}
+                      disabled={savingIcon}
+                      className="rounded bg-brand px-3 py-2 text-[12px] font-medium text-white hover:bg-brand-dark disabled:opacity-50"
+                    >
+                      {savingIcon ? 'جارٍ الحفظ…' : 'حفظ'}
+                    </button>
+                  </div>
+
+                  <p className="text-[11px] text-ink-300">أيقونات جاهزة من التصميم المرجعي:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {IMAGE_ICONS.map((ic) => (
+                      <button
+                        key={ic.path}
+                        type="button"
+                        onClick={() => setEditIcon(ic.path)}
+                        title={ic.label}
+                        className={`rounded border p-1.5 ${
+                          editIcon === ic.path ? 'border-brand bg-brand/10' : 'border-ink-300/30 hover:border-brand'
+                        }`}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={ic.path} alt={ic.label} className="h-7 w-7 object-contain" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </li>
           ))}
         </ul>

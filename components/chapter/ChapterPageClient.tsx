@@ -174,7 +174,7 @@ function RailChip({
   activeText: string;
 }) {
   const style = imageIcon
-    ? { filter: disabled ? "grayscale(1)" : "none", opacity: disabled ? 0.55 : 1 }
+    ? { opacity: disabled ? 0.4 : 1 }
     : {
         backgroundColor: active ? activeBg : chipBg,
         color: disabled ? chipText + "80" : active ? activeText : chipText,
@@ -475,7 +475,7 @@ export default function ChapterPageClient({
       </div>
 
       {/* Right icon rail — real icons matching reference exactly, transparent background */}
-      <div className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
+      <div className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 transform-gpu flex-col gap-2" style={{ WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}>
         <RailChip
           icon={<img src={theme === "night" ? "/icons/list.png" : "/icons/list-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="الفهرس"
@@ -520,8 +520,8 @@ export default function ChapterPageClient({
 
       {/* Left feedback rail — fixed, desktop only, matches qidian's left strip */}
       <div
-        className="fixed bottom-6 left-2 z-10 hidden flex-col gap-1.5 rounded-lg p-1 lg:flex"
-        style={{ backgroundColor: p.chipBg }}
+        className="fixed bottom-6 left-2 z-10 hidden transform-gpu flex-col gap-1.5 rounded-lg p-1 lg:flex"
+        style={{ backgroundColor: p.chipBg, WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}
       >
         <a
           href="mailto:contact@novelwolrd.com?subject=إبلاغ عن مشكلة"
