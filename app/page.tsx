@@ -14,6 +14,8 @@ import LimitedFreeStrip from "@/components/LimitedFreeStrip";
 import FilterBar from "@/components/FilterBar";
 import Footer from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-surface">

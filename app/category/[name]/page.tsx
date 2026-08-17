@@ -3,6 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getNovelsByCategory } from "@/lib/novels";
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoryPage({
   params,
 }: {
