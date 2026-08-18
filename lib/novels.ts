@@ -115,6 +115,20 @@ export async function getChapterCount(novelId: number | string): Promise<number>
   return count;
 }
 
+// ترتيب رواية بين كل الروايات حسب عدد الفصول (مقياس حقيقي بديل عن أي "ترتيب" وهمي)
+export async function getNovelRank(
+  novelId: number | string
+): Promise<{ rank: number; total: number } | null> {
+  const novels = await getNovels();
+  if (novels.length === 0) return null;
+  const counts = await Promise.all(novels.map((n) => getChapterCount(n.id)));
+  const withCounts = novels.map((n, i) => ({ id: n.id, count: counts[i] }));
+  withCounts.sort((a, b) => b.count - a.count);
+  const idx = withCounts.findIndex((n) => String(n.id) === String(novelId));
+  if (idx === -1) return null;
+  return { rank: idx + 1, total: withCounts.length };
+}
+
 // آخر الفصول المضافة عبر كل الروايات (لقسم "آخر التحديثات")
 export async function getLatestUpdates(limit = 20): Promise<LatestUpdate[]> {
   if (!supabase) return [];

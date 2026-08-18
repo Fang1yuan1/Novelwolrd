@@ -2,7 +2,7 @@
 
 export default function MobileBackHeader({ title }: { title: string }) {
   return (
-    <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-ink-300/10 bg-white px-2 py-2.5">
+    <header className="sticky top-0 z-20 flex items-center gap-1 border-b border-ink-300/10 bg-white px-2 py-2.5">
       <button
         type="button"
         onClick={() => {
@@ -27,6 +27,18 @@ export default function MobileBackHeader({ title }: { title: string }) {
       >
         🏠
       </a>
+      <span
+        aria-hidden
+        className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-700"
+      >
+        🔎
+      </span>
+      <span
+        aria-hidden
+        className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-700"
+      >
+        ☰
+      </span>
     </header>
   );
 }

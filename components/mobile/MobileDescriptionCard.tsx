@@ -12,11 +12,11 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
     <section className="mt-2 bg-white px-3 py-3">
       <h2 className="mb-2 text-[15px] font-bold text-ink-900">نبذة</h2>
       {(categories.length > 0 || tags.length > 0) && (
-        <div className="mb-2 flex flex-wrap gap-1.5">
+        <div className="scroll-thin mb-2 flex gap-1.5 overflow-x-auto pb-1">
           {categories.map((c) => (
             <span
               key={c}
-              className="rounded bg-brand/10 px-2 py-0.5 text-[11px] text-brand"
+              className="shrink-0 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] text-brand"
             >
               {c}
             </span>
@@ -24,7 +24,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           {tags.map((t) => (
             <span
               key={t}
-              className="rounded bg-surface px-2 py-0.5 text-[11px] text-ink-500"
+              className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] text-ink-500"
             >
               {t}
             </span>
