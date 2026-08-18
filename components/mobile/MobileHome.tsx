@@ -13,9 +13,10 @@ export default async function MobileHome() {
   return (
     <div className="min-h-screen bg-surface">
       <MobileHeader />
-      <MobileCategoryNav />
       <MobileHeroBanner />
+      <MobileCategoryNav start={0} count={6} columns={6} />
       <MobileNovelGrid title="أحدث الإضافات" novels={latest} />
+      <MobileCategoryNav start={6} count={6} columns={4} />
       <MobileUpdatesList />
       <MobileCompletedList />
       <MobileFooter />

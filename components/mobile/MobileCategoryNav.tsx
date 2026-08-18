@@ -1,17 +1,27 @@
 import { getCategories } from "@/lib/categories";
 import CategoryIcon from "@/components/CategoryIcon";
 
-export default async function MobileCategoryNav() {
-  const categories = await getCategories();
+export default async function MobileCategoryNav({
+  start = 0,
+  count = 6,
+  columns = 6,
+}: {
+  start?: number;
+  count?: number;
+  columns?: number;
+}) {
+  const all = await getCategories();
+  const categories = all.slice(start, start + count);
 
   if (categories.length === 0) return null;
 
   return (
     <nav
       aria-label="التصنيفات"
-      className="mt-2 grid grid-cols-4 gap-y-3 bg-white px-2 py-3"
+      className="mt-2 grid gap-y-3 bg-white px-2 py-3"
+      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
     >
-      {categories.slice(0, 8).map((c) => (
+      {categories.map((c) => (
         <a
           key={c.id}
           href={`/category/${encodeURIComponent(c.name)}`}

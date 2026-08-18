@@ -1,27 +1,51 @@
 export default function LaurelIcon({
   flip = false,
-  className = "h-3.5 w-3.5",
+  className = "h-9 w-7",
 }: {
   flip?: boolean;
   className?: string;
 }) {
+  // فروع غار مركّبة من أوراق بيضاوية متدرّجة الحجم على منحنى — SVG متجه (بدون صورة)
+  const leaves = [
+    { x: 15, y: 3, r: -70, s: 0.5 },
+    { x: 11, y: 9, r: -55, s: 0.62 },
+    { x: 7, y: 16, r: -38, s: 0.74 },
+    { x: 4, y: 24, r: -20, s: 0.86 },
+    { x: 2, y: 32, r: 0, s: 1 },
+  ];
+
   return (
     <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
+      viewBox="0 0 24 40"
       className={className}
       style={flip ? { transform: "scaleX(-1)" } : undefined}
       aria-hidden
     >
-      <path d="M20 3c-3 6-3 12-9 18" strokeLinejoin="round" />
-      <path d="M13 6c-1.6.3-2.6 1-3.2 1.8" />
-      <path d="M11.3 9.4c-1.6.1-2.7.7-3.5 1.4" />
-      <path d="M9.7 12.6c-1.6 0-2.8.5-3.7 1.1" />
-      <path d="M8.4 15.8c-1.5-.2-2.7.1-3.8.6" />
-      <path d="M7.4 18.8c-1.4-.4-2.6-.3-3.8 0" />
+      <defs>
+        <linearGradient id="laurelGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fbf1d8" />
+          <stop offset="55%" stopColor="#dcbb7c" />
+          <stop offset="100%" stopColor="#b8934f" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M16 2 C8 10 3 20 2 34"
+        fill="none"
+        stroke="url(#laurelGold)"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+      {leaves.map((l, i) => (
+        <ellipse
+          key={i}
+          cx={l.x}
+          cy={l.y}
+          rx={5.4 * l.s}
+          ry={2.4 * l.s}
+          transform={`rotate(${l.r} ${l.x} ${l.y})`}
+          fill="url(#laurelGold)"
+        />
+      ))}
     </svg>
   );
 }
