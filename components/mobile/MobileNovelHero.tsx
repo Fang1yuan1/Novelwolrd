@@ -6,6 +6,7 @@ import {
   getWordCount,
   parseCategories,
 } from "@/lib/novels";
+import LaurelIcon from "./LaurelIcon";
 
 export default async function MobileNovelHero({
   novel,
@@ -75,8 +76,10 @@ export default async function MobileNovelHero({
         <div className="flex-1 py-3 text-center">
           {rank ? (
             <>
-              <p className="text-[15px] font-bold text-[#f0c96b]">
+              <p className="flex items-center justify-center gap-1.5 text-[15px] font-bold text-[#c9a86a]">
+                <LaurelIcon />
                 رقم {rank.rank}
+                <LaurelIcon flip />
               </p>
               <p className="mt-0.5 text-[10px] text-white/50">
                 من {rank.total} حسب الفصول
