@@ -18,6 +18,7 @@ import HonorsCard from "@/components/novel/HonorsCard";
 import CopyrightCard from "@/components/novel/CopyrightCard";
 import RelatedNovelsCard from "@/components/novel/RelatedNovelsCard";
 import AdSlot from "@/components/AdSlot";
+import MobileNovelDetail from "@/components/mobile/MobileNovelDetail";
 
 export const dynamic = "force-dynamic";
 
@@ -57,59 +58,66 @@ export default async function NovelPage({
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      <main className="mx-auto flex max-w-shell flex-col gap-3 px-3 py-4">
-        <nav className="text-[11px] text-ink-500">
-          <a href="/" className="hover:text-brand">
-            الرئيسية
-          </a>
-          {novel.category && (
-            <>
-              <span className="mx-1 text-ink-300">/</span>
-              <span>{novel.category}</span>
-            </>
-          )}
-          <span className="mx-1 text-ink-300">/</span>
-          <span className="text-ink-700">{novel.title}</span>
-        </nav>
+    <>
+      {/* النسخة التقليدية — شاشات صغيرة (موبايل) */}
+      <div className="sm:hidden">
+        <MobileNovelDetail novel={novel} chapters={chapters} related={related} />
+      </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <TabNav />
+      {/* النسخة الغنية — شاشات كبيرة (آيباد/لابتوب) */}
+      <div className="hidden min-h-screen bg-surface sm:block">
+        <main className="mx-auto flex max-w-shell flex-col gap-3 px-3 py-4">
+          <nav className="text-[11px] text-ink-500">
+            <a href="/" className="hover:text-brand">
+              الرئيسية
+            </a>
+            {novel.category && (
+              <>
+                <span className="mx-1 text-ink-300">/</span>
+                <span>{novel.category}</span>
+              </>
+            )}
+            <span className="mx-1 text-ink-300">/</span>
+            <span className="text-ink-700">{novel.title}</span>
+          </nav>
 
-          <div className="flex min-w-0 flex-1 flex-col gap-3">
-            <div className="flex flex-col gap-3 lg:flex-row">
-              <div className="min-w-0 flex-1">
-                <InfoCard novel={novel} chapters={chapters} />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <TabNav />
+
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
+              <div className="flex flex-col gap-3 lg:flex-row">
+                <div className="min-w-0 flex-1">
+                  <InfoCard novel={novel} chapters={chapters} />
+                </div>
+                <AuthorCard
+                  novel={novel}
+                  authorNovelsCount={authorNovels.length + 1}
+                  totalWordCount={authorTotalWords}
+                />
               </div>
-              <AuthorCard
-                novel={novel}
-                authorNovelsCount={authorNovels.length + 1}
-                totalWordCount={authorTotalWords}
-              />
+
+              <DescriptionCard novel={novel} />
+              <VotingCard />
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <AdSlot label="إعلان — 600×120" height="h-20" />
+                <AdSlot label="إعلان — 600×120" height="h-20" />
+              </div>
+
+              <BookListsCard />
+
+              <ChapterListCard novel={novel} chapters={chapters} />
             </div>
 
-            <DescriptionCard novel={novel} />
-            <VotingCard />
-
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <AdSlot label="إعلان — 600×120" height="h-20" />
-              <AdSlot label="إعلان — 600×120" height="h-20" />
+            <div className="flex w-full flex-col gap-3 sm:w-48 lg:w-72">
+              <HonorsCard />
+              <CopyrightCard />
+              <AuthorOtherWorksCard novels={authorNovels} authorName={authorName || "الكاتب"} />
+              <RelatedNovelsCard novels={related} category={novel.category} />
             </div>
-
-            <BookListsCard />
-
-            <ChapterListCard novel={novel} chapters={chapters} />
           </div>
-
-          <div className="flex w-full flex-col gap-3 sm:w-48 lg:w-72">
-            <HonorsCard />
-            <CopyrightCard />
-            <AuthorOtherWorksCard novels={authorNovels} authorName={authorName || "الكاتب"} />
-            <RelatedNovelsCard novels={related} category={novel.category} />
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
-

@@ -13,47 +13,56 @@ import RecentUpdatesSection from "@/components/RecentUpdatesSection";
 import LimitedFreeStrip from "@/components/LimitedFreeStrip";
 import FilterBar from "@/components/FilterBar";
 import Footer from "@/components/Footer";
+import MobileHome from "@/components/mobile/MobileHome";
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-surface">
-      <Header />
-      <Navbar />
+    <>
+      {/* النسخة التقليدية — شاشات صغيرة (موبايل) */}
+      <div className="sm:hidden">
+        <MobileHome />
+      </div>
 
-      <main className="mx-auto flex max-w-shell flex-col gap-2 px-3 py-2">
-        <CategoriesSection />
+      {/* النسخة الغنية — شاشات كبيرة (آيباد/لابتوب) */}
+      <div className="hidden min-h-screen bg-surface sm:block">
+        <Header />
+        <Navbar />
 
-        <HeroBanner />
+        <main className="mx-auto flex max-w-shell flex-col gap-2 px-3 py-2">
+          <CategoriesSection />
 
-        <EditorPicks />
+          <HeroBanner />
 
-        <AdSlot label="إعلان منتصف الصفحة — 1600×140" height="h-24 sm:h-32" />
+          <EditorPicks />
 
-        <RankingGrid />
+          <AdSlot label="إعلان منتصف الصفحة — 1600×140" height="h-24 sm:h-32" />
 
-        <AdSlot
-          label="إعلان إشعارات المجتمع / السلامة"
-          height="h-20 sm:h-28"
-        />
+          <RankingGrid />
 
-        <HotWorksPanel />
+          <AdSlot
+            label="إعلان إشعارات المجتمع / السلامة"
+            height="h-20 sm:h-28"
+          />
 
-        <NewReleasesSection />
+          <HotWorksPanel />
 
-        <TripleAdBanner />
+          <NewReleasesSection />
 
-        <CompletedWorksSection />
+          <TripleAdBanner />
 
-        <RecentUpdatesSection />
+          <CompletedWorksSection />
 
-        <LimitedFreeStrip />
+          <RecentUpdatesSection />
 
-        <FilterBar />
-      </main>
+          <LimitedFreeStrip />
 
-      <Footer />
-    </div>
+          <FilterBar />
+        </main>
+
+        <Footer />
+      </div>
+    </>
   );
 }
