@@ -20,7 +20,7 @@ const items: {
     label: "مجاني",
     emoji: "🌱",
     gradient: "from-emerald-400 to-emerald-500",
-    href: null,
+    href: "/categories",
   },
   {
     label: "مكتمل",
@@ -32,13 +32,13 @@ const items: {
     label: "كتّاب مميزون",
     emoji: "👑",
     gradient: "from-amber-400 to-amber-500",
-    href: null,
+    href: "/rankings",
   },
   {
     label: "قوائم الكتب",
     emoji: "📑",
     gradient: "from-teal-400 to-teal-500",
-    href: null,
+    href: "/categories",
   },
 ];
 
@@ -48,39 +48,22 @@ export default function MobileQuickNav() {
       aria-label="روابط سريعة"
       className="mt-2 grid grid-cols-6 gap-y-3 bg-white px-1 py-3"
     >
-      {items.map((item) =>
-        item.href ? (
-          <a
-            key={item.label}
-            href={item.href}
-            className="flex flex-col items-center gap-1.5"
-          >
-            <span
-              className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-xl shadow-sm`}
-            >
-              {item.emoji}
-            </span>
-            <span className="line-clamp-1 text-[10.5px] text-ink-700">
-              {item.label}
-            </span>
-          </a>
-        ) : (
+      {items.map((item) => (
+        <a
+          key={item.label}
+          href={item.href ?? "#"}
+          className="flex flex-col items-center gap-1.5"
+        >
           <span
-            key={item.label}
-            title="غير متاح حاليًا"
-            className="flex flex-col items-center gap-1.5 opacity-40"
+            className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-xl shadow-sm`}
           >
-            <span
-              className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-xl grayscale`}
-            >
-              {item.emoji}
-            </span>
-            <span className="line-clamp-1 text-[10.5px] text-ink-700">
-              {item.label}
-            </span>
+            {item.emoji}
           </span>
-        )
-      )}
+          <span className="line-clamp-1 text-[10.5px] text-ink-700">
+            {item.label}
+          </span>
+        </a>
+      ))}
     </nav>
   );
 }

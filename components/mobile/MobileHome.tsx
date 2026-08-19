@@ -1,5 +1,6 @@
 import MobileHeader from "./MobileHeader";
 import MobileQuickNav from "./MobileQuickNav";
+import MobilePromoStrip from "./MobilePromoStrip";
 import MobileCategoryNav from "./MobileCategoryNav";
 import MobileHeroBanner from "./MobileHeroBanner";
 import MobileNovelGrid from "./MobileNovelGrid";
@@ -16,6 +17,7 @@ export default async function MobileHome() {
       <MobileHeader />
       <MobileHeroBanner />
       <MobileQuickNav />
+      <MobilePromoStrip />
       <MobileNovelGrid title="أحدث الإضافات" novels={latest} />
       <MobileCategoryNav start={0} count={12} columns={4} />
       <MobileUpdatesList />
