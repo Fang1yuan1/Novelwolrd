@@ -7,10 +7,10 @@ import MobileFooter from "./MobileFooter";
 import { getNovels } from "@/lib/novels";
 
 const bottomTiles = [
-  ["جديد اليوم", "/categories"],
-  ["الأكثر قراءة", "/rankings"],
-  ["كتب صوتية", "/categories"],
-  ["القصص", "/categories"],
+  ["جديد اليوم", "/categories", "/icons/hometiles/new-today.png"],
+  ["الأكثر قراءة", "/rankings", "/icons/hometiles/most-read.png"],
+  ["كتب صوتية", "/categories", "/icons/hometiles/audiobooks.png"],
+  ["القصص", "/categories", "/icons/hometiles/stories.png"],
 ] as const;
 
 export default async function MobileHome() {
@@ -26,9 +26,10 @@ export default async function MobileHome() {
         <MobileNovelGrid title="الأكثر قراءة" novels={latest} />
 
         <section className="mobile-reference-four-tiles">
-          {bottomTiles.map(([label, href]) => (
+          {bottomTiles.map(([label, href, icon]) => (
             <a key={label} href={href} className="mobile-reference-small-tile">
-              <span className="mobile-reference-small-placeholder" aria-hidden="true" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={icon} alt="" className="mobile-reference-small-icon" aria-hidden="true" />
               <strong>{label}</strong>
             </a>
           ))}
