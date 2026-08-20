@@ -64,7 +64,7 @@ body {
   background: #f3f3f3;
   color: #202124;
   font-family: "Tajawal", "Segoe UI", sans-serif;
-  padding-bottom: 114px;
+  padding-bottom: 68px;
 }
 
 .mobile-reference-content {
@@ -76,16 +76,16 @@ body {
 .mobile-reference-header {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr auto auto 46px;
+  grid-template-columns: 1fr auto auto 36px;
   align-items: center;
-  gap: 36px 10px;
-  padding: 24px 24px 0;
+  gap: 18px 8px;
+  padding: 14px 16px 0;
   background: #f3f3f7;
 }
 
 .mobile-reference-logo {
   color: #e5353e;
-  font-size: clamp(24px, 5.6vw, 32px);
+  font-size: clamp(17px, 4.6vw, 21px);
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
@@ -94,19 +94,20 @@ body {
 .mobile-reference-switch {
   display: flex;
   overflow: hidden;
-  border-radius: 22px;
+  border-radius: 16px;
   background: #dedee0;
-  padding: 3px;
+  padding: 2px;
 }
 
 .mobile-reference-switch button {
   border: 0;
   background: transparent;
-  border-radius: 19px;
-  padding: 13px 20px;
+  border-radius: 13px;
+  padding: 7px 12px;
   color: #999;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .mobile-reference-switch button.is-active {
@@ -117,11 +118,11 @@ body {
 
 .mobile-app-button {
   border: 0;
-  border-radius: 25px;
-  padding: 14px 22px;
+  border-radius: 17px;
+  padding: 7px 12px;
   background: #f7dbe0;
   color: #df3947;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
 }
@@ -129,16 +130,16 @@ body {
 .mobile-search-icon {
   display: grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
+  width: 36px;
+  height: 36px;
   border: 0;
   background: transparent;
 }
 
 .mobile-search-icon svg,
 .mobile-reference-search svg {
-  width: 30px;
-  height: 30px;
+  width: 21px;
+  height: 21px;
   fill: none;
   stroke: #191919;
   stroke-width: 2.5;
@@ -149,17 +150,17 @@ body {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 74px;
-  padding: 0 24px;
-  border-radius: 37px;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 23px;
   background: #fff;
   box-shadow: 0 1px 1px rgba(0,0,0,.01);
 }
 
 .mobile-reference-search svg {
-  width: 29px;
-  height: 29px;
+  width: 20px;
+  height: 20px;
   stroke: #c4c5c7;
 }
 
@@ -169,15 +170,15 @@ body {
   outline: 0;
   background: transparent;
   color: #222;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .mobile-reference-search input::placeholder { color: #c7c7c9; }
 
 .mobile-reference-hero-wrap {
   position: relative;
-  padding: 0 24px;
-  margin-top: 24px;
+  padding: 0 16px;
+  margin-top: 14px;
 }
 
 .mobile-reference-hero {
@@ -327,25 +328,25 @@ body {
   z-index: 30;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  min-height: 100px;
-  padding-bottom: env(safe-area-inset-bottom, 14px);
+  min-height: 54px;
+  padding-bottom: env(safe-area-inset-bottom, 6px);
   border-top: 1px solid #ddd;
   background: rgba(255,255,255,.97);
   backdrop-filter: blur(12px);
 }
-.mobile-reference-bottom-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; color: #1c1c1e; text-decoration: none; font-size: 16px; font-weight: 700; }
+.mobile-reference-bottom-nav a { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px; color: #1c1c1e; text-decoration: none; font-size: 14px; font-weight: 700; }
 .mobile-reference-bottom-nav a:last-child { border-inline-start: 1px solid #e5e5e5; }
-.mobile-bottom-placeholder { width: 34px; height: 34px; border-radius: 9px; background: #bfc1c4; }
+.mobile-bottom-icon { width: 21px; height: 21px; fill: none; stroke: #1c1c1e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 @media (min-width: 640px) {
   .mobile-reference-page { display: none; }
 }
 
 @media (max-width: 390px) {
-  .mobile-reference-header { grid-template-columns: 1fr auto 42px; padding-inline: 14px; gap: 20px 6px; }
+  .mobile-reference-header { grid-template-columns: 1fr auto 32px; padding-inline: 12px; gap: 12px 6px; }
   .mobile-reference-switch { display: none; }
-  .mobile-app-button { padding: 11px 14px; font-size: 13px; }
-  .mobile-reference-hero-wrap { padding-inline: 14px; margin-top: 16px; }
+  .mobile-app-button { padding: 6px 10px; font-size: 11px; }
+  .mobile-reference-hero-wrap { padding-inline: 12px; margin-top: 10px; }
   .mobile-reference-card { margin-inline: 14px; }
   .mobile-reference-four-tiles { margin-inline: 14px; gap: 7px; }
   .mobile-reference-promo { padding-inline: 14px; gap: 9px; }
