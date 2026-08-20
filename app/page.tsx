@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import HeroBanner from "@/components/HeroBanner";
-import CategoriesSection from "@/components/CategoriesSection";
 import EditorPicks from "@/components/EditorPicks";
 import AdSlot from "@/components/AdSlot";
 import RankingGrid from "@/components/RankingGrid";
@@ -31,7 +30,15 @@ export default function Home() {
         <Navbar />
 
         <main className="mx-auto flex max-w-shell flex-col gap-2 px-3 py-2">
-          <CategoriesSection />
+          <section aria-label="التصنيفات الرئيسية" className="w-full overflow-hidden rounded bg-white border border-ink-300/15">
+            {/* الصورة المخصصة للتصنيفات في أعلى الموقع */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/top-categories.png"
+              alt="التصنيفات الرئيسية"
+              className="block h-auto w-full object-contain"
+            />
+          </section>
 
           <HeroBanner />
 
