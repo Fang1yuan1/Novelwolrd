@@ -270,7 +270,7 @@ body {
 }
 
 .mobile-reference-quickicon {
-  width: clamp(38px, 8vw, 62px);
+  width: clamp(52px, 12vw, 84px);
   aspect-ratio: 1;
   object-fit: contain;
 }
@@ -324,7 +324,7 @@ body {
 .mobile-reference-four-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 12px 24px 0; }
 .mobile-reference-small-tile { min-height: 132px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border-radius: 18px; background: #fff; color: #222; text-decoration: none; }
 .mobile-reference-small-placeholder { width: 40px; height: 40px; border-radius: 10px; background: #d1d2d4; }
-.mobile-reference-small-icon { width: 40px; height: 40px; object-fit: contain; }
+.mobile-reference-small-icon { width: 56px; height: 56px; object-fit: contain; }
 .mobile-reference-small-tile strong { font-size: clamp(12px, 2.6vw, 17px); }
 
 .mobile-reference-bottom-nav {
