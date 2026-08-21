@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { Novel } from "@/lib/novels";
 import { parseCategories } from "@/lib/novels";
 
@@ -7,16 +10,18 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
+  const [expanded, setExpanded] = useState(false);
+  const description = novel.description || "لا يوجد وصف لهذا العمل بعد.";
 
   return (
     <section className="mt-2 bg-white px-3 py-3">
       <h2 className="mb-2 text-[15px] font-bold text-ink-900">نبذة</h2>
       {(categories.length > 0 || tags.length > 0) && (
-        <div className="scroll-thin mb-2 flex gap-1.5 overflow-x-auto pb-1">
+        <div className="mb-2 flex flex-wrap gap-2">
           {categories.map((c) => (
             <span
               key={c}
-              className="shrink-0 rounded-full bg-brand/10 px-2.5 py-1 text-[11px] text-brand"
+              className="rounded-full bg-[#f2f2f3] px-3 py-1 text-[12px] font-medium text-[#5b5b60]"
             >
               {c}
             </span>
@@ -24,16 +29,42 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           {tags.map((t) => (
             <span
               key={t}
-              className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] text-ink-500"
+              className="rounded-full bg-[#f2f2f3] px-3 py-1 text-[12px] font-medium text-[#5b5b60]"
             >
               {t}
             </span>
           ))}
         </div>
       )}
-      <p className="whitespace-pre-line text-[13px] leading-relaxed text-ink-700">
-        {novel.description || "لا يوجد وصف لهذا العمل بعد."}
-      </p>
+      <div className="relative">
+        <p
+          className={`whitespace-pre-line text-[13px] leading-relaxed text-ink-700 ${
+            expanded ? "" : "line-clamp-3"
+          }`}
+        >
+          {description}
+        </p>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-1 flex items-center gap-0.5 text-[12px] font-medium text-ink-500"
+        >
+          {expanded ? "إخفاء" : "المزيد"}
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={expanded ? "rotate-180" : ""}
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+      </div>
     </section>
   );
 }

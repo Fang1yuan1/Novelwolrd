@@ -25,19 +25,22 @@ export default function MobileBackHeader({ title }: { title: string }) {
         aria-label="الرئيسية"
         className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-700"
       >
-        🏠
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/header/home.png" alt="" className="h-[19px] w-[19px] object-contain" aria-hidden="true" />
       </a>
       <span
         aria-hidden
         className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-700"
       >
-        🔎
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/header/search.png" alt="" className="h-[19px] w-[19px] object-contain" aria-hidden="true" />
       </span>
       <span
         aria-hidden
         className="flex h-8 w-8 shrink-0 items-center justify-center text-ink-700"
       >
-        ☰
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/header/menu.png" alt="" className="h-[19px] w-[19px] object-contain" aria-hidden="true" />
       </span>
     </header>
   );
