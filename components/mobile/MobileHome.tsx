@@ -7,10 +7,10 @@ import MobileFooter from "./MobileFooter";
 import { getNovels } from "@/lib/novels";
 
 const bottomTiles = [
-  ["جديد اليوم", "/categories", "/icons/hometiles/new-today.png"],
-  ["الأكثر قراءة", "/rankings", "/icons/hometiles/most-read.png"],
-  ["كتب صوتية", "/categories", "/icons/hometiles/audiobooks.png"],
   ["القصص", "/categories", "/icons/hometiles/stories.png"],
+  ["كتب صوتية", "/categories", "/icons/hometiles/audiobooks.png"],
+  ["الأكثر قراءة", "/rankings", "/icons/hometiles/most-read.png"],
+  ["جديد اليوم", "/categories", "/icons/hometiles/new-today.png"],
 ] as const;
 
 export default async function MobileHome() {

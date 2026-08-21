@@ -1,10 +1,10 @@
 const items = [
-  ["التصنيفات", "/categories", "/icons/quicknav/categories.png"],
-  ["الترتيب", "/rankings", "/icons/quicknav/ranking.png"],
-  ["مجاني", "/categories", "/icons/quicknav/free.png"],
-  ["مكتمل", "/completed", "/icons/quicknav/completed.png"],
-  ["المميزون", "/rankings", "/icons/quicknav/top-authors.png"],
   ["قوائم الكتب", "/categories", "/icons/quicknav/booklists.png"],
+  ["المميزون", "/rankings", "/icons/quicknav/top-authors.png"],
+  ["مكتمل", "/completed", "/icons/quicknav/completed.png"],
+  ["مجاني", "/categories", "/icons/quicknav/free.png"],
+  ["الترتيب", "/rankings", "/icons/quicknav/ranking.png"],
+  ["التصنيفات", "/categories", "/icons/quicknav/categories.png"],
 ] as const;
 
 export default function MobileQuickNav() {
