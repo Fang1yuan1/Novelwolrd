@@ -72,7 +72,7 @@ export default async function MobileNovelHero({
         </div>
       </div>
 
-      <div className="relative grid grid-cols-[1fr_1px_1fr_1px_1fr] border-t border-white/10 text-white">
+      <div className="relative grid grid-cols-[1fr_1px_1fr_1px_1fr] text-white">
         <div className="py-3 text-center">
           {rank ? (
             <>
