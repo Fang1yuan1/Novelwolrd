@@ -233,3 +233,12 @@ export function formatRelativeTime(iso: string): string {
   if (diffDay < 7) return `منذ ${diffDay} يوم`;
   return date.toLocaleDateString("ar", { day: "numeric", month: "short", year: "numeric" });
 }
+
+// تاريخ ووقت كامل بصيغة رقمية ثابتة (مثال: 2026-08-20 13:56:01) — كالمرجع الصيني
+export function formatFullDateTime(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${date} ${time}`;
+}

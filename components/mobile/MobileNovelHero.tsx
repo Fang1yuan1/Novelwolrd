@@ -1,7 +1,7 @@
 import type { Chapter, Novel } from "@/lib/novels";
 import {
   formatCount,
-  formatRelativeTime,
+  formatFullDateTime,
   getNovelRank,
   getWordCount,
   parseCategories,
@@ -65,14 +65,14 @@ export default async function MobileNovelHero({
             {lastChapter && (
               <span className="text-white/40">
                 {" "}
-                | تحديث {formatRelativeTime(lastChapter.created_at)}
+                | تحديث {formatFullDateTime(lastChapter.created_at)}
               </span>
             )}
           </p>
         </div>
       </div>
 
-      <div className="relative flex border-t border-white/10 text-white">
+      <div className="relative flex items-stretch border-t border-white/10 text-white">
         <div className="flex-1 py-3 text-center">
           {rank ? (
             <>
@@ -89,12 +89,12 @@ export default async function MobileNovelHero({
             <p className="text-[11px] text-white/40">لا يوجد ترتيب بعد</p>
           )}
         </div>
-        <div className="w-px bg-white/10" />
+        <div className="my-3 w-px shrink-0 bg-white/15" />
         <div className="flex-1 py-3 text-center">
           <p className="text-[15px] font-bold">{formatCount(wordCount)}</p>
           <p className="mt-0.5 text-[10px] text-white/50">إجمالي الأحرف</p>
         </div>
-        <div className="w-px bg-white/10" />
+        <div className="my-3 w-px shrink-0 bg-white/15" />
         <div className="flex-1 py-3 text-center">
           <p className="text-[15px] font-bold">{chapters.length}</p>
           <p className="mt-0.5 text-[10px] text-white/50">فصل</p>
