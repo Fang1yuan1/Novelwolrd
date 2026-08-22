@@ -4,7 +4,12 @@ import MobilePromoStrip from "./MobilePromoStrip";
 import MobileHeroBanner from "./MobileHeroBanner";
 import MobileNovelGrid from "./MobileNovelGrid";
 import MobileFooter from "./MobileFooter";
-import { getNovels } from "@/lib/novels";
+import MobileBestsellerList from "./MobileBestsellerList";
+import MobileLightNovels from "./MobileLightNovels";
+import MobileRankGrid from "./MobileRankGrid";
+import MobileCategoryTabs from "./MobileCategoryTabs";
+import MobileFreshList from "./MobileFreshList";
+import { getNovels, getCategoriesWithCounts } from "@/lib/novels";
 
 const bottomTiles = [
   ["القصص", "/categories", "/icons/hometiles/stories.png"],
@@ -15,6 +20,9 @@ const bottomTiles = [
 
 export default async function MobileHome() {
   const latest = await getNovels(8);
+  const allNovels = await getNovels();
+  const categoriesWithCounts = await getCategoriesWithCounts();
+  const categoryNames = categoriesWithCounts.map((c) => c.category).slice(0, 6);
 
   return (
     <div className="mobile-reference-page">
@@ -34,6 +42,12 @@ export default async function MobileHome() {
             </a>
           ))}
         </section>
+
+        <MobileBestsellerList />
+        <MobileLightNovels />
+        <MobileFreshList />
+        <MobileRankGrid />
+        <MobileCategoryTabs categories={categoryNames} novels={allNovels} />
       </main>
       <MobileFooter />
     </div>
