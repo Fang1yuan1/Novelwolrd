@@ -8,6 +8,7 @@ import MobileBestsellerList from "./MobileBestsellerList";
 import MobileLightNovels from "./MobileLightNovels";
 import MobileCategoryTabs from "./MobileCategoryTabs";
 import MobileFreshList from "./MobileFreshList";
+import MobileLimitedFree from "./MobileLimitedFree";
 import MobileRankGrid from "./MobileRankGrid";
 import MobileCuratedBestsellers from "./MobileCuratedBestsellers";
 import MobileRecommendedForYou from "./MobileRecommendedForYou";
@@ -53,6 +54,7 @@ export default async function MobileHome() {
         <MobileLightNovels />
         <MobileCategoryTabs categories={categoryNames} novels={allNovels} />
         <MobileFreshList />
+        <MobileLimitedFree novels={allNovels} />
         <MobileRankGrid />
         <MobileCuratedBestsellers />
         <MobileRecommendedForYou novels={allNovels} />
