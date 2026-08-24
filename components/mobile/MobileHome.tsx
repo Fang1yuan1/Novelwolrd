@@ -6,9 +6,11 @@ import MobileNovelGrid from "./MobileNovelGrid";
 import MobileFooter from "./MobileFooter";
 import MobileBestsellerList from "./MobileBestsellerList";
 import MobileLightNovels from "./MobileLightNovels";
-import MobileRankGrid from "./MobileRankGrid";
 import MobileCategoryTabs from "./MobileCategoryTabs";
 import MobileFreshList from "./MobileFreshList";
+import MobileRankGrid from "./MobileRankGrid";
+import MobileCuratedBestsellers from "./MobileCuratedBestsellers";
+import MobileRecommendedForYou from "./MobileRecommendedForYou";
 import { getNovels, getCategoriesWithCounts } from "@/lib/novels";
 
 const bottomTiles = [
@@ -18,6 +20,10 @@ const bottomTiles = [
   ["جديد اليوم", "/categories", "/icons/hometiles/new-today.png"],
 ] as const;
 
+// ترتيب الأقسام أدناه يتبع بالضبط تسلسل المرجع الصيني (qidian.com) كما ظهر
+// بالصور المرجعية: البانر/الأيقونات → الأكثر قراءة → البطاقات الأربعة →
+// الأكثر مبيعاً → روايات قصيرة → تصنيفات → جديد سريع الانتشار →
+// لوحة الترتيب (تبويبات) → مبيعات مختارة → قد يعجبك
 export default async function MobileHome() {
   const latest = await getNovels(8);
   const allNovels = await getNovels();
@@ -45,9 +51,11 @@ export default async function MobileHome() {
 
         <MobileBestsellerList />
         <MobileLightNovels />
+        <MobileCategoryTabs categories={categoryNames} novels={allNovels} />
         <MobileFreshList />
         <MobileRankGrid />
-        <MobileCategoryTabs categories={categoryNames} novels={allNovels} />
+        <MobileCuratedBestsellers />
+        <MobileRecommendedForYou novels={allNovels} />
       </main>
       <MobileFooter />
     </div>

@@ -1,14 +1,15 @@
 import { getNovels, getChaptersByNovel, getWordCount } from "@/lib/novels";
 import NovelListItem from "./NovelListItem";
 
-export default async function MobileBestsellerList() {
+export default async function MobileCuratedBestsellers() {
   const all = await getNovels();
-  const completed = all.filter((n) => n.status === "completed").slice(0, 3);
+  // دفعة مختلفة عن قسم "الأكثر مبيعاً" (الذي يعرض المكتملة فقط) — هنا مزيج عام
+  const picks = all.slice(3, 6);
 
-  if (completed.length === 0) return null;
+  if (picks.length === 0) return null;
 
   const withCounts = await Promise.all(
-    completed.map(async (n) => {
+    picks.map(async (n) => {
       const chapters = await getChaptersByNovel(n.id);
       return { novel: n, wordCount: getWordCount(chapters) };
     })
@@ -17,10 +18,7 @@ export default async function MobileBestsellerList() {
   return (
     <section className="mobile-reference-card px-3 py-3">
       <div className="mobile-reference-section-heading">
-        <span className="mobile-reference-heading-group">
-          <h2>الأكثر مبيعاً</h2>
-          <span className="mobile-reference-badge-pill">اليوم الأكثر مبيعاً</span>
-        </span>
+        <h2>مبيعات مختارة</h2>
         <a href="/categories">المزيد ‹</a>
       </div>
       <ul className="flex flex-col gap-4">
