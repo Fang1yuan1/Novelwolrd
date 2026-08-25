@@ -230,7 +230,7 @@ export default function ChapterPageClient({
   prevNumber: number;
   nextNumber: number;
 }) {
-  const [theme, setTheme] = useState<ReaderTheme>("light");
+  const [theme, setTheme] = useState<ReaderTheme>("original");
   const [fontSizeIdx, setFontSizeIdx] = useState(1);
   const [fontFamilyId, setFontFamilyId] = useState<ReaderFontId>("sans");
   const [widthId, setWidthId] = useState<ReaderWidthId>("auto");
@@ -499,7 +499,7 @@ export default function ChapterPageClient({
       {/* Right icon rail — real icons matching reference exactly, transparent background */}
       <div className="fixed right-2 top-1/2 z-20 flex -translate-y-1/2 transform-gpu flex-col gap-2" style={{ WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}>
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/list.png" : "/icons/list-light.png"} alt="" className="h-11 w-11 object-contain" />}
+          icon={<img src={theme === "quiet" ? "/icons/list.png" : "/icons/list-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="الفهرس"
           href={`/novel/${novel.id}`}
           title="الفهرس الكامل"
@@ -507,7 +507,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/book.png" : "/icons/book-light.png"} alt="" className="h-11 w-11 object-contain" />}
+          icon={<img src={theme === "quiet" ? "/icons/book.png" : "/icons/book-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="التفاصيل"
           href={`/novel/${novel.id}`}
           title="تفاصيل الرواية"
@@ -515,7 +515,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/shelf.png" : "/icons/shelf-light.png"} alt="" className="h-11 w-11 object-contain" />}
+          icon={<img src={theme === "quiet" ? "/icons/shelf.png" : "/icons/shelf-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="المكتبة"
           disabled
           title="يتطلب تسجيل دخول (قريبًا)"
@@ -523,7 +523,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/vote.png" : "/icons/vote-light.png"} alt="" className="h-11 w-11 object-contain" />}
+          icon={<img src={theme === "quiet" ? "/icons/vote.png" : "/icons/vote-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="التصويت"
           href={`/novel/${novel.id}`}
           title="التصويت غير مفعّل بعد"
@@ -531,7 +531,7 @@ export default function ChapterPageClient({
           {...chipProps}
         />
         <RailChip
-          icon={<img src={theme === "night" ? "/icons/sliders.png" : "/icons/sliders-light.png"} alt="" className="h-11 w-11 object-contain" />}
+          icon={<img src={theme === "quiet" ? "/icons/sliders.png" : "/icons/sliders-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="الإعدادات"
           onClick={() => setSettingsOpen(true)}
           title="إعدادات القراءة"

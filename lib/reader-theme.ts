@@ -1,4 +1,4 @@
-export type ReaderTheme = "light" | "night" | "sepia" | "green";
+export type ReaderTheme = "original" | "quiet" | "paper" | "bold" | "calm" | "focus";
 
 export const READER_PALETTES: Record<
   ReaderTheme,
@@ -14,13 +14,17 @@ export const READER_PALETTES: Record<
     chipText: string;
     chipActiveBg: string;
     chipActiveText: string;
+    /** ثيم "غامق" — يخلي وزن نص الفصل bold زي آبل بوكس */
+    boldText?: boolean;
+    /** خط الثيم داخل شبكة الثيمات (Aa) — بعضها serif زي المرجع */
+    swatchFontFamily?: string;
   }
 > = {
-  light: {
-    label: "أبيض",
+  original: {
+    label: "أصلي",
     swatch: "#ffffff",
-    pageBg: "#f5f5f5",
-    text: "#191919",
+    pageBg: "#ffffff",
+    text: "#1a1a1a",
     mutedText: "#8a8a8a",
     cardBorder: "rgba(25,25,25,0.14)",
     divider: "rgba(25,25,25,0.10)",
@@ -29,22 +33,49 @@ export const READER_PALETTES: Record<
     chipActiveBg: "#fdeceb",
     chipActiveText: "#e5353e",
   },
-  night: {
-    label: "ليلي",
-    swatch: "#3a3a3d",
-    pageBg: "#18181b",
-    text: "#e4e4e7",
-    mutedText: "#8f8f96",
+  quiet: {
+    label: "هادئ",
+    swatch: "#3a3a3c",
+    pageBg: "#242426",
+    text: "#e8e8ea",
+    mutedText: "#9a9a9e",
     cardBorder: "rgba(255,255,255,0.14)",
     divider: "rgba(255,255,255,0.10)",
-    chipBg: "#28282c",
+    chipBg: "#323234",
     chipText: "#d4d4d8",
     chipActiveBg: "#3a2426",
     chipActiveText: "#f0565e",
   },
-  sepia: {
+  paper: {
+    label: "ورقي",
+    swatch: "#efefee",
+    pageBg: "#f2f1ec",
+    text: "#2a2a2a",
+    mutedText: "#8a8a80",
+    cardBorder: "rgba(25,25,20,0.14)",
+    divider: "rgba(25,25,20,0.10)",
+    chipBg: "#e6e5dd",
+    chipText: "#333333",
+    chipActiveBg: "#e3d8c0",
+    chipActiveText: "#a34a2f",
+  },
+  bold: {
+    label: "غامق",
+    swatch: "#ffffff",
+    pageBg: "#ffffff",
+    text: "#000000",
+    mutedText: "#7a7a7a",
+    cardBorder: "rgba(0,0,0,0.18)",
+    divider: "rgba(0,0,0,0.12)",
+    chipBg: "#eeeeec",
+    chipText: "#111111",
+    chipActiveBg: "#fdeceb",
+    chipActiveText: "#e5353e",
+    boldText: true,
+  },
+  calm: {
     label: "دافئ",
-    swatch: "#f0e2c0",
+    swatch: "#f0dcae",
     pageBg: "#f4ecd8",
     text: "#433422",
     mutedText: "#8a7a63",
@@ -54,19 +85,20 @@ export const READER_PALETTES: Record<
     chipText: "#433422",
     chipActiveBg: "#e3d2ab",
     chipActiveText: "#a34a2f",
+    swatchFontFamily: "'Noto Naskh Arabic', serif",
   },
-  green: {
-    label: "أخضر مريح",
-    swatch: "#c7ddc5",
-    pageBg: "#e8f1e6",
-    text: "#28331f",
-    mutedText: "#728068",
-    cardBorder: "rgba(40,51,31,0.18)",
-    divider: "rgba(40,51,31,0.12)",
-    chipBg: "#d7e7d3",
-    chipText: "#28331f",
-    chipActiveBg: "#c2dabd",
-    chipActiveText: "#3c6b2c",
+  focus: {
+    label: "تركيز",
+    swatch: "#fdf7ea",
+    pageBg: "#fdf8ec",
+    text: "#2a2a2a",
+    mutedText: "#9a9280",
+    cardBorder: "rgba(25,20,10,0.14)",
+    divider: "rgba(25,20,10,0.10)",
+    chipBg: "#f2ead2",
+    chipText: "#433422",
+    chipActiveBg: "#e9dcb8",
+    chipActiveText: "#a34a2f",
   },
 };
 

@@ -1,0 +1,209 @@
+"use client";
+
+import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
+
+function IconThemes() {
+  return (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 3.5h9l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19V5A1.5 1.5 0 0 1 6.5 3.5Z" />
+      <path d="M15 3.5V8h4" />
+    </svg>
+  );
+}
+function IconAppearance() {
+  return (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 3.5a8.5 8.5 0 0 1 0 17V3.5Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IconSunSmall() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <circle cx="12" cy="12" r="4.5" />
+      <g stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+        <path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" />
+      </g>
+    </svg>
+  );
+}
+function IconSunLarge() {
+  return (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <circle cx="12" cy="12" r="5.5" />
+      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d="M12 1.5v2.6M12 19.9v2.6M3.5 3.5l1.85 1.85M18.65 18.65l1.85 1.85M1.5 12h2.6M19.9 12h2.6M3.5 20.5l1.85-1.85M18.65 5.35l1.85-1.85" />
+      </g>
+    </svg>
+  );
+}
+function IconGear() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V19.5a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H4.5a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H10.5a1.7 1.7 0 0 0 1.03-1.56V4.5a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.56 1.03h.09a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03Z" />
+    </svg>
+  );
+}
+
+const THEME_ORDER: ReaderTheme[] = ["original", "quiet", "paper", "bold", "calm", "focus"];
+
+export default function MobileReaderSettingsSheet({
+  theme,
+  setTheme,
+  fontIdx,
+  setFontIdx,
+  fontSizes,
+  brightness,
+  setBrightness,
+  onClose,
+  onCustomize,
+}: {
+  theme: ReaderTheme;
+  setTheme: (t: ReaderTheme) => void;
+  fontIdx: number;
+  setFontIdx: (fn: (i: number) => number) => void;
+  fontSizes: number[];
+  brightness: number; // 0..100
+  setBrightness: (n: number) => void;
+  onClose: () => void;
+  onCustomize: () => void;
+}) {
+  const p = READER_PALETTES[theme];
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-end justify-center bg-black/40"
+      onClick={onClose}
+      role="dialog"
+      aria-label="الثيمات والإعدادات"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-t-[22px] px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4"
+        style={{ backgroundColor: "#f2f2f2", color: "#1a1a1a" }}
+      >
+        <div className="mb-1 flex items-center justify-between">
+          <h2 className="text-[15px] font-bold">الثيمات والإعدادات</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="إغلاق"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[13px]"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* الصف الأول: تصغير/تكبير الخط، الثيمات، المظهر */}
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          <button
+            type="button"
+            onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
+            disabled={fontIdx === 0}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06] text-[17px] font-bold disabled:opacity-30">
+              A
+            </span>
+            <span className="text-[10px] text-black/55">تصغير الخط</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
+            disabled={fontIdx === fontSizes.length - 1}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06] text-[22px] font-bold disabled:opacity-30">
+              A
+            </span>
+            <span className="text-[10px] text-black/55">تكبير الخط</span>
+          </button>
+          <button
+            type="button"
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06]">
+              <IconThemes />
+            </span>
+            <span className="text-[10px] text-black/55">الثيمات</span>
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              setTheme(theme === "quiet" ? "original" : "quiet")
+            }
+            className="flex flex-col items-center gap-1.5"
+          >
+            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06]">
+              <IconAppearance />
+            </span>
+            <span className="text-[10px] text-black/55">المظهر</span>
+          </button>
+        </div>
+
+        {/* شريط السطوع */}
+        <div className="mt-4 flex items-center gap-3">
+          <IconSunSmall />
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={brightness}
+            onChange={(e) => setBrightness(Number(e.target.value))}
+            className="mobile-reader-brightness flex-1"
+            style={{ ["--val" as string]: brightness } as React.CSSProperties}
+            aria-label="سطوع الشاشة"
+          />
+          <IconSunLarge />
+        </div>
+        <p className="mt-1 text-center text-[11px] text-black/45">شريط السطوع</p>
+
+        {/* شبكة الثيمات */}
+        <div className="mt-3 grid grid-cols-3 gap-2.5">
+          {THEME_ORDER.map((t) => {
+            const tp = READER_PALETTES[t];
+            const selected = t === theme;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTheme(t)}
+                className="flex flex-col items-center gap-1.5 rounded-2xl py-4"
+                style={{
+                  backgroundColor: tp.pageBg,
+                  border: selected ? "2px solid #000" : "1px solid rgba(0,0,0,0.08)",
+                }}
+              >
+                <span
+                  style={{
+                    color: tp.text,
+                    fontWeight: tp.boldText ? 800 : 700,
+                    fontFamily: tp.swatchFontFamily,
+                    fontSize: 22,
+                  }}
+                >
+                  Aa
+                </span>
+                <span className="text-[11px] font-medium" style={{ color: tp.text }}>
+                  {tp.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* زر تخصيص */}
+        <button
+          type="button"
+          onClick={onCustomize}
+          className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-2xl bg-black/[0.06] py-3 text-[13px] font-bold"
+        >
+          <IconGear />
+          تخصيص
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
+import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_SIZES = [16, 18, 20, 22, 24];
@@ -50,8 +51,10 @@ export default function MobileChapterReader({
   prevNumber: number;
   nextNumber: number;
 }) {
-  const [theme, setTheme] = useState<ReaderTheme>("light");
-  const [fontIdx] = useState(1);
+  const [theme, setTheme] = useState<ReaderTheme>("original");
+  const [fontIdx, setFontIdx] = useState(1);
+  const [brightness, setBrightness] = useState(100);
+  const [showSheet, setShowSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -59,7 +62,9 @@ export default function MobileChapterReader({
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw);
-        if (saved.theme) setTheme(saved.theme);
+        if (saved.theme && saved.theme in READER_PALETTES) setTheme(saved.theme);
+        if (typeof saved.fontIdx === "number") setFontIdx(saved.fontIdx);
+        if (typeof saved.brightness === "number") setBrightness(saved.brightness);
       }
     } catch {}
     setMounted(true);
@@ -68,9 +73,12 @@ export default function MobileChapterReader({
   useEffect(() => {
     if (!mounted) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme }));
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ theme, fontIdx, brightness })
+      );
     } catch {}
-  }, [theme, mounted]);
+  }, [theme, fontIdx, brightness, mounted]);
 
   const p = READER_PALETTES[theme];
   const fontSize = FONT_SIZES[fontIdx];
@@ -83,7 +91,7 @@ export default function MobileChapterReader({
 
   return (
     <div
-      className="min-h-screen"
+      className="relative min-h-screen"
       style={{ backgroundColor: p.pageBg, color: p.text }}
     >
       {/* شريط علوي — رقم واسم الفصل */}
@@ -102,8 +110,8 @@ export default function MobileChapterReader({
         </span>
         <button
           type="button"
-          onClick={() => setTheme(theme === "night" ? "light" : "night")}
-          aria-label="تبديل الوضع الليلي"
+          onClick={() => setShowSheet(true)}
+          aria-label="الثيمات والإعدادات"
           className="shrink-0"
         >
           <IconDots />
@@ -132,7 +140,10 @@ export default function MobileChapterReader({
       </div>
 
       {/* النص */}
-      <div className="px-4 pb-16 pt-6 text-justify" style={{ fontSize }}>
+      <div
+        className="px-4 pb-16 pt-6 text-justify"
+        style={{ fontSize, fontWeight: p.boldText ? 700 : 400 }}
+      >
         {paragraphs.map((para, i) => (
           <p key={i} className="mb-4 indent-8 leading-loose">
             {para}
@@ -166,6 +177,29 @@ export default function MobileChapterReader({
           التالي
         </a>
       </div>
+
+      {/* ستارة السطوع — تعتيم حقيقي فوق الشاشة حسب قيمة الشريط */}
+      {mounted && brightness < 100 && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-30 bg-black"
+          style={{ opacity: (100 - brightness) / 100 * 0.75 }}
+        />
+      )}
+
+      {showSheet && (
+        <MobileReaderSettingsSheet
+          theme={theme}
+          setTheme={setTheme}
+          fontIdx={fontIdx}
+          setFontIdx={setFontIdx}
+          fontSizes={FONT_SIZES}
+          brightness={brightness}
+          setBrightness={setBrightness}
+          onClose={() => setShowSheet(false)}
+          onCustomize={() => setShowSheet(false)}
+        />
+      )}
     </div>
   );
 }
