@@ -24,7 +24,7 @@ export default function MobileChapterPreview({
 
   return (
     <section className="border-t border-ink-300/10 bg-white px-3 py-3">
-      <div className="mb-2 flex items-center justify-between border-b border-ink-300/10 pb-2">
+      <div className="mb-2 flex items-center justify-between">
         <h2 className="text-[16px] font-bold text-ink-900">
           الفهرس{" "}
           <span className="text-[11px] font-normal text-ink-300">
