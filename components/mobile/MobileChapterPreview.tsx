@@ -23,7 +23,7 @@ export default function MobileChapterPreview({
   const firstChapter = chapters[0];
 
   return (
-    <section className="mt-2 border-t border-ink-300/10 bg-white px-3 py-3">
+    <section className="border-t border-ink-300/10 bg-white px-3 py-3">
       <div className="mb-2 flex items-center justify-between border-b border-ink-300/10 pb-2">
         <h2 className="text-[16px] font-bold text-ink-900">
           الفهرس{" "}
