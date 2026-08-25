@@ -38,21 +38,6 @@ function IconDots() {
     </svg>
   );
 }
-function IconMinus() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  );
-}
-function IconPlus() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="12" y1="5" x2="12" y2="19" />
-      <line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  );
-}
 
 export default function MobileChapterReader({
   novel,
@@ -66,9 +51,8 @@ export default function MobileChapterReader({
   nextNumber: number;
 }) {
   const [theme, setTheme] = useState<ReaderTheme>("light");
-  const [fontIdx, setFontIdx] = useState(1);
+  const [fontIdx] = useState(1);
   const [mounted, setMounted] = useState(false);
-  const [barsVisible, setBarsVisible] = useState(false);
 
   useEffect(() => {
     try {
@@ -76,7 +60,6 @@ export default function MobileChapterReader({
       if (raw) {
         const saved = JSON.parse(raw);
         if (saved.theme) setTheme(saved.theme);
-        if (typeof saved.fontSizeIdx === "number") setFontIdx(saved.fontSizeIdx);
       }
     } catch {}
     setMounted(true);
@@ -85,14 +68,9 @@ export default function MobileChapterReader({
   useEffect(() => {
     if (!mounted) return;
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      const saved = raw ? JSON.parse(raw) : {};
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ ...saved, theme, fontSizeIdx: fontIdx })
-      );
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme }));
     } catch {}
-  }, [theme, fontIdx, mounted]);
+  }, [theme, mounted]);
 
   const p = READER_PALETTES[theme];
   const fontSize = FONT_SIZES[fontIdx];
@@ -108,7 +86,7 @@ export default function MobileChapterReader({
       className="min-h-screen"
       style={{ backgroundColor: p.pageBg, color: p.text }}
     >
-      {/* شريط علوي — رقم واسم الفصل (كالمرجع)، وليس اسم الرواية */}
+      {/* شريط علوي — رقم واسم الفصل */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 border-b px-3 py-2.5"
         style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
@@ -124,44 +102,37 @@ export default function MobileChapterReader({
         </span>
         <button
           type="button"
-          onClick={() => setBarsVisible((v) => !v)}
-          aria-label="الإعدادات"
+          onClick={() => setTheme(theme === "night" ? "light" : "night")}
+          aria-label="تبديل الوضع الليلي"
           className="shrink-0"
         >
           <IconDots />
         </button>
       </header>
 
-      {/* عنوان الفصل داخل النص */}
-      <div className="px-4 pt-6" onClick={() => setBarsVisible((v) => !v)}>
-        <div className="flex items-center gap-2.5">
-          <span
-            className="h-4 w-[3px] shrink-0 rounded-full"
-            style={{ backgroundColor: p.chipActiveText }}
-          />
-          <span className="text-[14px] font-bold" style={{ color: p.mutedText }}>
+      {/* عنوان الفصل — خط عمودي واحد متصل يمتد على السطرين معًا (كالمرجع بدقة) */}
+      <div className="flex items-stretch gap-3 px-4 pt-6">
+        <span
+          className="w-[3px] shrink-0 self-stretch rounded-full"
+          style={{ backgroundColor: p.chipActiveText }}
+        />
+        <div>
+          <div className="text-[15px] font-bold" style={{ color: p.text }}>
             الفصل {chapter.chapter_number}
-          </span>
-        </div>
-        {chapter.title && (
-          <div className="mt-2 flex items-start gap-2.5">
-            <span
-              className="mt-1 h-6 w-[3px] shrink-0 rounded-full"
-              style={{ backgroundColor: p.chipActiveText }}
-            />
-            <h1 className="font-bold leading-snug" style={{ fontSize: fontSize + 8 }}>
+          </div>
+          {chapter.title && (
+            <h1
+              className="mt-1 font-bold leading-snug"
+              style={{ fontSize: fontSize + 9 }}
+            >
               {chapter.title}
             </h1>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* النص — الضغط عليه يُظهر/يخفي شريط الإعدادات السفلي */}
-      <div
-        className="px-4 pb-24 pt-6 text-justify"
-        style={{ fontSize }}
-        onClick={() => setBarsVisible((v) => !v)}
-      >
+      {/* النص */}
+      <div className="px-4 pb-16 pt-6 text-justify" style={{ fontSize }}>
         {paragraphs.map((para, i) => (
           <p key={i} className="mb-4 indent-8 leading-loose">
             {para}
@@ -169,73 +140,32 @@ export default function MobileChapterReader({
         ))}
       </div>
 
-      {/* شريط سفلي — مخفي افتراضيًا، يظهر فقط عند الضغط على النص */}
-      {barsVisible && (
-        <div
-          className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-2 border-t px-3 py-2.5"
-          style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
+      {/* تنقل بسيط أسفل النص فقط (وليس شريطًا ثابتًا) */}
+      <div
+        className="flex items-center justify-between gap-2 border-t px-4 py-4"
+        style={{ borderColor: p.divider }}
+      >
+        <a
+          href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
+          aria-disabled={prevNumber < 1}
+          className="rounded-full px-4 py-2 text-[13px] font-bold"
+          style={{
+            backgroundColor: p.chipBg,
+            color: prevNumber < 1 ? p.mutedText : p.chipText,
+            opacity: prevNumber < 1 ? 0.5 : 1,
+            pointerEvents: prevNumber < 1 ? "none" : "auto",
+          }}
         >
-          <a
-            href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
-            aria-disabled={prevNumber < 1}
-            className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold"
-            style={{
-              backgroundColor: p.chipBg,
-              color: prevNumber < 1 ? p.mutedText : p.chipText,
-              opacity: prevNumber < 1 ? 0.5 : 1,
-              pointerEvents: prevNumber < 1 ? "none" : "auto",
-            }}
-          >
-            السابق
-          </a>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setFontIdx((i) => Math.max(0, i - 1));
-              }}
-              className="flex h-7 w-7 items-center justify-center rounded-full"
-              style={{ backgroundColor: p.chipBg, color: p.chipText }}
-              aria-label="تصغير الخط"
-            >
-              <IconMinus />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setFontIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1));
-              }}
-              className="flex h-7 w-7 items-center justify-center rounded-full"
-              style={{ backgroundColor: p.chipBg, color: p.chipText }}
-              aria-label="تكبير الخط"
-            >
-              <IconPlus />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setTheme(theme === "night" ? "light" : "night");
-              }}
-              className="rounded-full px-2.5 py-1.5 text-[12px] font-bold"
-              style={{ backgroundColor: p.chipBg, color: p.chipText }}
-            >
-              {theme === "night" ? "☀︎" : "☾"}
-            </button>
-          </div>
-
-          <a
-            href={`/novel/${novel.id}/chapter/${nextNumber}`}
-            className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold"
-            style={{ backgroundColor: p.chipActiveBg, color: p.chipActiveText }}
-          >
-            التالي
-          </a>
-        </div>
-      )}
+          السابق
+        </a>
+        <a
+          href={`/novel/${novel.id}/chapter/${nextNumber}`}
+          className="rounded-full px-4 py-2 text-[13px] font-bold"
+          style={{ backgroundColor: p.chipActiveBg, color: p.chipActiveText }}
+        >
+          التالي
+        </a>
+      </div>
     </div>
   );
 }
