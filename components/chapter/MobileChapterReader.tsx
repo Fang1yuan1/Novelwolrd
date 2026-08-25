@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
+import { useState } from "react";
+import { READER_PALETTES } from "@/lib/reader-theme";
 
-const STORAGE_KEY = "novelwolrd-reader-prefs";
-const FONT_SIZES = [16, 18, 20, 22, 24];
+const FONT_SIZE = 18;
 
 type NovelData = { id: number; title: string };
 type ChapterData = {
@@ -15,23 +14,25 @@ type ChapterData = {
 
 function IconBack() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M15 5l-7 7 7 7" />
     </svg>
   );
 }
+
 function IconHeadphones() {
   return (
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
       <rect x="2.5" y="14" width="5" height="7" rx="2" />
       <rect x="16.5" y="14" width="5" height="7" rx="2" />
     </svg>
   );
 }
+
 function IconDots() {
   return (
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
       <circle cx="5" cy="12" r="1.6" />
       <circle cx="12" cy="12" r="1.6" />
       <circle cx="19" cy="12" r="1.6" />
@@ -50,43 +51,16 @@ export default function MobileChapterReader({
   prevNumber: number;
   nextNumber: number;
 }) {
-  const [theme, setTheme] = useState<ReaderTheme>("light");
-  const [fontIdx] = useState(1);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const saved = JSON.parse(raw);
-        if (saved.theme) setTheme(saved.theme);
-      }
-    } catch {}
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme }));
-    } catch {}
-  }, [theme, mounted]);
-
-  const p = READER_PALETTES[theme];
-  const fontSize = FONT_SIZES[fontIdx];
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const p = READER_PALETTES.light;
   const paragraphs = chapter.content
     .split(/\n+/)
-    .map((t) => t.trim())
+    .map((text) => text.trim())
     .filter(Boolean);
-
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: p.pageBg, color: p.text }}
-    >
-      {/* شريط علوي — رقم واسم الفصل */}
+    <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: p.pageBg, color: p.text }}>
       <header
         className="sticky top-0 z-20 flex items-center gap-3 border-b px-3 py-2.5"
         style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
@@ -102,15 +76,15 @@ export default function MobileChapterReader({
         </span>
         <button
           type="button"
-          onClick={() => setTheme(theme === "night" ? "light" : "night")}
-          aria-label="تبديل الوضع الليلي"
-          className="shrink-0"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Open Themes & Settings"
+          aria-expanded={settingsOpen}
+          className="shrink-0 rounded-full p-1"
         >
           <IconDots />
         </button>
       </header>
 
-      {/* عنوان الفصل — خط عمودي واحد متصل يمتد على السطرين معًا (كالمرجع بدقة) */}
       <div className="flex items-stretch gap-3 px-4 pt-6">
         <span
           className="w-[3px] shrink-0 self-stretch rounded-full"
@@ -121,26 +95,21 @@ export default function MobileChapterReader({
             الفصل {chapter.chapter_number}
           </div>
           {chapter.title && (
-            <h1
-              className="mt-1 font-bold leading-snug"
-              style={{ fontSize: fontSize + 9 }}
-            >
+            <h1 className="mt-1 font-bold leading-snug" style={{ fontSize: FONT_SIZE + 9 }}>
               {chapter.title}
             </h1>
           )}
         </div>
       </div>
 
-      {/* النص */}
-      <div className="px-4 pb-16 pt-6 text-justify" style={{ fontSize }}>
-        {paragraphs.map((para, i) => (
-          <p key={i} className="mb-4 indent-8 leading-loose">
-            {para}
+      <div className="px-4 pb-16 pt-6 text-justify" style={{ fontSize: FONT_SIZE }}>
+        {paragraphs.map((paragraph, index) => (
+          <p key={index} className="mb-4 indent-8 leading-loose">
+            {paragraph}
           </p>
         ))}
       </div>
 
-      {/* تنقل بسيط أسفل النص فقط (وليس شريطًا ثابتًا) */}
       <div
         className="flex items-center justify-between gap-2 border-t px-4 py-4"
         style={{ borderColor: p.divider }}
@@ -166,6 +135,30 @@ export default function MobileChapterReader({
           التالي
         </a>
       </div>
+
+      {settingsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-3"
+          role="presentation"
+          onClick={() => setSettingsOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Themes & Settings"
+            className="w-full overflow-hidden bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {/* الصورة الأصلية التي وفّرها المستخدم؛ لا يوجد أي نص أو إعادة تصميم فوقها. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/reader-settings-reference.png"
+              alt="Themes & Settings"
+              className="block h-auto w-full"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
