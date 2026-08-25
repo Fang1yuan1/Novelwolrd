@@ -630,3 +630,14 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,.35);
   cursor: pointer;
 }
+.mobile-reader-pill {
+  height: 68px;
+  border-radius: 34px;
+  background: rgba(0,0,0,0.055);
+  color: #1a1a1a;
+}
+.mobile-reader-swatch {
+  border-radius: 22px;
+  padding: 20px 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}

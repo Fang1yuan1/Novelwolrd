@@ -119,7 +119,13 @@ export default function MobileChapterReader({
       </header>
 
       {/* عنوان الفصل — خط عمودي واحد متصل يمتد على السطرين معًا (كالمرجع بدقة) */}
-      <div className="flex items-stretch gap-3 px-4 pt-6">
+      <div
+        className="flex items-stretch gap-3 px-4 pt-6"
+        onClick={() => {
+          if (window.getSelection()?.toString()) return;
+          setShowSheet(true);
+        }}
+      >
         <span
           className="w-[3px] shrink-0 self-stretch rounded-full"
           style={{ backgroundColor: p.chipActiveText }}
@@ -139,10 +145,14 @@ export default function MobileChapterReader({
         </div>
       </div>
 
-      {/* النص */}
+      {/* النص — الضغط في أي مكان بالفصل يفتح لوحة الثيمات والإعدادات */}
       <div
         className="px-4 pb-16 pt-6 text-justify"
         style={{ fontSize, fontWeight: p.boldText ? 700 : 400 }}
+        onClick={() => {
+          if (window.getSelection()?.toString()) return;
+          setShowSheet(true);
+        }}
       >
         {paragraphs.map((para, i) => (
           <p key={i} className="mb-4 indent-8 leading-loose">

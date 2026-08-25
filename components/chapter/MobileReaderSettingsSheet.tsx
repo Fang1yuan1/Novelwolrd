@@ -97,54 +97,49 @@ export default function MobileReaderSettingsSheet({
         </div>
 
         {/* الصف الأول: تصغير/تكبير الخط، الثيمات، المظهر */}
-        <div className="mt-3 grid grid-cols-4 gap-2">
+        <div className="mt-4 grid grid-cols-4 gap-2.5">
           <button
             type="button"
             onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
             disabled={fontIdx === 0}
-            className="flex flex-col items-center gap-1.5"
+            className="flex flex-col items-center gap-2"
           >
-            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06] text-[17px] font-bold disabled:opacity-30">
+            <span className="mobile-reader-pill flex w-full items-center justify-center text-[19px] font-bold disabled:opacity-30">
               A
             </span>
-            <span className="text-[10px] text-black/55">تصغير الخط</span>
+            <span className="text-[11px] text-black/55">تصغير الخط</span>
           </button>
           <button
             type="button"
             onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
             disabled={fontIdx === fontSizes.length - 1}
-            className="flex flex-col items-center gap-1.5"
+            className="flex flex-col items-center gap-2"
           >
-            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06] text-[22px] font-bold disabled:opacity-30">
+            <span className="mobile-reader-pill flex w-full items-center justify-center text-[27px] font-bold disabled:opacity-30">
               A
             </span>
-            <span className="text-[10px] text-black/55">تكبير الخط</span>
+            <span className="text-[11px] text-black/55">تكبير الخط</span>
           </button>
-          <button
-            type="button"
-            className="flex flex-col items-center gap-1.5"
-          >
-            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06]">
+          <button type="button" className="flex flex-col items-center gap-2">
+            <span className="mobile-reader-pill flex w-full items-center justify-center">
               <IconThemes />
             </span>
-            <span className="text-[10px] text-black/55">الثيمات</span>
+            <span className="text-[11px] text-black/55">الثيمات</span>
           </button>
           <button
             type="button"
-            onClick={() =>
-              setTheme(theme === "quiet" ? "original" : "quiet")
-            }
-            className="flex flex-col items-center gap-1.5"
+            onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
+            className="flex flex-col items-center gap-2"
           >
-            <span className="flex h-11 w-full items-center justify-center rounded-2xl bg-black/[0.06]">
+            <span className="mobile-reader-pill flex w-full items-center justify-center">
               <IconAppearance />
             </span>
-            <span className="text-[10px] text-black/55">المظهر</span>
+            <span className="text-[11px] text-black/55">المظهر</span>
           </button>
         </div>
 
         {/* شريط السطوع */}
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-6 flex items-center gap-3">
           <IconSunSmall />
           <input
             type="range"
@@ -158,10 +153,10 @@ export default function MobileReaderSettingsSheet({
           />
           <IconSunLarge />
         </div>
-        <p className="mt-1 text-center text-[11px] text-black/45">شريط السطوع</p>
+        <p className="mt-2 text-center text-[12px] text-black/45">شريط السطوع</p>
 
         {/* شبكة الثيمات */}
-        <div className="mt-3 grid grid-cols-3 gap-2.5">
+        <div className="mt-4 grid grid-cols-3 gap-3">
           {THEME_ORDER.map((t) => {
             const tp = READER_PALETTES[t];
             const selected = t === theme;
@@ -170,23 +165,23 @@ export default function MobileReaderSettingsSheet({
                 key={t}
                 type="button"
                 onClick={() => setTheme(t)}
-                className="flex flex-col items-center gap-1.5 rounded-2xl py-4"
+                className="mobile-reader-swatch flex flex-col items-center justify-center gap-2"
                 style={{
                   backgroundColor: tp.pageBg,
-                  border: selected ? "2px solid #000" : "1px solid rgba(0,0,0,0.08)",
+                  border: selected ? "3px solid #000" : "1px solid rgba(0,0,0,0.06)",
                 }}
               >
                 <span
                   style={{
                     color: tp.text,
-                    fontWeight: tp.boldText ? 800 : 700,
-                    fontFamily: tp.swatchFontFamily,
-                    fontSize: 22,
+                    fontWeight: tp.boldText ? 800 : 600,
+                    fontFamily: tp.swatchFontFamily || "Georgia, 'Times New Roman', serif",
+                    fontSize: 30,
                   }}
                 >
                   Aa
                 </span>
-                <span className="text-[11px] font-medium" style={{ color: tp.text }}>
+                <span className="text-[12px] font-medium" style={{ color: tp.text }}>
                   {tp.label}
                 </span>
               </button>
@@ -198,7 +193,7 @@ export default function MobileReaderSettingsSheet({
         <button
           type="button"
           onClick={onCustomize}
-          className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-2xl bg-black/[0.06] py-3 text-[13px] font-bold"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-black/[0.06] py-3.5 text-[14px] font-bold"
         >
           <IconGear />
           تخصيص

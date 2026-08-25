@@ -72,6 +72,7 @@ export const READER_PALETTES: Record<
     chipActiveBg: "#fdeceb",
     chipActiveText: "#e5353e",
     boldText: true,
+    swatchFontFamily: "var(--font-sans)",
   },
   calm: {
     label: "دافئ",
@@ -99,6 +100,7 @@ export const READER_PALETTES: Record<
     chipText: "#433422",
     chipActiveBg: "#e9dcb8",
     chipActiveText: "#a34a2f",
+    swatchFontFamily: "var(--font-sans)",
   },
 };
 
