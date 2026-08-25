@@ -371,3 +371,227 @@ body {
   .mobile-reference-promo-icon { width: 40px; height: 40px; border-radius: 10px; }
   .mobile-reference-promo-button { padding-inline: 11px; }
 }
+
+/* ===== هيدر صفحات التصنيفات/الترتيب (رجالة/بنات) ===== */
+.mobile-gender-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  border-bottom: 1px solid rgba(20,20,30,.08);
+}
+.mobile-gender-back {
+  flex: 0 0 auto;
+  display: flex;
+  height: 32px;
+  width: 32px;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #202124;
+  background: none;
+  border: 0;
+}
+.mobile-gender-title {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #202124;
+}
+.mobile-gender-switch {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+}
+.mobile-gender-switch {
+  display: flex;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #f2f2f3;
+  padding: 3px;
+  max-width: 160px;
+  margin: 0 auto;
+}
+.mobile-gender-switch button {
+  border: 0;
+  background: transparent;
+  border-radius: 13px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #78787c;
+}
+.mobile-gender-switch button.is-active {
+  background: #fff;
+  color: #222;
+  box-shadow: 0 1px 5px rgba(0,0,0,.08);
+}
+.mobile-gender-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.mobile-gender-icon-btn {
+  display: flex;
+  height: 32px;
+  width: 32px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: #202124;
+}
+.mobile-grid-icon { color: #202124; }
+
+/* ===== صفحة التصنيفات ===== */
+.mobile-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 14px 14px 28px;
+}
+.mobile-category-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid rgba(20,20,30,.06);
+  box-shadow: 0 1px 3px rgba(20,20,30,.05);
+  text-decoration: none;
+  color: inherit;
+}
+.mobile-category-cover {
+  display: flex;
+  height: 56px;
+  width: 56px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eceef0;
+}
+.mobile-category-info { min-width: 0; }
+.mobile-category-info strong { display: block; font-size: 15px; font-weight: 800; color: #202124; }
+.mobile-category-info span { display: block; margin-top: 3px; font-size: 12px; color: #9b9b9e; }
+.mobile-category-empty {
+  margin: 20px 14px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: #9b9b9e;
+}
+
+/* ===== صفحة الترتيب ===== */
+.mobile-rank-tabbar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 14px;
+  position: sticky;
+  top: 53px;
+  z-index: 15;
+  background: #f3f3f3;
+}
+.mobile-rank-tabbar button {
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5b5b60;
+  white-space: nowrap;
+}
+.mobile-rank-card {
+  margin: 10px 14px 0;
+  border-radius: 18px;
+  padding: 14px 14px 6px;
+  background: linear-gradient(180deg, #fdf3dd 0%, #fff 120px, #fff 100%);
+  border: 1px solid rgba(212,168,83,.25);
+  scroll-margin-top: 100px;
+}
+.mobile-rank-card-heading {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.mobile-rank-card-heading span {
+  font-size: 15px;
+  font-weight: 800;
+  color: #a9782f;
+  letter-spacing: 1px;
+}
+.mobile-rank-list { display: flex; flex-direction: column; gap: 10px; }
+.mobile-rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+.mobile-rank-item img,
+.mobile-rank-item .mobile-reference-cover-placeholder {
+  height: 58px;
+  width: 44px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #c8c9cb;
+}
+.mobile-rank-badge {
+  position: absolute;
+  top: -4px;
+  right: 28px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: #c7c7ca;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+.mobile-rank-badge.is-top { background: #e5353e; }
+.mobile-rank-info { min-width: 0; flex: 1; }
+.mobile-rank-info strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #202124;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.mobile-rank-info span {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11.5px;
+  color: #9b9b9e;
+}
+.mobile-rank-more {
+  display: block;
+  margin: 12px 0 4px;
+  border-radius: 20px;
+  background: #f6f2e8;
+  padding: 8px;
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a9782f;
+  text-decoration: none;
+}

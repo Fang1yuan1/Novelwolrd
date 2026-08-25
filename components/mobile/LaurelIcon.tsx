@@ -1,6 +1,6 @@
 export default function LaurelIcon({
   flip = false,
-  className = "h-4 w-3",
+  className = "h-9 w-7",
 }: {
   flip?: boolean;
   className?: string;

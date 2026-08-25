@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getChapterCount, getNovels } from "@/lib/novels";
+import MobileRankingsPage from "@/components/mobile/MobileRankingsPage";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,14 @@ export default async function RankingsPage() {
     .sort((a, b) => b.chapterCount - a.chapterCount);
 
   return (
-    <div className="min-h-screen bg-surface">
+    <>
+      {/* النسخة التقليدية — شاشات صغيرة (موبايل) */}
+      <div className="sm:hidden">
+        <MobileRankingsPage />
+      </div>
+
+      {/* النسخة الغنية — شاشات كبيرة (آيباد/لابتوب) */}
+      <div className="hidden min-h-screen bg-surface sm:block">
       <Header />
       <Navbar />
 
@@ -71,6 +79,7 @@ export default async function RankingsPage() {
       </main>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 }

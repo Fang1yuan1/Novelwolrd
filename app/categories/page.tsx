@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import CategoryIcon from "@/components/CategoryIcon";
 import { getCategories } from "@/lib/categories";
 import { getCategoriesWithCounts } from "@/lib/novels";
+import MobileCategoriesPage from "@/components/mobile/MobileCategoriesPage";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,14 @@ export default async function CategoriesIndexPage() {
   const countMap = new Map(counts.map((c) => [c.category, c.count]));
 
   return (
-    <div className="min-h-screen bg-surface">
+    <>
+      {/* النسخة التقليدية — شاشات صغيرة (موبايل) */}
+      <div className="sm:hidden">
+        <MobileCategoriesPage />
+      </div>
+
+      {/* النسخة الغنية — شاشات كبيرة (آيباد/لابتوب) */}
+      <div className="hidden min-h-screen bg-surface sm:block">
       <Header />
       <Navbar />
 
@@ -53,6 +61,7 @@ export default async function CategoriesIndexPage() {
       </main>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 }
