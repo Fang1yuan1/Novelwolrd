@@ -20,15 +20,21 @@ function IconBack() {
     </svg>
   );
 }
-function IconList() {
+function IconHeadphones() {
   return (
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <line x1="8" y1="6" x2="20" y2="6" />
-      <line x1="8" y1="12" x2="20" y2="12" />
-      <line x1="8" y1="18" x2="20" y2="18" />
-      <circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none" />
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
+      <rect x="2.5" y="14" width="5" height="7" rx="2" />
+      <rect x="16.5" y="14" width="5" height="7" rx="2" />
+    </svg>
+  );
+}
+function IconDots() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+      <circle cx="5" cy="12" r="1.6" />
+      <circle cx="12" cy="12" r="1.6" />
+      <circle cx="19" cy="12" r="1.6" />
     </svg>
   );
 }
@@ -62,6 +68,7 @@ export default function MobileChapterReader({
   const [theme, setTheme] = useState<ReaderTheme>("light");
   const [fontIdx, setFontIdx] = useState(1);
   const [mounted, setMounted] = useState(false);
+  const [barsVisible, setBarsVisible] = useState(false);
 
   useEffect(() => {
     try {
@@ -94,12 +101,14 @@ export default function MobileChapterReader({
     .map((t) => t.trim())
     .filter(Boolean);
 
+  const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
+
   return (
     <div
       className="min-h-screen"
       style={{ backgroundColor: p.pageBg, color: p.text }}
     >
-      {/* شريط علوي بسيط */}
+      {/* شريط علوي — رقم واسم الفصل (كالمرجع)، وليس اسم الرواية */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 border-b px-3 py-2.5"
         style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
@@ -107,21 +116,24 @@ export default function MobileChapterReader({
         <a href={`/novel/${novel.id}`} aria-label="رجوع" className="shrink-0">
           <IconBack />
         </a>
-        <span className="line-clamp-1 min-w-0 flex-1 text-[14px] font-bold">
-          {novel.title}
+        <span className="line-clamp-1 min-w-0 flex-1 text-[13px] font-bold">
+          {chapterLabel}
         </span>
-        <a
-          href={`/novel/${novel.id}`}
-          aria-label="الفهرس"
+        <span className="shrink-0 opacity-40" title="استماع صوتي — قريبًا" aria-hidden="true">
+          <IconHeadphones />
+        </span>
+        <button
+          type="button"
+          onClick={() => setBarsVisible((v) => !v)}
+          aria-label="الإعدادات"
           className="shrink-0"
-          style={{ color: p.mutedText }}
         >
-          <IconList />
-        </a>
+          <IconDots />
+        </button>
       </header>
 
-      {/* عنوان الفصل */}
-      <div className="px-4 pt-6">
+      {/* عنوان الفصل داخل النص */}
+      <div className="px-4 pt-6" onClick={() => setBarsVisible((v) => !v)}>
         <div className="flex items-center gap-2.5">
           <span
             className="h-4 w-[3px] shrink-0 rounded-full"
@@ -144,8 +156,12 @@ export default function MobileChapterReader({
         )}
       </div>
 
-      {/* النص */}
-      <div className="px-4 pb-24 pt-6 text-justify" style={{ fontSize }}>
+      {/* النص — الضغط عليه يُظهر/يخفي شريط الإعدادات السفلي */}
+      <div
+        className="px-4 pb-24 pt-6 text-justify"
+        style={{ fontSize }}
+        onClick={() => setBarsVisible((v) => !v)}
+      >
         {paragraphs.map((para, i) => (
           <p key={i} className="mb-4 indent-8 leading-loose">
             {para}
@@ -153,62 +169,73 @@ export default function MobileChapterReader({
         ))}
       </div>
 
-      {/* شريط سفلي: تنقل + حجم الخط + ثيم */}
-      <div
-        className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-2 border-t px-3 py-2.5"
-        style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
-      >
-        <a
-          href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
-          aria-disabled={prevNumber < 1}
-          className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold"
-          style={{
-            backgroundColor: p.chipBg,
-            color: prevNumber < 1 ? p.mutedText : p.chipText,
-            opacity: prevNumber < 1 ? 0.5 : 1,
-            pointerEvents: prevNumber < 1 ? "none" : "auto",
-          }}
+      {/* شريط سفلي — مخفي افتراضيًا، يظهر فقط عند الضغط على النص */}
+      {barsVisible && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-2 border-t px-3 py-2.5"
+          style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
         >
-          السابق
-        </a>
+          <a
+            href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
+            aria-disabled={prevNumber < 1}
+            className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold"
+            style={{
+              backgroundColor: p.chipBg,
+              color: prevNumber < 1 ? p.mutedText : p.chipText,
+              opacity: prevNumber < 1 ? 0.5 : 1,
+              pointerEvents: prevNumber < 1 ? "none" : "auto",
+            }}
+          >
+            السابق
+          </a>
 
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-full"
-            style={{ backgroundColor: p.chipBg, color: p.chipText }}
-            aria-label="تصغير الخط"
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFontIdx((i) => Math.max(0, i - 1));
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ backgroundColor: p.chipBg, color: p.chipText }}
+              aria-label="تصغير الخط"
+            >
+              <IconMinus />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFontIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1));
+              }}
+              className="flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ backgroundColor: p.chipBg, color: p.chipText }}
+              aria-label="تكبير الخط"
+            >
+              <IconPlus />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setTheme(theme === "night" ? "light" : "night");
+              }}
+              className="rounded-full px-2.5 py-1.5 text-[12px] font-bold"
+              style={{ backgroundColor: p.chipBg, color: p.chipText }}
+            >
+              {theme === "night" ? "☀︎" : "☾"}
+            </button>
+          </div>
+
+          <a
+            href={`/novel/${novel.id}/chapter/${nextNumber}`}
+            className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold"
+            style={{ backgroundColor: p.chipActiveBg, color: p.chipActiveText }}
           >
-            <IconMinus />
-          </button>
-          <button
-            type="button"
-            onClick={() => setFontIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
-            className="flex h-7 w-7 items-center justify-center rounded-full"
-            style={{ backgroundColor: p.chipBg, color: p.chipText }}
-            aria-label="تكبير الخط"
-          >
-            <IconPlus />
-          </button>
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "night" ? "light" : "night")}
-            className="rounded-full px-2.5 py-1.5 text-[12px] font-bold"
-            style={{ backgroundColor: p.chipBg, color: p.chipText }}
-          >
-            {theme === "night" ? "☀︎" : "☾"}
-          </button>
+            التالي
+          </a>
         </div>
-
-        <a
-          href={`/novel/${novel.id}/chapter/${nextNumber}`}
-          className="shrink-0 rounded-full px-3 py-1.5 text-[13px] font-bold"
-          style={{ backgroundColor: p.chipActiveBg, color: p.chipActiveText }}
-        >
-          التالي
-        </a>
-      </div>
+      )}
     </div>
   );
 }
