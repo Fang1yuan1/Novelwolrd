@@ -272,7 +272,6 @@ export default function ChapterPageClient({
   const fontFamily = READER_FONTS.find((f) => f.id === fontFamilyId)?.family;
   const contentMaxWidth = READER_WIDTHS.find((w) => w.id === widthId)?.px;
 
-  const wordCount = chapter.content ? chapter.content.length : 0;
 
   const publishDate = new Date(novel.created_at).toLocaleDateString("ar-EG", {
     year: "numeric",
@@ -385,21 +384,44 @@ export default function ChapterPageClient({
 
             {/* Chapter content */}
             <div className="mb-3">
-              <h2 className="mb-4 text-lg font-bold" style={{ fontSize: fontSize + 4 }}>
-                الفصل {chapter.chapter_number}
-                {chapter.title ? ` — ${chapter.title}` : ""}
-                <span
-                  className="mr-2 inline-block rounded px-1.5 py-0.5 align-middle text-[11px] font-normal"
-                  style={{ backgroundColor: p.chipBg, color: p.mutedText }}
-                >
-                  {wordCount.toLocaleString("ar-EG")} حرف
-                </span>
-              </h2>
-              <div
-                className="whitespace-pre-wrap leading-loose text-justify"
-                style={{ fontSize }}
-              >
-                {chapter.content}
+              <div className="mb-6">
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="h-4 w-[3px] shrink-0 rounded-full"
+                    style={{ backgroundColor: p.chipActiveText }}
+                  />
+                  <span
+                    className="font-bold"
+                    style={{ fontSize: fontSize - 1, color: p.mutedText }}
+                  >
+                    الفصل {chapter.chapter_number}
+                  </span>
+                </div>
+                {chapter.title && (
+                  <div className="mt-2 flex items-start gap-2.5">
+                    <span
+                      className="mt-1 h-6 w-[3px] shrink-0 rounded-full"
+                      style={{ backgroundColor: p.chipActiveText }}
+                    />
+                    <h2
+                      className="font-bold leading-snug"
+                      style={{ fontSize: fontSize + 8 }}
+                    >
+                      {chapter.title}
+                    </h2>
+                  </div>
+                )}
+              </div>
+              <div className="text-justify" style={{ fontSize }}>
+                {chapter.content
+                  .split(/\n+/)
+                  .map((p) => p.trim())
+                  .filter(Boolean)
+                  .map((para, i) => (
+                    <p key={i} className="mb-4 indent-8 leading-loose">
+                      {para}
+                    </p>
+                  ))}
               </div>
             </div>
 
