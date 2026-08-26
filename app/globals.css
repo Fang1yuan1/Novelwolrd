@@ -306,6 +306,7 @@ body {
   width: 50px;
   height: 50px;
   flex: 0 0 auto;
+  overflow: hidden;
   border-radius: 13px;
   background: #d1d2d4;
 }

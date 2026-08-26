@@ -2,8 +2,6 @@ export default function MobileHeader() {
   return (
     <header className="mobile-reference-header">
       <a href="/" className="mobile-reference-logo" aria-label="الرئيسية">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logo.png" alt="" aria-hidden="true" />
         عالم الروايات
       </a>
 
