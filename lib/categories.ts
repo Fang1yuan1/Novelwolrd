@@ -5,6 +5,7 @@ export type Category = {
   created_at: string;
   name: string;
   icon: string | null;
+  cover_novel_id: number | null;
 };
 
 // كل التصنيفات، مرتبة أبجديًا
@@ -55,6 +56,20 @@ export async function deleteCategory(
 ): Promise<{ ok: true } | { ok: false; message: string }> {
   if (!supabase) return { ok: false, message: "Supabase غير مهيّأ." };
   const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) return { ok: false, message: error.message };
+  return { ok: true };
+}
+
+// تحديث الرواية اللي غلافها يُستخدم كغلاف عرض للتصنيف بصفحة "التصنيفات" (موبايل)
+export async function updateCategoryCoverNovel(
+  id: number,
+  novelId: number | null
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (!supabase) return { ok: false, message: "Supabase غير مهيّأ." };
+  const { error } = await supabase
+    .from("categories")
+    .update({ cover_novel_id: novelId })
+    .eq("id", id);
   if (error) return { ok: false, message: error.message };
   return { ok: true };
 }

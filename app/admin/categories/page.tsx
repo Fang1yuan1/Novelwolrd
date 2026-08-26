@@ -14,7 +14,10 @@ type Category = {
   created_at: string;
   name: string;
   icon: string | null;
+  cover_novel_id: number | null;
 };
+
+type NovelOption = { id: number; title: string; cover_url: string | null };
 
 const SUGGESTED_ICONS = ['📚', '🐉', '✨', '🥋', '🗡️', '🏙️', '📖', '⚔️', '🏛️', '🎮', '🏆', '🚀', '🌌', '🔍', '🌙', '💕', '😱', '😂', '🕵️'];
 
@@ -49,6 +52,11 @@ export default function CategoriesAdminPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editIcon, setEditIcon] = useState('');
   const [savingIcon, setSavingIcon] = useState(false);
+
+  const [coverEditingId, setCoverEditingId] = useState<number | null>(null);
+  const [coverOptions, setCoverOptions] = useState<NovelOption[]>([]);
+  const [loadingCovers, setLoadingCovers] = useState(false);
+  const [savingCover, setSavingCover] = useState(false);
 
   async function loadCategories() {
     setLoading(true);
@@ -123,6 +131,45 @@ export default function CategoriesAdminPage() {
       return;
     }
     setEditingId(null);
+    await loadCategories();
+  }
+
+  async function openCoverPicker(c: Category) {
+    if (coverEditingId === c.id) {
+      setCoverEditingId(null);
+      return;
+    }
+    setCoverEditingId(c.id);
+    setLoadingCovers(true);
+    const { data, error } = await supabase
+      .from('novels')
+      .select('id, title, cover_url, category')
+      .order('created_at', { ascending: false });
+    setLoadingCovers(false);
+    if (!error && data) {
+      const inCategory = (data as any[]).filter((n) =>
+        String(n.category || '')
+          .split(/[,،]/)
+          .map((s) => s.trim())
+          .includes(c.name)
+      );
+      setCoverOptions(
+        inCategory.map((n) => ({ id: n.id, title: n.title, cover_url: n.cover_url }))
+      );
+    }
+  }
+
+  async function saveCategoryCover(categoryId: number, novelId: number | null) {
+    setSavingCover(true);
+    const { error: updateError } = await supabase
+      .from('categories')
+      .update({ cover_novel_id: novelId })
+      .eq('id', categoryId);
+    setSavingCover(false);
+    if (updateError) {
+      alert(`فشل الحفظ: ${updateError.message}`);
+      return;
+    }
     await loadCategories();
   }
 
@@ -211,6 +258,12 @@ export default function CategoriesAdminPage() {
                     {editingId === c.id ? 'إلغاء' : 'تعديل الأيقونة'}
                   </button>
                   <button
+                    onClick={() => openCoverPicker(c)}
+                    className="text-[12px] text-ink-300 hover:text-brand"
+                  >
+                    {coverEditingId === c.id ? 'إلغاء' : 'غلاف العرض'}
+                  </button>
+                  <button
                     onClick={() => handleDelete(c.id)}
                     disabled={deletingId === c.id}
                     className="text-[12px] text-ink-300 hover:text-red-600 disabled:opacity-50"
@@ -219,6 +272,57 @@ export default function CategoriesAdminPage() {
                   </button>
                 </span>
               </div>
+
+              {coverEditingId === c.id && (
+                <div className="mt-3 flex flex-col gap-2 border-t border-ink-300/15 pt-3">
+                  <p className="text-[11px] text-ink-300">
+                    اختار غلاف رواية من نفس التصنيف عشان يظهر كغلاف عرض في صفحة "التصنيفات" بالنسخة المبسّطة (الموبايل). لو ما اخترتش، هيظهر تلقائيًا غلاف أول رواية بالتصنيف.
+                  </p>
+                  {loadingCovers ? (
+                    <p className="text-[12px] text-ink-300">جارٍ التحميل…</p>
+                  ) : coverOptions.length === 0 ? (
+                    <p className="text-[12px] text-ink-300">مفيش روايات بالتصنيف ده لسه.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => saveCategoryCover(c.id, null)}
+                        disabled={savingCover}
+                        className={`flex h-16 w-12 flex-col items-center justify-center rounded border text-[10px] disabled:opacity-50 ${
+                          c.cover_novel_id === null
+                            ? 'border-brand bg-brand/10 text-brand'
+                            : 'border-ink-300/30 text-ink-300 hover:border-brand'
+                        }`}
+                      >
+                        تلقائي
+                      </button>
+                      {coverOptions.map((n) => (
+                        <button
+                          key={n.id}
+                          type="button"
+                          onClick={() => saveCategoryCover(c.id, n.id)}
+                          disabled={savingCover}
+                          title={n.title}
+                          className={`h-16 w-12 overflow-hidden rounded border disabled:opacity-50 ${
+                            c.cover_novel_id === n.id
+                              ? 'border-brand ring-2 ring-brand'
+                              : 'border-ink-300/30 hover:border-brand'
+                          }`}
+                        >
+                          {n.cover_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={n.cover_url} alt={n.title} className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="flex h-full w-full items-center justify-center bg-ink-300/10 text-[9px] text-ink-300">
+                              بدون
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {editingId === c.id && (
                 <div className="mt-3 flex flex-col gap-2 border-t border-ink-300/15 pt-3">

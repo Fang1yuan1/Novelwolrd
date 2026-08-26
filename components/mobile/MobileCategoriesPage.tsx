@@ -1,5 +1,5 @@
 import { getCategories } from "@/lib/categories";
-import { getCategoriesWithCounts, getNovelsByCategory } from "@/lib/novels";
+import { getCategoriesWithCounts, getNovelsByCategory, getNovelById } from "@/lib/novels";
 import MobileCategoriesHeader from "./MobileCategoriesHeader";
 
 export default async function MobileCategoriesPage() {
@@ -11,6 +11,10 @@ export default async function MobileCategoriesPage() {
 
   const covers = await Promise.all(
     categories.map(async (c) => {
+      if (c.cover_novel_id) {
+        const n = await getNovelById(c.cover_novel_id);
+        if (n?.cover_url) return n.cover_url;
+      }
       const novels = await getNovelsByCategory(c.name);
       return novels.find((n) => n.cover_url)?.cover_url || null;
     })
@@ -48,6 +52,10 @@ export default async function MobileCategoriesPage() {
                   href={`/category/${encodeURIComponent(c.name)}`}
                   className="mobile-category-card"
                 >
+                  <span className="mobile-category-info">
+                    <strong>{c.name}</strong>
+                    <span>{countMap.get(c.name) || 0} عمل</span>
+                  </span>
                   <span className="mobile-category-cover-stack">
                     <span className="mobile-category-cover-behind mobile-category-cover-behind-2" />
                     <span className="mobile-category-cover-behind mobile-category-cover-behind-1" />
@@ -57,10 +65,6 @@ export default async function MobileCategoriesPage() {
                         <img src={covers[i]!} alt="" className="h-full w-full object-cover" />
                       ) : null}
                     </span>
-                  </span>
-                  <span className="mobile-category-info">
-                    <strong>{c.name}</strong>
-                    <span>{countMap.get(c.name) || 0} عمل</span>
                   </span>
                 </a>
               </li>

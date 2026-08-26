@@ -39,7 +39,10 @@ export default function Header() {
       {/* الشعار + البحث + الحساب */}
       <div className="mx-auto flex max-w-shell flex-col gap-2 px-3 pb-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <div className="ph-block h-12 w-12 rounded text-[15px]">📚</div>
+          <div className="h-12 w-12 overflow-hidden rounded-xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/logo.png" alt="شعار الموقع" className="h-full w-full object-cover" />
+          </div>
           <div>
             <p className="text-xl font-bold leading-tight text-ink-900">
               نوفل<span className="text-brand">هَب</span>
