@@ -1,7 +1,6 @@
 import { getCategories } from "@/lib/categories";
-import { getCategoriesWithCounts } from "@/lib/novels";
-import CategoryIcon from "@/components/CategoryIcon";
-import MobileGenderHeader from "./MobileGenderHeader";
+import { getCategoriesWithCounts, getNovelsByCategory } from "@/lib/novels";
+import MobileCategoriesHeader from "./MobileCategoriesHeader";
 
 export default async function MobileCategoriesPage() {
   const [categories, counts] = await Promise.all([
@@ -10,10 +9,16 @@ export default async function MobileCategoriesPage() {
   ]);
   const countMap = new Map(counts.map((c) => [c.category, c.count]));
 
+  const covers = await Promise.all(
+    categories.map(async (c) => {
+      const novels = await getNovelsByCategory(c.name);
+      return novels.find((n) => n.cover_url)?.cover_url || null;
+    })
+  );
+
   return (
     <div className="mobile-reference-page">
-      <MobileGenderHeader
-        title="التصنيفات"
+      <MobileCategoriesHeader
         rightSlot={
           <>
             <a href="/" aria-label="بحث" className="mobile-gender-icon-btn">
@@ -37,18 +42,21 @@ export default async function MobileCategoriesPage() {
           <p className="mobile-category-empty">لا توجد تصنيفات مضافة بعد.</p>
         ) : (
           <ul className="mobile-category-grid">
-            {categories.map((c) => (
+            {categories.map((c, i) => (
               <li key={c.id}>
                 <a
                   href={`/category/${encodeURIComponent(c.name)}`}
                   className="mobile-category-card"
                 >
-                  <span className="mobile-category-cover">
-                    <CategoryIcon
-                      icon={c.icon}
-                      className="text-4xl"
-                      imgClassName="h-full w-full object-cover"
-                    />
+                  <span className="mobile-category-cover-stack">
+                    <span className="mobile-category-cover-behind mobile-category-cover-behind-2" />
+                    <span className="mobile-category-cover-behind mobile-category-cover-behind-1" />
+                    <span className="mobile-category-cover-front">
+                      {covers[i] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={covers[i]!} alt="" className="h-full w-full object-cover" />
+                      ) : null}
+                    </span>
                   </span>
                   <span className="mobile-category-info">
                     <strong>{c.name}</strong>
