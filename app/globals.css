@@ -587,20 +587,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 54px;
+  height: 72px;
   margin: 0 -14px 12px;
-  background: linear-gradient(90deg, #f6c765 0%, #fbe3b0 35%, #fdf3dd 100%);
-}
-.mobile-rank-card-heading-star {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  height: 46px;
-  width: 46px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff4d6, #f3b93d 60%, #d9932a);
-  opacity: 0.9;
+  background: url("/icons/rank/banner.jpg") center / cover no-repeat;
 }
 .mobile-rank-card-heading-text {
   position: relative;

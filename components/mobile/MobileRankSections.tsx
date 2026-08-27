@@ -43,11 +43,10 @@ export default function MobileRankSections({ sections }: { sections: RankSection
       {sections.map((s) => (
         <section key={s.key} id={`rank-${s.key}`} className="mobile-rank-card">
           <div className="mobile-rank-card-heading">
-            <span className="mobile-rank-card-heading-star" aria-hidden="true" />
             <span className="mobile-rank-card-heading-text">
-              <LaurelIcon className="h-4 w-3" />
+              <LaurelIcon className="h-6 w-4" />
               {s.label}
-              <LaurelIcon flip className="h-4 w-3" />
+              <LaurelIcon flip className="h-6 w-4" />
             </span>
           </div>
           <ul className="mobile-rank-list">
