@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 
 function IconThemes() {
@@ -48,6 +49,14 @@ function IconGear() {
 }
 
 const THEME_ORDER: ReaderTheme[] = ["original", "quiet", "paper", "bold", "calm", "focus"];
+const THEME_LABEL_EN: Record<ReaderTheme, string> = {
+  original: "Original",
+  quiet: "Quiet",
+  paper: "Paper",
+  bold: "Bold",
+  calm: "Calm",
+  focus: "Focus",
+};
 
 export default function MobileReaderSettingsSheet({
   theme,
@@ -72,23 +81,40 @@ export default function MobileReaderSettingsSheet({
 }) {
   const p = READER_PALETTES[theme];
 
+  // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  function handleClose() {
+    setVisible(false);
+    window.setTimeout(onClose, 260);
+  }
+
   return (
     <div
-      className="fixed inset-0 z-40 flex items-end justify-center bg-black/40"
-      onClick={onClose}
+      className={`fixed inset-0 z-40 flex items-end justify-center bg-black/40 transition-opacity duration-[260ms] ease-out ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
+      onClick={handleClose}
       role="dialog"
       aria-label="الثيمات والإعدادات"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-t-[22px] px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4"
+        dir="ltr"
+        className={`w-full max-w-md rounded-t-[22px] px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 transition-transform duration-[280ms] ease-out ${
+          visible ? "translate-y-0" : "translate-y-full"
+        }`}
         style={{ backgroundColor: "#f2f2f2", color: "#1a1a1a" }}
       >
         <div className="mb-1 flex items-center justify-between">
           <h2 className="text-[15px] font-bold">الثيمات والإعدادات</h2>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             aria-label="إغلاق"
             className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[13px]"
           >
@@ -107,7 +133,7 @@ export default function MobileReaderSettingsSheet({
             <span className="mobile-reader-pill flex w-full items-center justify-center text-[15px] font-bold disabled:opacity-30">
               A
             </span>
-            <span className="text-[10px] text-black/55">تصغير الخط</span>
+            <span className="text-[10px] text-black/55">Font Size Decrease</span>
           </button>
           <button
             type="button"
@@ -118,13 +144,13 @@ export default function MobileReaderSettingsSheet({
             <span className="mobile-reader-pill flex w-full items-center justify-center text-[21px] font-bold disabled:opacity-30">
               A
             </span>
-            <span className="text-[10px] text-black/55">تكبير الخط</span>
+            <span className="text-[10px] text-black/55">Font Size Increase</span>
           </button>
           <button type="button" className="flex flex-col items-center gap-1">
             <span className="mobile-reader-pill flex w-full items-center justify-center">
               <IconThemes />
             </span>
-            <span className="text-[10px] text-black/55">الثيمات</span>
+            <span className="text-[10px] text-black/55">Themes</span>
           </button>
           <button
             type="button"
@@ -134,7 +160,7 @@ export default function MobileReaderSettingsSheet({
             <span className="mobile-reader-pill flex w-full items-center justify-center">
               <IconAppearance />
             </span>
-            <span className="text-[10px] text-black/55">المظهر</span>
+            <span className="text-[10px] text-black/55">Appearance</span>
           </button>
         </div>
 
@@ -149,11 +175,11 @@ export default function MobileReaderSettingsSheet({
             onChange={(e) => setBrightness(Number(e.target.value))}
             className="mobile-reader-brightness flex-1"
             style={{ ["--val" as string]: brightness } as React.CSSProperties}
-            aria-label="سطوع الشاشة"
+            aria-label="Brightness"
           />
           <IconSunLarge />
         </div>
-        <p className="mt-1 text-center text-[11px] text-black/45">شريط السطوع</p>
+        <p className="mt-1 text-center text-[11px] text-black/45">Brightness Slider</p>
 
         {/* شبكة الثيمات */}
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -182,7 +208,7 @@ export default function MobileReaderSettingsSheet({
                   Aa
                 </span>
                 <span className="text-[10.5px] font-medium" style={{ color: tp.text }}>
-                  {tp.label}
+                  {THEME_LABEL_EN[t]}
                 </span>
               </button>
             );
@@ -192,7 +218,10 @@ export default function MobileReaderSettingsSheet({
         {/* زر تخصيص */}
         <button
           type="button"
-          onClick={onCustomize}
+          onClick={() => {
+            handleClose();
+            onCustomize();
+          }}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-black/[0.06] py-2.5 text-[13px] font-bold"
         >
           <IconGear />
