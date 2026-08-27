@@ -589,7 +589,10 @@ body {
   justify-content: center;
   height: 72px;
   margin: 0 -14px 12px;
-  background: url("/icons/rank/banner.jpg") center / cover no-repeat;
+  background-image: url("/icons/rank/banner.jpg"), linear-gradient(90deg, #f8d488 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
+  background-repeat: no-repeat, no-repeat;
+  background-position: left center, center;
+  background-size: auto 100%, cover;
 }
 .mobile-rank-card-heading-text {
   position: relative;
