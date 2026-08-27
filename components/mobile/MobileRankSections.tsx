@@ -1,6 +1,7 @@
 "use client";
 
 import type { Novel } from "@/lib/novels";
+import LaurelIcon from "./LaurelIcon";
 
 export type RankSection = {
   key: string;
@@ -42,7 +43,12 @@ export default function MobileRankSections({ sections }: { sections: RankSection
       {sections.map((s) => (
         <section key={s.key} id={`rank-${s.key}`} className="mobile-rank-card">
           <div className="mobile-rank-card-heading">
-            <span>{`《 ${s.label} 》`}</span>
+            <span className="mobile-rank-card-heading-star" aria-hidden="true" />
+            <span className="mobile-rank-card-heading-text">
+              <LaurelIcon className="h-4 w-3" />
+              {s.label}
+              <LaurelIcon flip className="h-4 w-3" />
+            </span>
           </div>
           <ul className="mobile-rank-list">
             {s.novels.map((n, i) => {
@@ -57,7 +63,7 @@ export default function MobileRankSections({ sections }: { sections: RankSection
                       <span className="mobile-reference-cover-placeholder" />
                     )}
                     <span
-                      className={`mobile-rank-badge ${rank === 1 ? "is-top" : ""}`}
+                      className={`mobile-rank-badge ${rank <= 3 ? "is-top" : ""}`}
                     >
                       {rank}
                     </span>

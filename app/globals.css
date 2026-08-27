@@ -303,11 +303,11 @@ body {
 }
 
 .mobile-reference-promo-icon {
-  width: 50px;
-  height: 50px;
+  width: 64px;
+  height: 64px;
   flex: 0 0 auto;
   overflow: hidden;
-  border-radius: 13px;
+  border-radius: 16px;
   background: #d1d2d4;
 }
 
@@ -379,7 +379,7 @@ body {
   .mobile-reference-card { margin-inline: 14px; }
   .mobile-reference-four-tiles { margin-inline: 14px; gap: 7px; }
   .mobile-reference-promo { padding-inline: 14px; gap: 9px; }
-  .mobile-reference-promo-icon { width: 40px; height: 40px; border-radius: 10px; }
+  .mobile-reference-promo-icon { width: 52px; height: 52px; border-radius: 13px; }
   .mobile-reference-promo-button { padding-inline: 11px; }
 }
 
@@ -555,9 +555,9 @@ body {
 /* ===== صفحة الترتيب ===== */
 .mobile-rank-tabbar {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding: 12px 14px;
+  padding: 10px 14px;
   position: sticky;
   top: 53px;
   z-index: 15;
@@ -565,10 +565,10 @@ body {
 }
 .mobile-rank-tabbar button {
   border: 0;
-  border-radius: 16px;
+  border-radius: 13px;
   background: #fff;
-  padding: 7px 14px;
-  font-size: 13px;
+  padding: 5px 11px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #5b5b60;
   white-space: nowrap;
@@ -576,52 +576,74 @@ body {
 .mobile-rank-card {
   margin: 10px 14px 0;
   border-radius: 18px;
-  padding: 14px 14px 6px;
+  padding: 0 14px 6px;
   background: linear-gradient(180deg, #fdf3dd 0%, #fff 120px, #fff 100%);
   border: 1px solid rgba(212,168,83,.25);
   scroll-margin-top: 100px;
+  overflow: hidden;
 }
 .mobile-rank-card-heading {
-  text-align: center;
-  margin-bottom: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  margin: 0 -14px 12px;
+  background: linear-gradient(90deg, #f6c765 0%, #fbe3b0 35%, #fdf3dd 100%);
 }
-.mobile-rank-card-heading span {
-  font-size: 15px;
+.mobile-rank-card-heading-star {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  height: 46px;
+  width: 46px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff4d6, #f3b93d 60%, #d9932a);
+  opacity: 0.9;
+}
+.mobile-rank-card-heading-text {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
   font-weight: 800;
-  color: #a9782f;
+  color: #8a5a1e;
   letter-spacing: 1px;
 }
-.mobile-rank-list { display: flex; flex-direction: column; gap: 10px; }
+.mobile-rank-list { display: flex; flex-direction: column; gap: 12px; }
 .mobile-rank-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   color: inherit;
   position: relative;
 }
 .mobile-rank-item img,
 .mobile-rank-item .mobile-reference-cover-placeholder {
-  height: 58px;
-  width: 44px;
+  height: 92px;
+  width: 68px;
   flex-shrink: 0;
   border-radius: 6px;
   object-fit: cover;
   background: #c8c9cb;
+  box-shadow: 0 1px 4px rgba(20,20,30,.15);
 }
 .mobile-rank-badge {
   position: absolute;
-  top: -4px;
-  right: 28px;
+  top: -5px;
+  right: 50px;
   display: flex;
-  height: 16px;
-  width: 16px;
+  height: 18px;
+  width: 18px;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
   background: #c7c7ca;
   color: #fff;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
 }
 .mobile-rank-badge.is-top { background: #e5353e; }
@@ -629,7 +651,7 @@ body {
 .mobile-rank-info strong {
   display: -webkit-box;
   overflow: hidden;
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 700;
   color: #202124;
   -webkit-box-orient: vertical;
@@ -637,24 +659,25 @@ body {
 }
 .mobile-rank-info span {
   display: block;
-  margin-top: 3px;
+  margin-top: 5px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  font-size: 11.5px;
+  font-size: 12px;
   color: #9b9b9e;
 }
 .mobile-rank-more {
   display: block;
   margin: 12px 0 4px;
   border-radius: 20px;
-  background: #f6f2e8;
+  background: #fff;
   padding: 8px;
   text-align: center;
   font-size: 12.5px;
   font-weight: 700;
   color: #a9782f;
   text-decoration: none;
+  box-shadow: 0 1px 3px rgba(20,20,30,.08);
 }
 
 /* ===== شريط السطوع بلوحة إعدادات القراءة (Themes & Settings) ===== */
