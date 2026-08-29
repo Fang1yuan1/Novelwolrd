@@ -17,10 +17,7 @@ export default async function MobileBestsellerList() {
   return (
     <section className="mobile-reference-card px-3 py-3">
       <div className="mobile-reference-section-heading">
-        <span className="mobile-reference-heading-group">
-          <h2>الأكثر مبيعاً</h2>
-          <span className="mobile-reference-badge-pill">اليوم الأكثر مبيعاً</span>
-        </span>
+        <h2>الأكثر مبيعاً</h2>
         <a href="/categories">المزيد ‹</a>
       </div>
       <ul className="flex flex-col gap-4">

@@ -1,52 +1,44 @@
 import type { Novel } from "@/lib/novels";
 import { parseCategories, formatCount } from "@/lib/novels";
 
-const statusLabel: Record<string, string> = {
-  completed: "مكتملة",
-  ongoing: "مستمرة",
-};
-
 export default function NovelListItem({
   novel,
   wordCount,
-  extraTag,
 }: {
   novel: Novel;
   wordCount?: number;
-  extraTag?: string;
 }) {
   const cats = parseCategories(novel.category);
-  const status = novel.status ? statusLabel[novel.status] || novel.status : null;
+  const tags = parseCategories(novel.tags).slice(0, 2);
 
   return (
     <a href={`/novel/${novel.id}`} className="flex items-start gap-3 text-right">
       <span className="min-w-0 flex-1">
-        <span className="line-clamp-2 block text-[14px] font-bold text-ink-900">
+        <span className="line-clamp-1 block text-[16px] font-bold text-ink-900">
           {novel.title}
         </span>
         {novel.description && (
-          <span className="line-clamp-2 mt-1 block text-[12px] leading-relaxed text-ink-500">
+          <span className="line-clamp-2 mt-1.5 block text-[13px] leading-relaxed text-ink-500">
             {novel.description}
           </span>
         )}
-        <span className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px] text-ink-400">
-          {extraTag && (
-            <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-              {extraTag}
+        <span className="mt-2 flex items-center justify-between gap-2">
+          <span className="text-[12px] text-ink-400">
+            {cats[0]}
+            {cats[0] && typeof wordCount === "number" && wordCount > 0 ? " · " : ""}
+            {typeof wordCount === "number" && wordCount > 0 && `${formatCount(wordCount)} حرف`}
+          </span>
+          {tags.length > 0 && (
+            <span className="flex shrink-0 items-center gap-1.5">
+              {tags.map((t) => (
+                <span
+                  key={t}
+                  className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10.5px] text-[#8a8a8f]"
+                >
+                  {t}
+                </span>
+              ))}
             </span>
-          )}
-          {status && (
-            <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-              {status}
-            </span>
-          )}
-          {cats[0] && (
-            <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-              {cats[0]}
-            </span>
-          )}
-          {typeof wordCount === "number" && wordCount > 0 && (
-            <span>{formatCount(wordCount)} حرف</span>
           )}
         </span>
       </span>
