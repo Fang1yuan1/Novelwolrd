@@ -49,14 +49,6 @@ function IconGear() {
 }
 
 const THEME_ORDER: ReaderTheme[] = ["original", "quiet", "paper", "bold", "calm", "focus"];
-const THEME_LABEL_EN: Record<ReaderTheme, string> = {
-  original: "Original",
-  quiet: "Quiet",
-  paper: "Paper",
-  bold: "Bold",
-  calm: "Calm",
-  focus: "Focus",
-};
 
 export default function MobileReaderSettingsSheet({
   theme,
@@ -104,7 +96,6 @@ export default function MobileReaderSettingsSheet({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        dir="ltr"
         className={`w-full max-w-md rounded-t-[22px] px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 transition-transform duration-[280ms] ease-out ${
           visible ? "translate-y-0" : "translate-y-full"
         }`}
@@ -133,7 +124,7 @@ export default function MobileReaderSettingsSheet({
             <span className="mobile-reader-pill flex w-full items-center justify-center text-[15px] font-bold disabled:opacity-30">
               A
             </span>
-            <span className="text-[10px] text-black/55">Font Size Decrease</span>
+            <span className="text-[10px] text-black/55">تصغير الخط</span>
           </button>
           <button
             type="button"
@@ -144,13 +135,13 @@ export default function MobileReaderSettingsSheet({
             <span className="mobile-reader-pill flex w-full items-center justify-center text-[21px] font-bold disabled:opacity-30">
               A
             </span>
-            <span className="text-[10px] text-black/55">Font Size Increase</span>
+            <span className="text-[10px] text-black/55">تكبير الخط</span>
           </button>
           <button type="button" className="flex flex-col items-center gap-1">
             <span className="mobile-reader-pill flex w-full items-center justify-center">
               <IconThemes />
             </span>
-            <span className="text-[10px] text-black/55">Themes</span>
+            <span className="text-[10px] text-black/55">الثيمات</span>
           </button>
           <button
             type="button"
@@ -160,7 +151,7 @@ export default function MobileReaderSettingsSheet({
             <span className="mobile-reader-pill flex w-full items-center justify-center">
               <IconAppearance />
             </span>
-            <span className="text-[10px] text-black/55">Appearance</span>
+            <span className="text-[10px] text-black/55">المظهر</span>
           </button>
         </div>
 
@@ -175,11 +166,11 @@ export default function MobileReaderSettingsSheet({
             onChange={(e) => setBrightness(Number(e.target.value))}
             className="mobile-reader-brightness flex-1"
             style={{ ["--val" as string]: brightness } as React.CSSProperties}
-            aria-label="Brightness"
+            aria-label="سطوع الشاشة"
           />
           <IconSunLarge />
         </div>
-        <p className="mt-1 text-center text-[11px] text-black/45">Brightness Slider</p>
+        <p className="mt-1 text-center text-[11px] text-black/45">شريط السطوع</p>
 
         {/* شبكة الثيمات */}
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -208,7 +199,7 @@ export default function MobileReaderSettingsSheet({
                   Aa
                 </span>
                 <span className="text-[10.5px] font-medium" style={{ color: tp.text }}>
-                  {THEME_LABEL_EN[t]}
+                  {tp.label}
                 </span>
               </button>
             );
