@@ -14,7 +14,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
   const description = novel.description || "لا يوجد وصف لهذا العمل بعد.";
 
   return (
-    <section className="mt-2 bg-white px-3 py-3">
+    <section className="bg-white px-3 py-3">
       <h2 className="mb-2 text-[15px] font-bold text-ink-900">نبذة</h2>
       {(categories.length > 0 || tags.length > 0) && (
         <div className="mb-2 flex flex-wrap gap-2">
