@@ -49,6 +49,14 @@ function IconGear() {
 }
 
 const THEME_ORDER: ReaderTheme[] = ["original", "quiet", "paper", "bold", "calm", "focus"];
+const THEME_LABEL_EN: Record<ReaderTheme, string> = {
+  original: "Original",
+  quiet: "Quiet",
+  paper: "Paper",
+  bold: "Bold",
+  calm: "Calm",
+  focus: "Focus",
+};
 
 export default function MobileReaderSettingsSheet({
   theme,
@@ -199,7 +207,7 @@ export default function MobileReaderSettingsSheet({
                   Aa
                 </span>
                 <span className="text-[10.5px] font-medium" style={{ color: tp.text }}>
-                  {tp.label}
+                  {THEME_LABEL_EN[t]}
                 </span>
               </button>
             );

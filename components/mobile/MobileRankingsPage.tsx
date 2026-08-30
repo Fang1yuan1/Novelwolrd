@@ -1,7 +1,5 @@
 import {
   getNovels,
-  getChaptersByNovel,
-  getWordCount,
   getCategoriesWithCounts,
   parseCategories,
   type Novel,
@@ -13,12 +11,11 @@ type RankedNovel = Novel & { wordCount: number; chapterCount: number };
 
 export default async function MobileRankingsPage() {
   const novels = await getNovels();
-  const withCounts: RankedNovel[] = await Promise.all(
-    novels.map(async (n) => {
-      const chapters = await getChaptersByNovel(n.id);
-      return { ...n, wordCount: getWordCount(chapters), chapterCount: chapters.length };
-    })
-  );
+  const withCounts: RankedNovel[] = novels.map((n) => ({
+    ...n,
+    wordCount: n.word_count ?? 0,
+    chapterCount: n.chapter_count ?? 0,
+  }));
 
   const sections: RankSection[] = [];
 

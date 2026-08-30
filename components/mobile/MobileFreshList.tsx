@@ -1,4 +1,4 @@
-import { getNovels, getChaptersByNovel, getWordCount } from "@/lib/novels";
+import { getNovels } from "@/lib/novels";
 import NovelListItem from "./NovelListItem";
 
 export default async function MobileFreshList() {
@@ -7,12 +7,7 @@ export default async function MobileFreshList() {
 
   if (fresh.length === 0) return null;
 
-  const withCounts = await Promise.all(
-    fresh.map(async (n) => {
-      const chapters = await getChaptersByNovel(n.id);
-      return { novel: n, wordCount: getWordCount(chapters) };
-    })
-  );
+  
 
   return (
     <section className="mobile-reference-card px-3 py-3">
@@ -24,9 +19,9 @@ export default async function MobileFreshList() {
         <a href="/categories">المزيد ‹</a>
       </div>
       <ul className="flex flex-col gap-4">
-        {withCounts.map(({ novel, wordCount }) => (
+        {fresh.map((novel) => (
           <li key={novel.id}>
-            <NovelListItem novel={novel} wordCount={wordCount} />
+            <NovelListItem novel={novel} wordCount={novel.word_count} />
           </li>
         ))}
       </ul>

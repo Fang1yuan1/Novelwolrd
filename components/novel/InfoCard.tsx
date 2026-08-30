@@ -1,5 +1,5 @@
 import type { Chapter, Novel } from "@/lib/novels";
-import { formatCount, formatRelativeTime, getWordCount, parseCategories } from "@/lib/novels";
+import { formatCount, formatRelativeTime, parseCategories } from "@/lib/novels";
 
 export default function InfoCard({
   novel,
@@ -9,7 +9,7 @@ export default function InfoCard({
   chapters: Chapter[];
 }) {
   const lastChapter = chapters[chapters.length - 1];
-  const wordCount = getWordCount(chapters);
+  const wordCount = novel.word_count ?? 0;
   const categories = parseCategories(novel.category);
   const tags = (novel.tags || "")
     .split(",")

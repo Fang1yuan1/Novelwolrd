@@ -3,7 +3,6 @@ import {
   formatCount,
   formatFullDateTime,
   getNovelRank,
-  getWordCount,
   parseCategories,
 } from "@/lib/novels";
 import LaurelIcon from "./LaurelIcon";
@@ -16,7 +15,8 @@ export default async function MobileNovelHero({
   chapters: Chapter[];
 }) {
   const lastChapter = chapters[chapters.length - 1];
-  const wordCount = getWordCount(chapters);
+  const wordCount = novel.word_count ?? 0;
+  const chapterCount = novel.chapter_count ?? chapters.length;
   const categories = parseCategories(novel.category);
   const statusLabel = novel.status === "completed" ? "مكتملة" : "مستمرة";
   const rank = await getNovelRank(novel.id);
@@ -96,7 +96,7 @@ export default async function MobileNovelHero({
         </div>
         <div className="my-3.5 w-px bg-white/10" />
         <div className="py-3 text-center">
-          <p className="text-[17px] font-bold tabular-nums">{chapters.length}</p>
+          <p className="text-[17px] font-bold tabular-nums">{chapterCount}</p>
           <p className="mt-0.5 text-[10px] text-white/50">فصل</p>
         </div>
       </div>

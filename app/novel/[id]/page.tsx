@@ -3,7 +3,6 @@ import {
   getNovelById,
   getNovels,
   getRelatedNovels,
-  getWordCount,
 } from "@/lib/novels";
 import { notFound } from "next/navigation";
 import TabNav from "@/components/novel/TabNav";
@@ -39,7 +38,7 @@ export default async function NovelPage({
 
   const authorName = novel.author?.trim() || "";
   let authorNovels: typeof related = [];
-  let authorTotalWords = getWordCount(chapters);
+  let authorTotalWords = novel.word_count ?? 0;
 
   if (authorName) {
     const allNovels = await getNovels();
@@ -48,13 +47,10 @@ export default async function NovelPage({
     );
     authorNovels = sameAuthor.filter((n) => n.id !== novel.id);
 
-    // إجمالي أحرف كل أعمال المؤلف (يشمل هذه الرواية) — يُحسب من فصولها الفعلية
-    const otherChaptersCounts = await Promise.all(
-      authorNovels.map((n) => getChaptersByNovel(n.id))
-    );
+    // إجمالي أحرف كل أعمال المؤلف (يشمل هذه الرواية) — من العمود المحسوب مسبقًا بقاعدة البيانات، مش بجلب كل الفصول
     authorTotalWords =
-      getWordCount(chapters) +
-      otherChaptersCounts.reduce((sum, chs) => sum + getWordCount(chs), 0);
+      (novel.word_count ?? 0) +
+      authorNovels.reduce((sum, n) => sum + (n.word_count ?? 0), 0);
   }
 
   return (

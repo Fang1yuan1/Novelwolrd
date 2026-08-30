@@ -12,6 +12,9 @@ export type Novel = {
   author?: string | null;
   status?: "ongoing" | "completed" | string | null;
   tags?: string | null; // نص مفصول بفواصل، مثال: "VIP,روايات خفيفة,خيال أصلي"
+  // أعداد محسوبة ومخزّنة تلقائيًا بقاعدة البيانات (تريجر) بدل حسابها من كل الفصول في كل صفحة — أسرع بكتير
+  chapter_count?: number;
+  word_count?: number;
 };
 
 export type Chapter = {
