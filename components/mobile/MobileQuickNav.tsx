@@ -2,7 +2,7 @@ const items = [
   ["قوائم الكتب", "/categories", "/icons/quicknav/booklists.png"],
   ["المميزون", "/rankings", "/icons/quicknav/top-authors.png"],
   ["مكتمل", "/completed", "/icons/quicknav/completed.png"],
-  ["مجاني", "/categories", "/icons/quicknav/free.png"],
+  ["مجاني", "/free", "/icons/quicknav/free.png"],
   ["الترتيب", "/rankings", "/icons/quicknav/ranking.png"],
   ["التصنيفات", "/categories", "/icons/quicknav/categories.png"],
 ] as const;
