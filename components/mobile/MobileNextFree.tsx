@@ -10,9 +10,9 @@ export default function MobileNextFree({ novels }: { novels: Novel[] }) {
         <h2>العرض القادم</h2>
         <a href="/categories">المزيد ‹</a>
       </div>
-      <ul className="scroll-thin flex gap-3 overflow-x-auto pb-1">
+      <ul className="scroll-thin flex gap-2.5 overflow-x-auto pb-1">
         {items.map((n) => (
-          <li key={n.id} className="w-[110px] shrink-0">
+          <li key={n.id} className="w-[86px] shrink-0">
             <a href={`/novel/${n.id}`} className="block">
               {n.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -26,10 +26,10 @@ export default function MobileNextFree({ novels }: { novels: Novel[] }) {
                   الغلاف
                 </span>
               )}
-              <span className="line-clamp-2 mt-1.5 block text-[12px] font-semibold leading-snug text-ink-900">
+              <span className="line-clamp-2 mt-1.5 block text-[11px] font-semibold leading-snug text-ink-900">
                 {n.title}
               </span>
-              <span className="line-clamp-1 mt-0.5 block text-[11px] text-ink-400">
+              <span className="line-clamp-1 mt-0.5 block text-[10px] text-ink-400">
                 {n.author || "—"}
               </span>
             </a>

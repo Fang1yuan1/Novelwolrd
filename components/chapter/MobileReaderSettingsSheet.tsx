@@ -115,52 +115,51 @@ export default function MobileReaderSettingsSheet({
             type="button"
             onClick={handleClose}
             aria-label="إغلاق"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/10 text-[13px]"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-black/10 text-[16px] font-normal text-black/70"
           >
             ✕
           </button>
         </div>
 
-        {/* الصف الأول: تصغير/تكبير الخط، الثيمات، المظهر */}
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          <button
-            type="button"
-            onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
-            disabled={fontIdx === 0}
-            className="flex flex-col items-center gap-1"
-          >
-            <span className="mobile-reader-pill flex w-full items-center justify-center text-[15px] font-bold disabled:opacity-30">
-              A
-            </span>
-            <span className="text-[10px] text-black/55">تصغير الخط</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
-            disabled={fontIdx === fontSizes.length - 1}
-            className="flex flex-col items-center gap-1"
-          >
-            <span className="mobile-reader-pill flex w-full items-center justify-center text-[21px] font-bold disabled:opacity-30">
-              A
-            </span>
-            <span className="text-[10px] text-black/55">تكبير الخط</span>
-          </button>
-          <button type="button" className="flex flex-col items-center gap-1">
-            <span className="mobile-reader-pill flex w-full items-center justify-center">
+        {/* الصف الأول: تصغير/تكبير الخط مجمّعين بكبسولة واحدة، الثيمات/المظهر مجمّعين بكبسولة تانية */}
+        <div className="mt-3 flex gap-2">
+          <div className="mobile-reader-pill-group flex flex-1">
+            <button
+              type="button"
+              onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
+              disabled={fontIdx === 0}
+              className="flex flex-1 flex-col items-center gap-1 py-2.5"
+            >
+              <span className="text-[15px] font-bold disabled:opacity-30">A</span>
+              <span className="text-[10px] text-black/55">تصغير الخط</span>
+            </button>
+            <span className="mobile-reader-pill-divider" />
+            <button
+              type="button"
+              onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
+              disabled={fontIdx === fontSizes.length - 1}
+              className="flex flex-1 flex-col items-center gap-1 py-2.5"
+            >
+              <span className="text-[21px] font-bold disabled:opacity-30">A</span>
+              <span className="text-[10px] text-black/55">تكبير الخط</span>
+            </button>
+          </div>
+
+          <div className="mobile-reader-pill-group flex flex-1">
+            <button type="button" className="flex flex-1 flex-col items-center gap-1 py-2.5">
               <IconThemes />
-            </span>
-            <span className="text-[10px] text-black/55">الثيمات</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
-            className="flex flex-col items-center gap-1"
-          >
-            <span className="mobile-reader-pill flex w-full items-center justify-center">
+              <span className="text-[10px] text-black/55">الثيمات</span>
+            </button>
+            <span className="mobile-reader-pill-divider" />
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
+              className="flex flex-1 flex-col items-center gap-1 py-2.5"
+            >
               <IconAppearance />
-            </span>
-            <span className="text-[10px] text-black/55">المظهر</span>
-          </button>
+              <span className="text-[10px] text-black/55">المظهر</span>
+            </button>
+          </div>
         </div>
 
         {/* شريط السطوع */}

@@ -712,6 +712,18 @@ body {
   background: rgba(0,0,0,0.055);
   color: #1a1a1a;
 }
+.mobile-reader-pill-group {
+  border-radius: 23px;
+  background: rgba(0,0,0,0.055);
+  color: #1a1a1a;
+  overflow: hidden;
+}
+.mobile-reader-pill-divider {
+  align-self: center;
+  width: 1px;
+  height: 26px;
+  background: rgba(0,0,0,0.12);
+}
 .mobile-reader-swatch {
   border-radius: 16px;
   padding: 10px 6px;
