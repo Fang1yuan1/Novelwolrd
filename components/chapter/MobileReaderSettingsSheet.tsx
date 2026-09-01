@@ -128,36 +128,32 @@ export default function MobileReaderSettingsSheet({
               type="button"
               onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
               disabled={fontIdx === 0}
-              className="flex flex-1 flex-col items-center gap-1 py-2.5"
+              className="flex flex-1 items-center justify-center py-3.5"
             >
               <span className="text-[15px] font-bold disabled:opacity-30">A</span>
-              <span className="text-[10px] text-black/55">تصغير الخط</span>
             </button>
             <span className="mobile-reader-pill-divider" />
             <button
               type="button"
               onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
               disabled={fontIdx === fontSizes.length - 1}
-              className="flex flex-1 flex-col items-center gap-1 py-2.5"
+              className="flex flex-1 items-center justify-center py-3.5"
             >
               <span className="text-[21px] font-bold disabled:opacity-30">A</span>
-              <span className="text-[10px] text-black/55">تكبير الخط</span>
             </button>
           </div>
 
           <div className="mobile-reader-pill-group flex flex-1">
-            <button type="button" className="flex flex-1 flex-col items-center gap-1 py-2.5">
+            <button type="button" className="flex flex-1 items-center justify-center py-3.5">
               <IconThemes />
-              <span className="text-[10px] text-black/55">الثيمات</span>
             </button>
             <span className="mobile-reader-pill-divider" />
             <button
               type="button"
               onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
-              className="flex flex-1 flex-col items-center gap-1 py-2.5"
+              className="flex flex-1 items-center justify-center py-3.5"
             >
               <IconAppearance />
-              <span className="text-[10px] text-black/55">المظهر</span>
             </button>
           </div>
         </div>
@@ -177,7 +173,7 @@ export default function MobileReaderSettingsSheet({
           />
           <IconSunLarge />
         </div>
-        <p className="mt-1 text-center text-[11px] text-black/45">شريط السطوع</p>
+        <div className="mt-3 border-t border-black/10" />
 
         {/* شبكة الثيمات */}
         <div className="mt-3 grid grid-cols-3 gap-2">
