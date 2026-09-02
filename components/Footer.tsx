@@ -96,6 +96,28 @@ export default function Footer() {
           </p>
           <p>© {new Date().getFullYear()} نوفل هَب — نموذج تجريبي. ليست خدمة فعلية.</p>
         </div>
+
+        {/*
+          فخ للبوتات (honeypot): لينك مخفي عن العين ومش قابل للـ tab،
+          أي زائر بشري عادي مش هيلاقيه أو يدوس عليه أبدًا.
+          أي سكربت بيقرا كل الـ <a href> في الصفحة هيزوره، فالـ middleware
+          بيحظره فورًا. متسيبوش السطر ده يتشال أو يتظهر بصريًا.
+        */}
+        <a
+          href="/api/internal/sitemap-trap"
+          aria-hidden="true"
+          tabIndex={-1}
+          style={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+            clip: "rect(0,0,0,0)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Sitemap
+        </a>
       </div>
     </footer>
   );

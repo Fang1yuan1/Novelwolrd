@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
+import { useCopyProtection } from "@/lib/useCopyProtection";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_SIZES = [16, 18, 20, 22, 24];
@@ -56,6 +57,7 @@ export default function MobileChapterReader({
   const [brightness, setBrightness] = useState(100);
   const [showSheet, setShowSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const contentRef = useCopyProtection<HTMLDivElement>();
 
   useEffect(() => {
     try {
@@ -147,12 +149,10 @@ export default function MobileChapterReader({
 
       {/* النص — الضغط في أي مكان بالفصل يفتح لوحة الثيمات والإعدادات */}
       <div
-        className="px-4 pb-16 pt-6 text-justify"
+        ref={contentRef}
+        className="chapter-no-copy px-4 pb-16 pt-6 text-justify"
         style={{ fontSize, fontWeight: p.boldText ? 700 : 400 }}
-        onClick={() => {
-          if (window.getSelection()?.toString()) return;
-          setShowSheet(true);
-        }}
+        onClick={() => setShowSheet(true)}
       >
         {paragraphs.map((para, i) => (
           <p key={i} className="mb-4 indent-8 leading-loose">

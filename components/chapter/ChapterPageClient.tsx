@@ -10,6 +10,7 @@ import {
   type ReaderWidthId,
 } from "@/lib/reader-theme";
 import SettingsModal from "./SettingsModal";
+import { useCopyProtection } from "@/lib/useCopyProtection";
 
 const FONT_SIZES = [15, 17, 19, 21, 23];
 const STORAGE_KEY = "novelwolrd-reader-prefs";
@@ -237,6 +238,7 @@ export default function ChapterPageClient({
   const [showAuthorNote, setShowAuthorNote] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const contentRef = useCopyProtection<HTMLDivElement>();
 
   useEffect(() => {
     setMounted(true);
@@ -412,7 +414,11 @@ export default function ChapterPageClient({
                   </div>
                 )}
               </div>
-              <div className="text-justify" style={{ fontSize }}>
+              <div
+                ref={contentRef}
+                className="chapter-no-copy text-justify"
+                style={{ fontSize }}
+              >
                 {chapter.content
                   .split(/\n+/)
                   .map((p) => p.trim())
