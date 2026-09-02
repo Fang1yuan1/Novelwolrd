@@ -15,13 +15,13 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
 
   return (
     <section className="bg-white px-3 py-3">
-      <h2 className="mb-2 text-[15px] font-bold text-ink-900">نبذة</h2>
+      <h2 className="mb-2 text-[17px] font-bold text-ink-900">نبذة</h2>
       {(categories.length > 0 || tags.length > 0) && (
         <div className="mb-2 flex flex-wrap gap-2">
           {categories.map((c) => (
             <span
               key={c}
-              className="rounded-full bg-[#f2f2f3] px-3 py-1 text-[12px] font-medium text-[#5b5b60]"
+              className="rounded-full bg-[#f2f2f3] px-3 py-1 text-[13px] font-medium text-[#5b5b60]"
             >
               {c}
             </span>
@@ -29,7 +29,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           {tags.map((t) => (
             <span
               key={t}
-              className="rounded-full bg-[#f2f2f3] px-3 py-1 text-[12px] font-medium text-[#5b5b60]"
+              className="rounded-full bg-[#f2f2f3] px-3 py-1 text-[13px] font-medium text-[#5b5b60]"
             >
               {t}
             </span>
@@ -38,7 +38,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
       )}
       <div className="relative">
         <p
-          className={`whitespace-pre-line text-[13px] leading-relaxed text-ink-700 ${
+          className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${
             expanded ? "" : "line-clamp-3"
           }`}
         >
@@ -47,7 +47,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-1 flex items-center gap-0.5 text-[12px] font-medium text-ink-500"
+          className="mt-1 flex items-center gap-0.5 text-[13px] font-medium text-ink-500"
         >
           {expanded ? "إخفاء" : "المزيد"}
           <svg

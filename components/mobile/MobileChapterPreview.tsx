@@ -25,9 +25,9 @@ export default function MobileChapterPreview({
   return (
     <section className="border-t border-ink-300/10 bg-white px-3 py-3">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-[16px] font-bold text-ink-900">
+        <h2 className="text-[18px] font-bold text-ink-900">
           الفهرس{" "}
-          <span className="text-[11px] font-normal text-ink-300">
+          <span className="text-[12px] font-normal text-ink-300">
             ({chapters.length} فصل)
           </span>
         </h2>
@@ -58,15 +58,15 @@ export default function MobileChapterPreview({
                 <p
                   className={
                     i === 0
-                      ? "line-clamp-1 text-[14px] font-bold text-ink-900"
-                      : "line-clamp-1 text-[13px] text-ink-700"
+                      ? "line-clamp-1 text-[16px] font-bold text-ink-900"
+                      : "line-clamp-1 text-[15px] text-ink-700"
                   }
                 >
                   {i === 0 ? "أحدث فصل — " : ""}
                   {ch.chapter_number}
                   {ch.title ? `، ${ch.title}` : ""}
                 </p>
-                <p className="mt-0.5 text-[11px] text-ink-300">
+                <p className="mt-0.5 text-[12px] text-ink-300">
                   {formatDate(ch.created_at)}
                 </p>
               </a>
@@ -77,9 +77,9 @@ export default function MobileChapterPreview({
         <div className="flex flex-col gap-3">
           {volumes.map((v) => (
             <details key={v.volume} open className="group">
-              <summary className="cursor-pointer list-none rounded bg-surface px-2 py-1.5 text-[13px] font-semibold text-ink-900">
+              <summary className="cursor-pointer list-none rounded bg-surface px-2 py-1.5 text-[15px] font-semibold text-ink-900">
                 {v.volume}{" "}
-                <span className="text-[10px] font-normal text-ink-300">
+                <span className="text-[11px] font-normal text-ink-300">
                   ({v.chapters.length})
                 </span>
               </summary>
@@ -88,7 +88,7 @@ export default function MobileChapterPreview({
                   <li key={ch.id}>
                     <a
                       href={`/novel/${novel.id}/chapter/${ch.chapter_number}`}
-                      className="line-clamp-1 block py-2 text-[13px] text-ink-700"
+                      className="line-clamp-1 block py-2 text-[15px] text-ink-700"
                     >
                       الفصل {ch.chapter_number}
                       {ch.title ? ` — ${ch.title}` : ""}

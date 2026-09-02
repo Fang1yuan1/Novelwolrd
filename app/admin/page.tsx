@@ -24,6 +24,12 @@ export default function AdminDashboard() {
       desc: 'رفع دفعة فصول لرواية موجودة عبر ملف JSON',
       icon: '📥',
     },
+    {
+      href: '/admin/characters',
+      title: 'الشخصيات',
+      desc: 'إضافة/تعديل/حذف شخصيات كل رواية (تظهر بصفحة تفاصيل الرواية)',
+      icon: '🧑‍🤝‍🧑',
+    },
   ];
 
   return (

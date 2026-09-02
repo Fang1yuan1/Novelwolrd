@@ -3,6 +3,7 @@ import MobileBackHeader from "./MobileBackHeader";
 import MobileNovelHero from "./MobileNovelHero";
 import MobileDescriptionCard from "./MobileDescriptionCard";
 import MobileChapterPreview from "./MobileChapterPreview";
+import MobileCharactersSection from "./MobileCharactersSection";
 import MobileRelatedNovels from "./MobileRelatedNovels";
 
 export default function MobileNovelDetail({
@@ -20,6 +21,7 @@ export default function MobileNovelDetail({
       <MobileNovelHero novel={novel} chapters={chapters} />
       <MobileDescriptionCard novel={novel} />
       <MobileChapterPreview novel={novel} chapters={chapters} />
+      <MobileCharactersSection novelId={novel.id} />
       <MobileRelatedNovels novels={related} category={novel.category} />
     </div>
   );
