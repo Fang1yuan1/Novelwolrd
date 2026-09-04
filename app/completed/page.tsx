@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getNovels } from "@/lib/novels";
+import MobileCompletedPage from "@/components/mobile/MobileCompletedPage";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +10,14 @@ export default async function CompletedPage() {
   const novels = (await getNovels()).filter((n) => n.status === "completed");
 
   return (
-    <div className="min-h-screen bg-surface">
+    <>
+      {/* النسخة التقليدية — شاشات صغيرة (موبايل) */}
+      <div className="sm:hidden">
+        <MobileCompletedPage />
+      </div>
+
+      {/* النسخة الغنية — شاشات كبيرة (آيباد/لابتوب) */}
+      <div className="hidden min-h-screen bg-surface sm:block">
       <Header />
       <Navbar />
 
@@ -58,6 +66,7 @@ export default async function CompletedPage() {
       </main>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 }
