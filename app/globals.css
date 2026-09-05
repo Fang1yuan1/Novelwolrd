@@ -748,3 +748,13 @@ body {
   margin: 4px 24px 8px;
   border-top: 1px solid rgba(20,20,30,.08);
 }
+
+/* نسخة بدون هوامش/زوايا مدوّرة — تلزق بحواف الشاشة وبالهيدر مباشرة، من غير أي رمادي حواليها */
+.mobile-reference-card--flush {
+  margin: 0;
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  box-shadow: none;
+}

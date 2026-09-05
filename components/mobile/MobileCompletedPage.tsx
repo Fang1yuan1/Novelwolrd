@@ -25,14 +25,12 @@ export default async function MobileCompletedPage() {
         {completed.length === 0 ? (
           <p className="mobile-category-empty">لا توجد أعمال مكتملة حاليًا.</p>
         ) : (
-          <>
-            <section className="mobile-reference-card">
-              <MobileNovelGrid title="الأكثر شعبية" novels={popular} count={8} bare />
-              <div className="mobile-completed-divider" />
-              <MobileNovelGrid title="الأحدث اكتمالًا" novels={newest} count={4} bare />
-            </section>
-
-            <section className="mobile-reference-card px-3 py-3">
+          <section className="mobile-reference-card mobile-reference-card--flush">
+            <MobileNovelGrid title="الأكثر شعبية" novels={popular} count={8} bare />
+            <div className="mobile-completed-divider" />
+            <MobileNovelGrid title="الأحدث اكتمالًا" novels={newest} count={4} bare />
+            <div className="mobile-completed-divider" />
+            <div className="px-3 py-3">
               <div className="mobile-reference-section-heading">
                 <h2>المزيد</h2>
               </div>
@@ -43,8 +41,8 @@ export default async function MobileCompletedPage() {
                   </li>
                 ))}
               </ul>
-            </section>
-          </>
+            </div>
+          </section>
         )}
       </div>
     </div>

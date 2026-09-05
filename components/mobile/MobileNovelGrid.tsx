@@ -17,6 +17,13 @@ export default function MobileNovelGrid({
 }) {
   if (novels.length === 0) return null;
 
+  // نكمّل صفوف الشبكة بالكامل (4 لكل صف) — لو العدد المتاح مايسمحش بصف كامل تاني
+  // بنقص العرض لأقرب صف مكتمل بدل ما نسيب فراغ كبير في نص الصفحة زي المرجع بالظبط
+  const available = Math.min(count, novels.length);
+  const fullRows = Math.floor(available / 4);
+  const showCount = fullRows > 0 ? fullRows * 4 : available;
+  const shown = novels.slice(0, showCount);
+
   const content = (
     <>
       <div className="mobile-reference-section-heading">
@@ -24,7 +31,7 @@ export default function MobileNovelGrid({
         <a href={moreHref}>تبديل ↻</a>
       </div>
       <div className="mobile-reference-book-grid">
-        {novels.slice(0, count).map((n) => {
+        {shown.map((n) => {
           const categories = parseCategories(n.category);
           return (
             <a key={n.id} href={`/novel/${n.id}`} className="mobile-reference-book">
