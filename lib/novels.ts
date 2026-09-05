@@ -63,15 +63,26 @@ export async function getNovelById(id: number | string): Promise<Novel | null> {
 }
 
 // كل فصول رواية معيّنة، مرتبة برقم الفصل
+// كل فصول رواية معيّنة — بيجيبهم على دفعات (Supabase بيحدد حد أقصى ~1000 صف بالطلب
+// الواحد افتراضيًا)، عشان الروايات اللي عندها أكتر من 1000 فصل متتقصش عند آخر فصل ظاهر
 export async function getChaptersByNovel(novelId: number | string): Promise<Chapter[]> {
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("chapters")
-    .select("*")
-    .eq("novel_id", novelId)
-    .order("chapter_number", { ascending: true });
-  if (error || !data) return [];
-  return data as Chapter[];
+  const pageSize = 1000;
+  let from = 0;
+  const all: Chapter[] = [];
+  while (true) {
+    const { data, error } = await supabase
+      .from("chapters")
+      .select("*")
+      .eq("novel_id", novelId)
+      .order("chapter_number", { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error || !data) break;
+    all.push(...(data as Chapter[]));
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  return all;
 }
 
 // فصل واحد برقمه

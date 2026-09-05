@@ -18,7 +18,7 @@ const bottomTiles = [
   ["القصص", "/categories", "/icons/hometiles/stories.png"],
   ["كتب صوتية", "/categories", "/icons/hometiles/audiobooks.png"],
   ["الأكثر قراءة", "/rankings", "/icons/hometiles/most-read.png"],
-  ["جديد اليوم", "/categories", "/icons/hometiles/new-today.png"],
+  ["جديد اليوم", "/new-today", "/icons/hometiles/new-today.png"],
 ] as const;
 
 // ترتيب الأقسام أدناه يتبع بالضبط تسلسل المرجع الصيني (qidian.com) كما ظهر
