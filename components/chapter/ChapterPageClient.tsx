@@ -414,11 +414,7 @@ export default function ChapterPageClient({
                   </div>
                 )}
               </div>
-              <div
-                ref={contentRef}
-                className="chapter-no-copy text-justify"
-                style={{ fontSize }}
-              >
+              <div ref={contentRef} className="chapter-no-copy text-justify" style={{ fontSize }}>
                 {chapter.content
                   .split(/\n+/)
                   .map((p) => p.trim())

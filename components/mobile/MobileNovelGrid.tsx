@@ -6,16 +6,19 @@ export default function MobileNovelGrid({
   novels,
   count = 4,
   moreHref = "/categories",
+  bare = false,
 }: {
   title: string;
   novels: Novel[];
   count?: number;
   moreHref?: string;
+  /** لو true: من غير كارت أبيض مستقل حواليه (يبقى مسؤولية الحاوية اللي بتستدعيه) */
+  bare?: boolean;
 }) {
   if (novels.length === 0) return null;
 
-  return (
-    <section className="mobile-reference-card mobile-reference-books">
+  const content = (
+    <>
       <div className="mobile-reference-section-heading">
         <h2>{title}</h2>
         <a href={moreHref}>تبديل ↻</a>
@@ -37,6 +40,11 @@ export default function MobileNovelGrid({
           );
         })}
       </div>
-    </section>
+    </>
   );
+
+  if (bare) {
+    return <div className="mobile-reference-books">{content}</div>;
+  }
+  return <section className="mobile-reference-card mobile-reference-books">{content}</section>;
 }

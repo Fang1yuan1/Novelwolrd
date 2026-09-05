@@ -152,7 +152,10 @@ export default function MobileChapterReader({
         ref={contentRef}
         className="chapter-no-copy px-4 pb-16 pt-6 text-justify"
         style={{ fontSize, fontWeight: p.boldText ? 700 : 400 }}
-        onClick={() => setShowSheet(true)}
+        onClick={() => {
+          if (window.getSelection()?.toString()) return;
+          setShowSheet(true);
+        }}
       >
         {paragraphs.map((para, i) => (
           <p key={i} className="mb-4 indent-8 leading-loose">
