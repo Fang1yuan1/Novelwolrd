@@ -50,7 +50,7 @@ export default function MobileCategoryTabs({
                 <span className="mobile-reference-cover-placeholder" />
               )}
               <strong>{n.title}</strong>
-              <span>{cats[0] || "رواية"}</span>
+              <span>{cats.length > 0 ? cats.slice(0, 2).join(" · ") : "رواية"}</span>
             </a>
           );
         })}

@@ -42,7 +42,11 @@ export default function MobileNovelGrid({
                 <span className="mobile-reference-cover-placeholder" />
               )}
               <strong>{n.title}</strong>
-              <span>{categories[0] || "رواية • قراءة"}</span>
+              <span>
+                {categories.length > 0
+                  ? categories.slice(0, 2).join(" · ")
+                  : "رواية · قراءة"}
+              </span>
             </a>
           );
         })}
