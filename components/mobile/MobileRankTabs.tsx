@@ -70,23 +70,23 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
                   <img
                     src={n.cover_url}
                     alt={n.title}
-                    className="h-12 w-9 shrink-0 rounded object-cover"
+                    className="aspect-[0.6] w-[12vw] min-w-[44px] max-w-[60px] shrink-0 rounded object-cover"
                   />
                 ) : (
-                  <span className="ph-block h-12 w-9 shrink-0 rounded text-[8px]">​</span>
+                  <span className="ph-block aspect-[0.6] w-[12vw] min-w-[44px] max-w-[60px] shrink-0 rounded text-[8px]">​</span>
                 )}
                 <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded text-[11px] font-bold text-white ${
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-[12px] font-bold text-white ${
                     isTop3 ? "bg-[#e5353e]" : "bg-[#c7c7ca]"
                   }`}
                 >
                   {rank}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="line-clamp-1 block text-[13px] font-semibold text-ink-900">
+                  <span className="line-clamp-1 block text-[14px] font-semibold text-ink-900">
                     {n.title}
                   </span>
-                  <span className="line-clamp-1 block text-[11px] text-ink-400">
+                  <span className="line-clamp-1 block text-[12px] text-ink-400">
                     {n.author || "—"}
                   </span>
                 </span>
