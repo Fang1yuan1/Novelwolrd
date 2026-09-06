@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 export default function MobileGenderHeader({
   title,
   rightSlot,
@@ -10,8 +8,6 @@ export default function MobileGenderHeader({
   /** أيقونات إضافية على يمين الهيدر (زي البحث/الشبكة بصفحة التصنيفات) */
   rightSlot?: React.ReactNode;
 }) {
-  const [active, setActive] = useState<"m" | "f">("m");
-
   return (
     <header className="mobile-gender-header">
       <button
@@ -27,27 +23,6 @@ export default function MobileGenderHeader({
       </button>
 
       <h1 className="mobile-gender-title">{title}</h1>
-
-      <div className="mobile-gender-switch" role="tablist" aria-label="تصفية">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={active === "m"}
-          className={active === "m" ? "is-active" : ""}
-          onClick={() => setActive("m")}
-        >
-          رجالة
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={active === "f"}
-          className={active === "f" ? "is-active" : ""}
-          onClick={() => setActive("f")}
-        >
-          بنات
-        </button>
-      </div>
 
       <div className="mobile-gender-actions">
         {rightSlot ?? (

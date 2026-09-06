@@ -414,34 +414,6 @@ body {
   font-weight: 800;
   color: #202124;
 }
-.mobile-gender-switch {
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-}
-.mobile-gender-switch {
-  display: flex;
-  overflow: hidden;
-  border-radius: 16px;
-  background: #f2f2f3;
-  padding: 3px;
-  max-width: 160px;
-  margin: 0 auto;
-}
-.mobile-gender-switch button {
-  border: 0;
-  background: transparent;
-  border-radius: 13px;
-  padding: 5px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #78787c;
-}
-.mobile-gender-switch button.is-active {
-  background: #fff;
-  color: #222;
-  box-shadow: 0 1px 5px rgba(0,0,0,.08);
-}
 .mobile-gender-actions {
   flex: 0 0 auto;
   display: flex;
