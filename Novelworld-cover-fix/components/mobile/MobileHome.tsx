@@ -22,8 +22,8 @@ const bottomTiles = [
 ] as const;
 
 // ترتيب الأقسام: البانر/الأيقونات → الأكثر قراءة → البطاقات الأربعة →
-// الأكثر مبيعاً → قد يعجبك → تصنيفات → جديد سريع الانتشار →
-// مبيعات مختارة → روايات قصيرة → مجاني لفترة محدودة → لوحة الترتيب (آخر قسم)
+// الأكثر مبيعاً → قد يعجبك → مجاني لفترة محدودة → لوحة الترتيب →
+// تصنيفات → جديد سريع الانتشار → مبيعات مختارة → روايات قصيرة
 export default async function MobileHome() {
   const latest = await getNovels(8);
   const allNovels = await getNovels();
@@ -51,12 +51,12 @@ export default async function MobileHome() {
 
         <MobileBestsellerList />
         <MobileRecommendedForYou novels={allNovels} />
+        <MobileLimitedFree novels={allNovels} />
+        <MobileRankGrid />
         <MobileCategoryTabs categories={categoryNames} novels={allNovels} />
         <MobileFreshList />
         <MobileCuratedBestsellers />
         <MobileLightNovels />
-        <MobileLimitedFree novels={allNovels} />
-        <MobileRankGrid />
       </main>
       <MobileFooter />
     </div>
