@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Novel } from "@/lib/novels";
-import { parseCategories } from "@/lib/novels";
+import NovelListItem from "./NovelListItem";
 
 function pickBatch(novels: Novel[], count: number, excludeIds: number[]): Novel[] {
   const pool = novels.filter((n) => !excludeIds.includes(n.id));
@@ -36,36 +36,11 @@ export default function MobileRecommendedForYou({ novels }: { novels: Novel[] })
         </button>
       </div>
       <ul className="flex flex-col gap-4">
-        {batch.map((n) => {
-          const cats = parseCategories(n.category);
-          return (
-            <li key={n.id}>
-              <a href={`/novel/${n.id}`} className="flex items-start gap-3 text-right">
-                <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 block text-[14px] font-bold text-ink-900">
-                    {n.title}
-                  </span>
-                  {n.description && (
-                    <span className="line-clamp-2 mt-1 block text-[12px] leading-relaxed text-ink-500">
-                      {n.description}
-                    </span>
-                  )}
-                  {cats[0] && (
-                    <span className="mt-1.5 inline-block rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-                      {cats[0]}
-                    </span>
-                  )}
-                </span>
-                {n.cover_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={n.cover_url} alt={n.title} className="h-20 w-14 shrink-0 rounded object-cover" />
-                ) : (
-                  <span className="ph-block h-20 w-14 shrink-0 rounded text-[9px]">الغلاف</span>
-                )}
-              </a>
-            </li>
-          );
-        })}
+        {batch.map((n) => (
+          <li key={n.id}>
+            <NovelListItem novel={n} wordCount={n.word_count} />
+          </li>
+        ))}
       </ul>
     </section>
   );

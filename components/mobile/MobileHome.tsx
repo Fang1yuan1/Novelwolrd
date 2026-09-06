@@ -21,10 +21,9 @@ const bottomTiles = [
   ["جديد اليوم", "/new-today", "/icons/hometiles/new-today.png"],
 ] as const;
 
-// ترتيب الأقسام أدناه يتبع بالضبط تسلسل المرجع الصيني (qidian.com) كما ظهر
-// بالصور المرجعية: البانر/الأيقونات → الأكثر قراءة → البطاقات الأربعة →
-// الأكثر مبيعاً → روايات قصيرة → تصنيفات → جديد سريع الانتشار →
-// لوحة الترتيب (تبويبات) → مبيعات مختارة → قد يعجبك
+// ترتيب الأقسام: البانر/الأيقونات → الأكثر قراءة → البطاقات الأربعة →
+// الأكثر مبيعاً → قد يعجبك → تصنيفات → جديد سريع الانتشار →
+// لوحة الترتيب (تبويبات) → مبيعات مختارة → روايات قصيرة
 export default async function MobileHome() {
   const latest = await getNovels(8);
   const allNovels = await getNovels();
@@ -51,13 +50,13 @@ export default async function MobileHome() {
         </section>
 
         <MobileBestsellerList />
-        <MobileLightNovels />
+        <MobileRecommendedForYou novels={allNovels} />
         <MobileCategoryTabs categories={categoryNames} novels={allNovels} />
         <MobileFreshList />
         <MobileLimitedFree novels={allNovels} />
         <MobileRankGrid />
         <MobileCuratedBestsellers />
-        <MobileRecommendedForYou novels={allNovels} />
+        <MobileLightNovels />
       </main>
       <MobileFooter />
     </div>
