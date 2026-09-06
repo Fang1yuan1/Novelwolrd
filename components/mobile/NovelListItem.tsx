@@ -24,8 +24,8 @@ export default function NovelListItem({
         )}
         <span className="mt-2 flex items-center justify-between gap-2">
           <span className="text-[12px] text-ink-400">
-            {cats[0]}
-            {cats[0] && typeof wordCount === "number" && wordCount > 0 ? " · " : ""}
+            {cats.slice(0, 2).join(" · ")}
+            {cats.length > 0 && typeof wordCount === "number" && wordCount > 0 ? " · " : ""}
             {typeof wordCount === "number" && wordCount > 0 && `${formatCount(wordCount)} حرف`}
           </span>
           {tags.length > 0 && (
@@ -47,10 +47,12 @@ export default function NovelListItem({
         <img
           src={novel.cover_url}
           alt={novel.title}
-          className="h-20 w-14 shrink-0 rounded object-cover"
+          className="aspect-[0.88] w-[18vw] min-w-[64px] max-w-[92px] shrink-0 rounded object-cover"
         />
       ) : (
-        <span className="ph-block h-20 w-14 shrink-0 rounded text-[9px]">الغلاف</span>
+        <span className="ph-block aspect-[0.88] w-[18vw] min-w-[64px] max-w-[92px] shrink-0 rounded text-[9px]">
+          الغلاف
+        </span>
       )}
     </a>
   );
