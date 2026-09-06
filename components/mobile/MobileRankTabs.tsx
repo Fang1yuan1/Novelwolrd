@@ -61,7 +61,6 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
       <ul className="grid grid-cols-2 gap-x-3 gap-y-3">
         {ranked.map((n, i) => {
           const rank = i + 1;
-          const isTop3 = rank <= 3;
           return (
             <li key={n.id}>
               <a href={`/novel/${n.id}`} className="flex items-center gap-2.5">
@@ -70,18 +69,23 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
                   <img
                     src={n.cover_url}
                     alt={n.title}
-                    className="aspect-[0.6] w-[12vw] min-w-[44px] max-w-[60px] shrink-0 rounded object-cover"
+                    className="aspect-[0.72] w-[13vw] min-w-[46px] max-w-[62px] shrink-0 rounded object-cover"
                   />
                 ) : (
-                  <span className="ph-block aspect-[0.6] w-[12vw] min-w-[44px] max-w-[60px] shrink-0 rounded text-[8px]">​</span>
+                  <span className="ph-block aspect-[0.72] w-[13vw] min-w-[46px] max-w-[62px] shrink-0 rounded text-[8px]">​</span>
                 )}
-                <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-[12px] font-bold text-white ${
-                    isTop3 ? "bg-[#e5353e]" : "bg-[#c7c7ca]"
-                  }`}
-                >
-                  {rank}
-                </span>
+                {rank <= 3 ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`/icons/ranks/rank-${rank}.png`}
+                    alt={`الترتيب ${rank}`}
+                    className="h-5 w-5 shrink-0 object-contain"
+                  />
+                ) : (
+                  <span className="w-5 shrink-0 text-center text-[13px] font-bold text-[#9a9a9f]">
+                    {rank}
+                  </span>
+                )}
                 <span className="min-w-0 flex-1">
                   <span className="line-clamp-1 block text-[14px] font-semibold text-ink-900">
                     {n.title}
