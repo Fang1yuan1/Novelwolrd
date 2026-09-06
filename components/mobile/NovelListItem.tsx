@@ -10,6 +10,7 @@ export default function NovelListItem({
 }) {
   const cats = parseCategories(novel.category);
   const tags = parseCategories(novel.tags).slice(0, 2);
+  const statusLabel = novel.status === "completed" ? "مكتملة" : "مستمرة";
 
   return (
     <a href={`/novel/${novel.id}`} className="flex items-start gap-3 text-right">
@@ -23,10 +24,18 @@ export default function NovelListItem({
           </span>
         )}
         <span className="mt-2 flex items-center justify-between gap-2">
-          <span className="text-[12px] text-ink-400">
-            {cats.slice(0, 2).join(" · ")}
-            {cats.length > 0 && typeof wordCount === "number" && wordCount > 0 ? " · " : ""}
-            {typeof wordCount === "number" && wordCount > 0 && `${formatCount(wordCount)} حرف`}
+          <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[12px] text-ink-400">
+            {cats.length > 0 && <span>{cats.slice(0, 2).join(" · ")}</span>}
+            {cats.length > 0 && <span className="text-ink-300">·</span>}
+            <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10.5px] text-[#8a8a8f]">
+              {statusLabel}
+            </span>
+            {typeof wordCount === "number" && wordCount > 0 && (
+              <span className="text-ink-300">·</span>
+            )}
+            {typeof wordCount === "number" && wordCount > 0 && (
+              <span>{formatCount(wordCount)} حرف</span>
+            )}
           </span>
           {tags.length > 0 && (
             <span className="flex shrink-0 items-center gap-1.5">

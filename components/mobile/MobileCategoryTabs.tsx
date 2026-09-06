@@ -15,12 +15,19 @@ export default function MobileCategoryTabs({
 
   const filtered = novels
     .filter((n) => parseCategories(n.category).includes(active))
-    .slice(0, 4);
+    .slice(0, 5);
 
   if (categories.length === 0) return null;
 
   return (
     <section className="mobile-reference-card px-3 py-3">
+      <div className="mobile-reference-section-heading">
+        <span className="mobile-reference-heading-group">
+          <h2>توصيات حسب التصنيف</h2>
+          <span className="mobile-reference-badge-pill">اختيار المحرر</span>
+        </span>
+        <a href="/categories">المزيد ‹</a>
+      </div>
       <ul className="scroll-thin flex gap-2 overflow-x-auto pb-1">
         {categories.map((c) => (
           <li key={c} className="shrink-0">
