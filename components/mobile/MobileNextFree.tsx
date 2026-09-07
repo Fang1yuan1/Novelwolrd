@@ -8,7 +8,6 @@ export default function MobileNextFree({ novels }: { novels: Novel[] }) {
     <section className="mobile-reference-card px-3 py-3">
       <div className="mobile-reference-section-heading">
         <h2>العرض القادم</h2>
-        <a href="/categories">المزيد ‹</a>
       </div>
       <ul className="scroll-thin flex gap-2.5 overflow-x-auto pb-1">
         {items.map((n) => (
@@ -26,7 +25,7 @@ export default function MobileNextFree({ novels }: { novels: Novel[] }) {
                   الغلاف
                 </span>
               )}
-              <span className="line-clamp-2 mt-1.5 block text-[11px] font-semibold leading-snug text-ink-900">
+              <span className="line-clamp-2 mt-1 block text-[11px] font-semibold leading-snug text-ink-900">
                 {n.title}
               </span>
               <span className="line-clamp-1 mt-0.5 block text-[10px] text-ink-400">

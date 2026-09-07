@@ -45,16 +45,15 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
       <div className="mobile-reference-section-heading">
         <span className="mobile-reference-heading-group">
           <h2>مجاني لفترة محدودة</h2>
-          <span className="flex items-center gap-1 text-[13px] font-bold tabular-nums">
-            <span className="rounded bg-[#2b2b2e] px-1.5 py-0.5 text-white">{pad(h)}</span>
-            :
-            <span className="rounded bg-[#2b2b2e] px-1.5 py-0.5 text-white">{pad(m)}</span>
-            :
-            <span className="rounded bg-[#e5353e] px-1.5 py-0.5 text-white">{pad(s)}</span>
-          </span>
+        <span className="flex items-center gap-1 text-[13px] font-bold tabular-nums" dir="ltr">
+          <span className="rounded bg-[#2b2b2e] px-1.5 py-0.5 text-white">{pad(h)}</span>
+          :
+          <span className="rounded bg-[#2b2b2e] px-1.5 py-0.5 text-white">{pad(m)}</span>
+          :
+          <span className="rounded bg-[#e5353e] px-1.5 py-0.5 text-white">{pad(s)}</span>
         </span>
-        <a href="/categories">المزيد ‹</a>
-      </div>
+      </span>
+    </div>
       <ul className="scroll-thin flex gap-2.5 overflow-x-auto pb-1">
         {items.map((n) => (
           <li key={n.id} className="w-[86px] shrink-0">
@@ -71,7 +70,7 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
                   الغلاف
                 </span>
               )}
-              <span className="line-clamp-2 mt-1.5 block text-[11px] font-semibold leading-snug text-ink-900">
+              <span className="line-clamp-2 mt-1 block text-[11px] font-semibold leading-snug text-ink-900">
                 {n.title}
               </span>
               <span className="line-clamp-1 mt-0.5 block text-[10px] text-ink-400">
