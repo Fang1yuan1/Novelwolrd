@@ -54,9 +54,9 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
         </span>
       </span>
     </div>
-      <ul className="scroll-thin flex gap-2.5 overflow-x-auto pb-1">
+      <ul className="scroll-thin flex gap-2 overflow-x-auto pb-1">
         {items.map((n) => (
-          <li key={n.id} className="w-[86px] shrink-0">
+          <li key={n.id} className="w-[74px] shrink-0">
             <a href={`/novel/${n.id}`} className="block">
               {n.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
