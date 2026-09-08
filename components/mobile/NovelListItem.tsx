@@ -24,10 +24,7 @@ export default function NovelListItem({
           </span>
         )}
         <span className="mt-2 flex items-center justify-between gap-2">
-          <span className="shrink-0 text-[11px] text-ink-400">
-            {novel.author || ""}
-          </span>
-          <span className="flex flex-wrap items-center justify-end gap-1">
+          <span className="flex flex-wrap items-center gap-1">
             {cats[0] && (
               <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
                 {cats[0]}
@@ -49,6 +46,9 @@ export default function NovelListItem({
                 {t}
               </span>
             ))}
+          </span>
+          <span className="shrink-0 text-[11px] text-ink-400">
+            {novel.author || ""}
           </span>
         </span>
       </span>
