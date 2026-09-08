@@ -18,7 +18,7 @@ export default async function MobileFreePage() {
     .sort(
       (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
-    .slice(0, 3);
+    .slice(0, 2);
 
   return (
     <div className="mobile-reference-page">
@@ -40,7 +40,7 @@ export default async function MobileFreePage() {
                 <h2>الأكثر شعبية</h2>
                 <span className="mobile-reference-badge-pill">الأعمال الأعلى قراءة</span>
               </span>
-              <a href="/categories">المزيد ‹</a>
+              <a href="/categories" className="!text-[#9a9a9f]">المزيد ‹</a>
             </div>
             <ul className="flex flex-col gap-4">
               {popular.map((novel) => (
@@ -59,7 +59,7 @@ export default async function MobileFreePage() {
                 <h2>جديد مجاني</h2>
                 <span className="mobile-reference-badge-pill">أحدث الإضافات</span>
               </span>
-              <a href="/categories">المزيد ‹</a>
+              <a href="/categories" className="!text-[#9a9a9f]">المزيد ‹</a>
             </div>
             <ul className="flex flex-col gap-4">
               {newest.map((novel) => (
