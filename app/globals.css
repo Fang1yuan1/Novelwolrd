@@ -782,3 +782,11 @@ body {
   background: #fdeceb;
   color: #e5353e;
 }
+
+/* نص الفصل (موبايل وديسكتوب): يمنع بقاء كلمة أو كلمتين وحيدة بسطر قصير
+   بعد سطور مبرَّرة (orphans) — يعيد توزيع النص بشكل أكثر توازنًا بدل
+   القطع العشوائي عند نهاية كل سطر */
+.chapter-no-copy p {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
