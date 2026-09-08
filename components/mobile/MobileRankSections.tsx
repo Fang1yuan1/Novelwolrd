@@ -61,11 +61,16 @@ export default function MobileRankSections({ sections }: { sections: RankSection
                     ) : (
                       <span className="mobile-reference-cover-placeholder" />
                     )}
-                    <span
-                      className={`mobile-rank-badge ${rank <= 3 ? "is-top" : ""}`}
-                    >
-                      {rank}
-                    </span>
+                    {rank <= 3 ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/icons/ranks/rank-${rank}.png`}
+                        alt={`الترتيب ${rank}`}
+                        className="mobile-rank-badge-img"
+                      />
+                    ) : (
+                      <span className="mobile-rank-badge-plain">{rank}</span>
+                    )}
                     <span className="mobile-rank-info">
                       <strong>{n.title}</strong>
                       <span>

@@ -587,30 +587,34 @@ body {
 }
 .mobile-rank-item img,
 .mobile-rank-item .mobile-reference-cover-placeholder {
-  height: 92px;
-  width: 68px;
+  aspect-ratio: 0.72;
+  width: 13vw;
+  min-width: 46px;
+  max-width: 62px;
   flex-shrink: 0;
   border-radius: 6px;
   object-fit: cover;
   background: #c8c9cb;
   box-shadow: 0 1px 4px rgba(20,20,30,.15);
 }
-.mobile-rank-badge {
+.mobile-rank-badge-img {
   position: absolute;
-  top: -5px;
-  right: 50px;
-  display: flex;
-  height: 18px;
-  width: 18px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  background: #c7c7ca;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
+  top: -6px;
+  right: 40px;
+  height: 20px;
+  width: 20px;
+  object-fit: contain;
 }
-.mobile-rank-badge.is-top { background: #e5353e; }
+.mobile-rank-badge-plain {
+  position: absolute;
+  top: -3px;
+  right: 44px;
+  width: 20px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #9a9a9f;
+}
 .mobile-rank-info { min-width: 0; flex: 1; }
 .mobile-rank-info strong {
   display: -webkit-box;
