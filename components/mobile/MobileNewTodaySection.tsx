@@ -61,7 +61,7 @@ export default function MobileNewTodaySection({
       {visible.length === 0 ? (
         <p className="mobile-category-empty">لا توجد أعمال بهذا التصنيف حاليًا.</p>
       ) : (
-        <section className="mobile-reference-card px-3 py-3">
+        <section className="mobile-reference-card mobile-reference-card--flush px-3 py-3">
           <ul className="flex flex-col gap-4">
             {visible.map((novel) => (
               <li key={novel.id}>
