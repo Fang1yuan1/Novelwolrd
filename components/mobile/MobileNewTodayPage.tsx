@@ -3,8 +3,8 @@ import { getCategories } from "@/lib/categories";
 import MobileGenderHeader from "./MobileGenderHeader";
 import MobileNewTodaySection from "./MobileNewTodaySection";
 
-// أقصى عدد روايات تظهر بالصفحة (شبكة 4 أعمدة) — لغاية 20 لو البيانات كافية
-const LIMIT = 20;
+// أقصى عدد روايات تظهر بالصفحة لهذا التاريخ
+const LIMIT = 27;
 
 export default async function MobileNewTodayPage() {
   const [all, categoryRows] = await Promise.all([getNovels(), getCategories()]);
