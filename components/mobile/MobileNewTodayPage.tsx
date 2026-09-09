@@ -1,23 +1,17 @@
 import { getNovels } from "@/lib/novels";
-import { getCategories } from "@/lib/categories";
 import MobileGenderHeader from "./MobileGenderHeader";
-import MobileNewTodaySection from "./MobileNewTodaySection";
+import NovelListItem from "./NovelListItem";
 
 // أقصى عدد روايات تظهر بالصفحة — دايمًا لغاية 17 لو البيانات كافية
 const LIMIT = 17;
 
 export default async function MobileNewTodayPage() {
-  const [all, categoryRows] = await Promise.all([getNovels(), getCategories()]);
-  const categories = categoryRows.map((c) => c.name);
-
-  const newest = [...all].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
-
-  const today = new Date();
-  const dateLabel = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, "0")}.${String(
-    today.getDate()
-  ).padStart(2, "0")}`;
+  const all = await getNovels();
+  const newest = [...all]
+    .sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, LIMIT);
 
   return (
     <div className="mobile-reference-page">
@@ -26,12 +20,15 @@ export default async function MobileNewTodayPage() {
         {newest.length === 0 ? (
           <p className="mobile-category-empty">لا توجد أعمال مضافة حاليًا.</p>
         ) : (
-          <MobileNewTodaySection
-            categories={categories}
-            novels={newest}
-            dateLabel={dateLabel}
-            limit={LIMIT}
-          />
+          <section className="mobile-reference-card mobile-reference-card--flush px-3 py-3">
+            <ul className="flex flex-col gap-4">
+              {newest.map((novel) => (
+                <li key={novel.id}>
+                  <NovelListItem novel={novel} wordCount={novel.word_count} />
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </div>
     </div>
