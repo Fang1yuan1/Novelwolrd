@@ -811,14 +811,15 @@ body {
   background: #fce9ea;
 }
 .mobile-newtoday-date {
-  margin: 6px 0 10px;
+  margin: 10px 0 14px;
   font-size: 15px;
   font-weight: 500;
   color: #8a8a8f;
 }
-/* المرجع مفيهوش خط فاصل تحت التاريخ — بيعتمد على الظل بس من غير حد */
+/* المرجع مفيهوش أي خط أو ظل فاصل تحت التاريخ — نشيلهم خالص */
 .mobile-newtoday-list {
-  border-top: none;
+  border: none;
+  box-shadow: none;
 }
 
 /* نص الفصل (موبايل وديسكتوب): يمنع بقاء كلمة أو كلمتين وحيدة بسطر قصير
