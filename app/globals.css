@@ -790,6 +790,10 @@ body {
      الفراغ اللي بيسيبه التفاف التصنيفات (تحت آخر صف) ما يبانش كبقعة
      بيضا منفصلة عن الفجوة الرمادية اللي بعده قبل كارت القائمة */
   background: transparent;
+  /* السبب الحقيقي للخط اللي كان مصرّ يبان: كلاس --flush بيصفّر كل
+     حدود الكارت الافتراضي ماعدا border-bottom (باقي 1px من
+     .mobile-reference-card). هنا بنصفّره صراحة لهذا الشريط بالذات */
+  border-bottom: 0;
 }
 .mobile-newtoday-tabs-grid {
   display: flex;
@@ -818,6 +822,7 @@ body {
 }
 /* المرجع مفيهوش أي خط أو ظل فاصل تحت التاريخ — نشيلهم خالص */
 .mobile-newtoday-list {
+  margin-top: 0;
   border: none;
   box-shadow: none;
 }
