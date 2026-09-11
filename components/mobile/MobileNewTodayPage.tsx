@@ -15,13 +15,9 @@ export default async function MobileNewTodayPage() {
   );
 
   const today = new Date();
-  const rangeEnd = new Date(today);
-  rangeEnd.setDate(today.getDate() + 6);
-  const fmt = (d: Date) =>
-    `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(
-      d.getDate()
-    ).padStart(2, "0")}`;
-  const dateLabel = `${fmt(today)} ~ ${fmt(rangeEnd)}`;
+  const dateLabel = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, "0")}.${String(
+    today.getDate()
+  ).padStart(2, "0")}`;
 
   return (
     <div className="mobile-reference-page">
