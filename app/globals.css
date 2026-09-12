@@ -559,11 +559,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* نفس نسبة عرض:ارتفاع صورة الباذج بالمرجع بالظبط (تقريبًا 3:1) بدل
-     ارتفاع ثابت كان بيخلي الشريط كبير وغير متناسب مع عرضه */
-  width: 100%;
-  aspect-ratio: 2168 / 725;
-  height: auto;
+  /* نفس نسبة شريط المرجع الفعلية بالواجهة (عريض جدًا ورفيع، مش نسبة
+     ملف الصورة الخام اللي فيها مساحة فاضية كتير حوالين الرسمة) */
+  height: 80px;
   margin: 0 -14px 12px;
   background-image: url("/icons/rank/banner.jpg"), linear-gradient(90deg, #f8d488 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
   background-repeat: no-repeat, no-repeat;
