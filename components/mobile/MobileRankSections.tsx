@@ -43,6 +43,12 @@ export default function MobileRankSections({ sections }: { sections: RankSection
       {sections.map((s) => (
         <section key={s.key} id={`rank-${s.key}`} className="mobile-rank-card">
           <div className="mobile-rank-card-heading">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icons/rank/banner.png?v=4"
+              alt=""
+              className="mobile-rank-card-star"
+            />
             <span className="mobile-rank-card-heading-text">
               <LaurelIcon flip className="h-6 w-4" />
               {s.label}

@@ -560,18 +560,25 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  /* نسبة أبعاد صورة الشريط الكاملة (2025×302، بعد إزالة الكتابة
-     الصينية من نص الصورة وقص حواف الكارت الأصلي من كل الجهات) */
-  aspect-ratio: 2025 / 302;
+  aspect-ratio: 2120 / 306;
   height: auto;
   margin: 0 -14px 12px;
-  /* بدل ما نحاول نطابق صورة جزئية مع تدرّج CSS تخميني (وده اللي كان
-     بيعمل خط فاصل)، دلوقتي الصورة بقت شريط واحد متصل بعرض كامل —
-     مفيش طبقة تانية خالص فمفيش حاجة تتخالف معاها */
-  background-image: url("/icons/rank/banner.png?v=3");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
+  overflow: hidden;
+  /* الخلفية بقت تدرّج CSS بسيط بس (نفس ألوان المرجع)، من غير أي
+     صورة ممتدة — كده مفيش تمدد معقد ممكن يتلخبط */
+  background: linear-gradient(90deg, #ffe6bf 0%, #fce8c1 25%, #fdebd3 55%, #fff7ef 100%);
+}
+/* أيقونة النجمة/الميدالية — صورة عادية زي أي أيقونة، متثبّتة بارتفاع
+   الشريط وبتاخد عرضها من نسبتها الطبيعية (مش عن طريق تمدد خلفية) */
+.mobile-rank-card-star {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: auto;
+  max-width: 45%;
+  object-fit: cover;
+  pointer-events: none;
 }
 .mobile-rank-card-heading-text {
   position: relative;
