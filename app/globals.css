@@ -592,9 +592,9 @@ body {
 .mobile-rank-item img,
 .mobile-rank-item .mobile-reference-cover-placeholder {
   aspect-ratio: 0.72;
-  width: 13vw;
-  min-width: 46px;
-  max-width: 62px;
+  width: 11.5vw;
+  min-width: 40px;
+  max-width: 55px;
   flex-shrink: 0;
   border-radius: 6px;
   object-fit: cover;
@@ -604,9 +604,9 @@ body {
 /* رقم الترتيب — عمود مستقل جنب الغلاف (نفس مكان المرجع)، مش فوقه */
 .mobile-rank-num {
   flex-shrink: 0;
-  width: 22px;
+  width: 19px;
   text-align: center;
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 800;
   color: #9a9a9f;
 }
