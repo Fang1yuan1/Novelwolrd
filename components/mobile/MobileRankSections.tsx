@@ -55,21 +55,12 @@ export default function MobileRankSections({ sections }: { sections: RankSection
               return (
                 <li key={n.id}>
                   <a href={`/novel/${n.id}`} className="mobile-rank-item">
+                    <span className="mobile-rank-num">{rank}</span>
                     {n.cover_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={n.cover_url} alt={n.title} />
                     ) : (
                       <span className="mobile-reference-cover-placeholder" />
-                    )}
-                    {rank <= 3 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={`/icons/ranks/rank-${rank}.png`}
-                        alt={`الترتيب ${rank}`}
-                        className="mobile-rank-badge-img"
-                      />
-                    ) : (
-                      <span className="mobile-rank-badge-plain">{rank}</span>
                     )}
                     <span className="mobile-rank-info">
                       <strong>{n.title}</strong>
