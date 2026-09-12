@@ -584,6 +584,9 @@ body {
 .mobile-rank-list { display: flex; flex-direction: column; gap: 12px; }
 .mobile-rank-item {
   display: flex;
+  /* المرجع الصيني: الغلاف بيفضل أقصى الشمال زي التصميم الأصلي، وبعدين
+     كتلة النص (بما فيها شارة الرقم) بتاخد الباقي */
+  direction: ltr;
   align-items: center;
   gap: 10px;
   text-decoration: none;
@@ -601,24 +604,48 @@ body {
   background: #c8c9cb;
   box-shadow: 0 1px 4px rgba(20,20,30,.15);
 }
-/* رقم الترتيب — عمود مستقل جنب الغلاف (نفس مكان المرجع)، مش فوقه */
-.mobile-rank-num {
-  flex-shrink: 0;
-  width: 19px;
-  text-align: center;
-  font-size: 17px;
-  font-weight: 800;
-  color: #9a9a9f;
+.mobile-rank-info {
+  min-width: 0;
+  flex: 1;
+  direction: rtl;
+  text-align: right;
 }
-.mobile-rank-info { min-width: 0; flex: 1; }
-.mobile-rank-info strong {
-  display: -webkit-box;
+/* صف العنوان: شارة الترتيب ملزّقة جنب الاسم مباشرة (مش عمود مستقل
+   جنب الغلاف) — بنفس حجم ومكان المرجع بالظبط */
+.mobile-rank-title-row {
+  display: flex;
+  align-items: center;
+  direction: ltr;
+  gap: 5px;
+}
+.mobile-rank-badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #fd4550 0%, #fe8b92 100%);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1;
+}
+.mobile-rank-title-text {
+  min-width: 0;
+  flex: 1;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: right;
+}
+.mobile-rank-info strong.mobile-rank-title-row {
   font-size: 14.5px;
   font-weight: 700;
   color: #202124;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
 }
 .mobile-rank-info span {
   display: block;
@@ -633,14 +660,15 @@ body {
   display: block;
   margin: 12px 0 4px;
   border-radius: 20px;
-  background: #fff;
-  padding: 8px;
+  /* المرجع الصيني: خلفية رمادي فاتح "ضبابي" بدون حدود ولا ظل، مش
+     كارت أبيض بحدّ زي القديم */
+  background: #f5f5f5;
+  padding: 10px;
   text-align: center;
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 700;
-  color: #a9782f;
+  color: #191919;
   text-decoration: none;
-  box-shadow: 0 1px 3px rgba(20,20,30,.08);
 }
 
 /* ===== شريط السطوع بلوحة إعدادات القراءة (Themes & Settings) ===== */

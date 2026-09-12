@@ -55,7 +55,6 @@ export default function MobileRankSections({ sections }: { sections: RankSection
               return (
                 <li key={n.id}>
                   <a href={`/novel/${n.id}`} className="mobile-rank-item">
-                    <span className="mobile-rank-num">{rank}</span>
                     {n.cover_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={n.cover_url} alt={n.title} />
@@ -63,7 +62,10 @@ export default function MobileRankSections({ sections }: { sections: RankSection
                       <span className="mobile-reference-cover-placeholder" />
                     )}
                     <span className="mobile-rank-info">
-                      <strong>{n.title}</strong>
+                      <strong className="mobile-rank-title-row">
+                        <span className="mobile-rank-badge">{rank}</span>
+                        <span className="mobile-rank-title-text">{n.title}</span>
+                      </strong>
                       <span>
                         {n.author || "غير معروف"} · {n.chapterCount} فصل ·{" "}
                         {formatWords(n.wordCount)}
