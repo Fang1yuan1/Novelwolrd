@@ -566,7 +566,7 @@ body {
   aspect-ratio: 2096 / 301;
   height: auto;
   margin: 0 -14px 12px;
-  background-image: url("/icons/rank/banner.jpg"), linear-gradient(90deg, #f8d488 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
+  background-image: url("/icons/rank/banner.png"), linear-gradient(90deg, #f8d488 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
   background-repeat: no-repeat, no-repeat;
   background-position: center, center;
   background-size: cover, cover;
