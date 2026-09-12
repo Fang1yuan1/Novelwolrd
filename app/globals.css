@@ -560,25 +560,18 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  aspect-ratio: 2120 / 306;
+  /* نسبة الحاوية لازم تطابق نسبة صورة banner.png نفسها بالظبط
+     (2025×302) — عشان لما نحدد حجم الصورة بارتفاعها بس
+     (auto 100%) يجي عرضها مساوي بالظبط لعرض الحاوية، فتاخد "مكانها"
+     صح تمامًا من غير ما تحتاج تمدد أو تخمين موضع */
+  aspect-ratio: 2025 / 302;
   height: auto;
   margin: 0 -14px 12px;
   overflow: hidden;
-  /* الخلفية بقت تدرّج CSS بسيط بس (نفس ألوان المرجع)، من غير أي
-     صورة ممتدة — كده مفيش تمدد معقد ممكن يتلخبط */
-  background: linear-gradient(90deg, #ffe6bf 0%, #fce8c1 25%, #fdebd3 55%, #fff7ef 100%);
-}
-/* أيقونة النجمة/الميدالية — صورة عادية زي أي أيقونة، متثبّتة بارتفاع
-   الشريط وبتاخد عرضها من نسبتها الطبيعية (مش عن طريق تمدد خلفية) */
-.mobile-rank-card-star {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: auto;
-  max-width: 45%;
-  object-fit: cover;
-  pointer-events: none;
+  background-image: url("/icons/rank/banner.png?v=5");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: auto 100%;
 }
 .mobile-rank-card-heading-text {
   position: relative;
