@@ -53,15 +53,18 @@ export default function MobileNewTodaySection({
             </li>
           ))}
         </ul>
-        {/* التاريخ — نفس مكان "2026.09.06 ~ 2026.09.13" بالمرجع */}
-        <p className="mobile-newtoday-date">{dateLabel}</p>
+        {/* التاريخ — نفس مكان "2026.09.06 ~ 2026.09.13" بالمرجع. dir=ltr عشان
+            الترتيب ما ينقلبش (البيئة RTL بتقلب رقمين متتاليين حوالين "~") */}
+        <p className="mobile-newtoday-date" dir="ltr">
+          {dateLabel}
+        </p>
       </section>
 
       {/* نفس شكل قسم "الأكثر مبيعاً" بالضبط (NovelListItem) */}
       {visible.length === 0 ? (
         <p className="mobile-category-empty">لا توجد أعمال بهذا التصنيف حاليًا.</p>
       ) : (
-        <section className="mobile-reference-card px-3 py-3">
+        <section className="mobile-reference-card mobile-newtoday-list px-3 py-3">
           <ul className="flex flex-col gap-4">
             {visible.map((novel) => (
               <li key={novel.id}>

@@ -580,9 +580,10 @@ body {
 .mobile-rank-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
   color: inherit;
+  position: relative;
 }
 .mobile-rank-item img,
 .mobile-rank-item .mobile-reference-cover-placeholder {
@@ -597,14 +598,18 @@ body {
   box-shadow: 0 1px 4px rgba(20,20,30,.15);
 }
 .mobile-rank-badge-img {
+  position: absolute;
+  top: -6px;
+  right: 40px;
   height: 20px;
   width: 20px;
-  flex-shrink: 0;
   object-fit: contain;
 }
 .mobile-rank-badge-plain {
+  position: absolute;
+  top: -3px;
+  right: 44px;
   width: 20px;
-  flex-shrink: 0;
   text-align: center;
   font-size: 13px;
   font-weight: 800;
@@ -780,22 +785,26 @@ body {
 
 /* ===== شريط تصنيفات + تاريخ صفحة "جديد اليوم" (بنفس حجم/مكان تبويبات المرجع الصيني) ===== */
 .mobile-newtoday-tabs {
-  padding: 14px 14px 12px;
+  padding: 12px 14px 0;
   /* بدل الأبيض المنفصل: نخلي خلفية الشريط نفس رمادي الصفحة عشان
      الفراغ اللي بيسيبه التفاف التصنيفات (تحت آخر صف) ما يبانش كبقعة
      بيضا منفصلة عن الفجوة الرمادية اللي بعده قبل كارت القائمة */
   background: transparent;
+  /* السبب الحقيقي للخط اللي كان مصرّ يبان: كلاس --flush بيصفّر كل
+     حدود الكارت الافتراضي ماعدا border-bottom (باقي 1px من
+     .mobile-reference-card). هنا بنصفّره صراحة لهذا الشريط بالذات */
+  border-bottom: 0;
 }
 .mobile-newtoday-tabs-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px 8px;
+  gap: 7px 6px;
 }
 .mobile-newtoday-tab {
   white-space: nowrap;
   border-radius: 999px;
-  padding: 7px 13px;
-  font-size: 12.5px;
+  padding: 5px 10px;
+  font-size: 11.5px;
   font-weight: 500;
   line-height: 1;
   color: #5b5b60;
@@ -806,10 +815,16 @@ body {
   background: #fce9ea;
 }
 .mobile-newtoday-date {
-  margin-top: 14px;
+  margin: 10px 0 14px;
   font-size: 15px;
   font-weight: 500;
   color: #8a8a8f;
+}
+/* المرجع مفيهوش أي خط أو ظل فاصل تحت التاريخ — نشيلهم خالص */
+.mobile-newtoday-list {
+  margin-top: 0;
+  border: none;
+  box-shadow: none;
 }
 
 /* نص الفصل (موبايل وديسكتوب): يمنع بقاء كلمة أو كلمتين وحيدة بسطر قصير
