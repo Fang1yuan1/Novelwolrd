@@ -559,14 +559,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* النسبة الحقيقية لحدود الشريط بالمرجع (اتقاست من صورة نظيفة
-     بعتها المستخدم: 2096×301px ≈ 7:1) بعد استبعاد الفراغ الأبيض
-     حوالين الرسمة اللي كانت بتلخبط القياس */
+  /* نسبة الشريط الحقيقية من صورة المرجع عالية الجودة اللي بعتها
+     المستخدم (835×306 بعد القص لحد ما قبل الكتابة الصينية) */
   width: 100%;
-  aspect-ratio: 2096 / 301;
+  aspect-ratio: 835 / 306;
   height: auto;
   margin: 0 -14px 12px;
-  background-image: url("/icons/rank/banner.png"), linear-gradient(90deg, #fee4bd 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
+  background-image: url("/icons/rank/banner.png"), linear-gradient(90deg, #ffe6bf 0%, #fce8c1 25%, #fdebd3 55%, #fff7ef 100%);
   background-repeat: no-repeat, no-repeat;
   background-position: left center, center;
   background-size: auto 100%, cover;
@@ -575,11 +574,11 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 16px;
+  gap: 7px;
+  font-size: 14px;
   font-weight: 800;
   color: #8a5a1e;
-  letter-spacing: 1px;
+  letter-spacing: .5px;
 }
 .mobile-rank-list { display: flex; flex-direction: column; gap: 12px; }
 .mobile-rank-item {
