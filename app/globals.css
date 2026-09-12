@@ -559,12 +559,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 72px;
+  /* نفس نسبة عرض:ارتفاع صورة الباذج بالمرجع بالظبط (تقريبًا 3:1) بدل
+     ارتفاع ثابت كان بيخلي الشريط كبير وغير متناسب مع عرضه */
+  width: 100%;
+  aspect-ratio: 2168 / 725;
+  height: auto;
   margin: 0 -14px 12px;
   background-image: url("/icons/rank/banner.jpg"), linear-gradient(90deg, #f8d488 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
   background-repeat: no-repeat, no-repeat;
-  background-position: left center, center;
-  background-size: auto 100%, cover;
+  background-position: center, center;
+  background-size: cover, cover;
 }
 .mobile-rank-card-heading-text {
   position: relative;
