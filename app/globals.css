@@ -568,7 +568,7 @@ body {
   /* بدل ما نحاول نطابق صورة جزئية مع تدرّج CSS تخميني (وده اللي كان
      بيعمل خط فاصل)، دلوقتي الصورة بقت شريط واحد متصل بعرض كامل —
      مفيش طبقة تانية خالص فمفيش حاجة تتخالف معاها */
-  background-image: url("/icons/rank/banner.png");
+  background-image: url("/icons/rank/banner.png?v=3");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
