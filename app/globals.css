@@ -559,9 +559,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* نفس نسبة شريط المرجع الفعلية بالواجهة (عريض جدًا ورفيع، مش نسبة
-     ملف الصورة الخام اللي فيها مساحة فاضية كتير حوالين الرسمة) */
-  height: 80px;
+  /* النسبة الحقيقية لحدود الشريط بالمرجع (اتقاست من صورة نظيفة
+     بعتها المستخدم: 2096×301px ≈ 7:1) بعد استبعاد الفراغ الأبيض
+     حوالين الرسمة اللي كانت بتلخبط القياس */
+  width: 100%;
+  aspect-ratio: 2096 / 301;
+  height: auto;
   margin: 0 -14px 12px;
   background-image: url("/icons/rank/banner.jpg"), linear-gradient(90deg, #f8d488 0%, #fbe3b0 30%, #fdf3dd 65%, #fffdf8 100%);
   background-repeat: no-repeat, no-repeat;
