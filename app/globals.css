@@ -559,10 +559,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* نسبة الشريط الحقيقية من صورة المرجع عالية الجودة اللي بعتها
-     المستخدم (835×306 بعد القص لحد ما قبل الكتابة الصينية) */
+  /* نسبة أبعاد الشريط الكامل (اتقاست من صورة المرجع عالية الجودة:
+     العرض الكامل للشريط 2120px بارتفاع 306px). صورة banner.png
+     نفسها مقصوصة أضيق (835px، الجزء اللي فيه النجمة بس) وبتتحط في
+     يسار الحاوية بـ background-size: auto 100% — عشان كده لازم
+     نسبة الحاوية تفضل نسبة الشريط الكامل، مش نسبة الصورة المقصوصة،
+     وإلا الشريط بيبقى طويل أوي زي ما حصل */
   width: 100%;
-  aspect-ratio: 835 / 306;
+  aspect-ratio: 2120 / 306;
   height: auto;
   margin: 0 -14px 12px;
   background-image: url("/icons/rank/banner.png"), linear-gradient(90deg, #ffe6bf 0%, #fce8c1 25%, #fdebd3 55%, #fff7ef 100%);
