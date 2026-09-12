@@ -569,7 +569,15 @@ body {
   aspect-ratio: 2120 / 306;
   height: auto;
   margin: 0 -14px 12px;
-  background-image: url("/icons/rank/banner.png"), linear-gradient(90deg, #ffe6bf 0%, #fce8c1 25%, #fdebd3 55%, #fff7ef 100%);
+  /* الصورة كانت في الأصل جزء من كارت عايم بحواف دائرية وظل خفيف
+     حواليه بصورة المرجع — القصة القديمة كانت لسه فيها شوية من
+     الحافة/الظل ده وطالعة كإنها "بوكس" حوالين النجمة، فقصيتها من
+     تاني وسط الرسمة بس (من غير أي حافة) عشان تندمج من غير خط فاصل.
+     وألوان التدرّج هنا اتسحبت من نفس البكسلات الحقيقية اللي بعد
+     نهاية الصورة في المرجع، ومترجمة لنسبة عرض الحاوية عشان لون
+     التدرّج عند نقطة التقاء الصورة بيه يطابق آخر لون في الصورة
+     بالظبط من غير ما يبان خط فاصل */
+  background-image: url("/icons/rank/banner.png"), linear-gradient(90deg, #ffe6bf 38.47%, #fff3d0 45.73%, #fce8c1 55.45%, #fdebd3 69.97%, #fff2df 84.56%, #fef3e7 94.21%, #fff7ef 100%);
   background-repeat: no-repeat, no-repeat;
   background-position: left center, center;
   background-size: auto 100%, cover;
