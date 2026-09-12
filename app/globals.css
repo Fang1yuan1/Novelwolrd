@@ -556,27 +556,26 @@ body {
 }
 .mobile-rank-card-heading {
   position: relative;
+  display: block;
+  width: 100%;
+  margin: 0 -14px 12px;
+  line-height: 0;
+  overflow: hidden;
+}
+/* الصورة نفسها هي اللي بتحدد ارتفاع الشريط (width:100%, height:auto)
+   — أبسط طريقة ممكنة وموجودة في كل المتصفحات، مفيش حسابات نسب أو
+   تمدد ممكن تتلخبط أو تسيب فراغ/خط فاصل */
+.mobile-rank-card-heading-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.mobile-rank-card-heading-text {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  /* نسبة الحاوية لازم تطابق نسبة صورة banner.png نفسها بالظبط
-     (2025×302) — عشان لما نحدد حجم الصورة بارتفاعها بس
-     (auto 100%) يجي عرضها مساوي بالظبط لعرض الحاوية، فتاخد "مكانها"
-     صح تمامًا من غير ما تحتاج تمدد أو تخمين موضع */
-  aspect-ratio: 2025 / 302;
-  height: auto;
-  margin: 0 -14px 12px;
-  overflow: hidden;
-  background-image: url("/icons/rank/banner.png?v=5");
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: auto 100%;
-}
-.mobile-rank-card-heading-text {
-  position: relative;
-  display: flex;
-  align-items: center;
   gap: 7px;
   font-size: 14px;
   font-weight: 800;
