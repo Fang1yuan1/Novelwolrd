@@ -638,6 +638,14 @@ body {
   font-weight: 800;
   line-height: 1;
 }
+/* أيقونات المراكز 1 و2 و3 الجاهزة (rank-1/2/3.png) — بنفس ارتفاع
+   شارة الرقم العادية (24px) عشان تاخد بالظبط نفس المكان والحجم */
+.mobile-rank-badge-icon {
+  flex-shrink: 0;
+  height: 24px;
+  width: auto;
+  display: block;
+}
 .mobile-rank-title-text {
   min-width: 0;
   flex: 1;

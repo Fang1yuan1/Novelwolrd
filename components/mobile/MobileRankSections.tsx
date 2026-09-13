@@ -69,7 +69,16 @@ export default function MobileRankSections({ sections }: { sections: RankSection
                     )}
                     <span className="mobile-rank-info">
                       <strong className="mobile-rank-title-row">
-                        <span className="mobile-rank-badge">{rank}</span>
+                        {rank <= 3 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={`/icons/ranks/rank-${rank}.png`}
+                            alt={String(rank)}
+                            className="mobile-rank-badge-icon"
+                          />
+                        ) : (
+                          <span className="mobile-rank-badge">{rank}</span>
+                        )}
                         <span className="mobile-rank-title-text">{n.title}</span>
                       </strong>
                       <span>
