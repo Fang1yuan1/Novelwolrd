@@ -35,7 +35,7 @@ export default function MobileChapterPreview({
           <button
             type="button"
             onClick={() => setExpanded((e) => !e)}
-            className="text-[15px] text-ink-300"
+            className="-ml-3 px-3 py-1 text-[18px] leading-none text-ink-300"
             aria-label={expanded ? "إخفاء الفصول" : "عرض كل الفصول"}
           >
             {expanded ? "‹" : "›"}
