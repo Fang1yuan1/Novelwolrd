@@ -56,13 +56,7 @@ export default async function MobileMostReadPage() {
               const cats = parseCategories(n.category);
               return (
                 <li key={n.id} className="mobile-pick-card">
-                  <a href={`/novel/${n.id}`} className="flex items-start gap-3">
-                    {n.cover_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={n.cover_url} alt={n.title} className="mobile-pick-cover" />
-                    ) : (
-                      <span className="ph-block mobile-pick-cover text-[9px]">الغلاف</span>
-                    )}
+                  <a href={`/novel/${n.id}`} className="mobile-pick-head flex items-start gap-3">
                     <span className="min-w-0 flex-1">
                       <span className="block text-[16px] font-bold text-ink-900">{n.title}</span>
                       {n.description && (
@@ -87,10 +81,19 @@ export default async function MobileMostReadPage() {
                         )}
                       </span>
                     </span>
+                    {n.cover_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={n.cover_url} alt={n.title} className="mobile-pick-cover" />
+                    ) : (
+                      <span className="ph-block mobile-pick-cover text-[9px]">الغلاف</span>
+                    )}
                   </a>
 
                   {n.description && (
-                    <p className="mobile-pick-quote line-clamp-3">“{n.description}”</p>
+                    <p className="mobile-pick-quote line-clamp-2">
+                      <span className="mobile-pick-quote-mark" aria-hidden>“</span>
+                      {n.description}
+                    </p>
                   )}
 
                   <div className="mt-3 flex gap-2.5">
