@@ -46,7 +46,7 @@ export default async function MobileMostReadPage() {
         }
       />
       <div className="mobile-reference-content">
-        <p className="px-3 pt-3 text-[13px] text-ink-400">{currentWeekRange()}</p>
+        <p className="px-3 pt-3 text-[15px] text-ink-400">{currentWeekRange()}</p>
 
         {picks.length === 0 ? (
           <p className="mobile-category-empty">لا توجد أعمال كافية حاليًا.</p>
@@ -65,17 +65,17 @@ export default async function MobileMostReadPage() {
                         </span>
                       )}
                       <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                        {cats[0] && <span className="mobile-pick-tag">{cats[0]}</span>}
-                        {n.status && (
-                          <span className="mobile-pick-tag">
-                            {n.status === "completed" ? "مكتملة" : "مستمرة"}
-                          </span>
-                        )}
                         {typeof n.word_count === "number" && n.word_count > 0 && (
                           <span className="mobile-pick-tag">
                             {formatCount(n.word_count)} حرف
                           </span>
                         )}
+                        {n.status && (
+                          <span className="mobile-pick-tag">
+                            {n.status === "completed" ? "مكتملة" : "مستمرة"}
+                          </span>
+                        )}
+                        {cats[0] && <span className="mobile-pick-tag">{cats[0]}</span>}
                       </span>
                     </span>
                     {n.cover_url ? (
