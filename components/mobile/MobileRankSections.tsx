@@ -72,7 +72,7 @@ export default function MobileRankSections({ sections }: { sections: RankSection
                         {rank <= 3 ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={`/icons/ranks/rank-${rank}.png`}
+                            src={`/icons/ranks/rank-${rank}-sq.png`}
                             alt={String(rank)}
                             className="mobile-rank-badge-icon"
                           />

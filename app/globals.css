@@ -598,8 +598,13 @@ body {
   text-decoration: none;
   color: inherit;
 }
-.mobile-rank-item img,
-.mobile-rank-item .mobile-reference-cover-placeholder {
+/* ">" هنا (بدل المسافة) عشان يستهدف بس صورة الغلاف اللي هي ابن
+   مباشر لـ .mobile-rank-item — قبل كده كانت بتطبّق على أي img
+   جواها حتى لو متداخل جوه مستويات تانية، فكانت خاطفة شكل أيقونة
+   الترتيب (rank-badge-icon) وخلتها بحجم الغلاف (40-55px مستطيلة)
+   بدل حجمها الصح (24px مربعة) */
+.mobile-rank-item > img,
+.mobile-rank-item > .mobile-reference-cover-placeholder {
   aspect-ratio: 0.72;
   width: 11.5vw;
   min-width: 40px;
@@ -630,21 +635,22 @@ body {
   justify-content: center;
   min-width: 24px;
   height: 24px;
-  padding: 0 5px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #fd4550 0%, #fe8b92 100%);
-  color: #fff;
   font-size: 14px;
   font-weight: 800;
   line-height: 1;
+  /* رقم عادي بس (زي أي نص) من غير أي مربع/خلفية لونها — للمراكز
+     الرابع والخامس وما بعدهم */
+  color: #9a9aa0;
 }
-/* أيقونات المراكز 1 و2 و3 الجاهزة (rank-1/2/3.png) — بنفس ارتفاع
-   شارة الرقم العادية (24px) عشان تاخد بالظبط نفس المكان والحجم */
+/* أيقونات المراكز 1 و2 و3 — نسخة مربّعة بالظبط (مش الملف الأصلي
+   اللي كان طوله وعرضه مش متساويين تمامًا) وبنفس ارتفاع/عرض شارة
+   الرقم العادية (24×24) تمامًا عشان تاخد نفس المكان والحجم بالظبط */
 .mobile-rank-badge-icon {
   flex-shrink: 0;
   height: 24px;
-  width: auto;
+  width: 24px;
   display: block;
+  object-fit: contain;
 }
 .mobile-rank-title-text {
   min-width: 0;
