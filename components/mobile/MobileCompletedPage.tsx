@@ -2,8 +2,6 @@ import { getNovels } from "@/lib/novels";
 import MobileGenderHeader from "./MobileGenderHeader";
 import NovelListItem from "./NovelListItem";
 
-// أقصى عدد روايات تظهر بقائمة "المزيد" أسفل الصفحة
-const MORE_LIMIT = 25;
 
 // الصفحة دي معمولة بالكامل من عناصر موجودة أصلاً بالصفحة الرئيسية
 // (نفس كارت "الأكثر مبيعاً" ونفس صف الغلاف الأفقي اللي بيستخدمه
@@ -25,7 +23,6 @@ export default async function MobileCompletedPage() {
   const longest = [...completed].sort(
     (a, b) => (b.word_count ?? 0) - (a.word_count ?? 0)
   );
-  const more = popular.slice(0, MORE_LIMIT);
 
   return (
     <div className="mobile-reference-page">
@@ -80,7 +77,7 @@ export default async function MobileCompletedPage() {
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
                   <h2>الأحدث اكتمالًا</h2>
-                  <a href="#more-completed">المزيد ‹</a>
+                  <a href="/categories">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">
                   {newest.slice(0, 3).map((n) => (
@@ -97,7 +94,7 @@ export default async function MobileCompletedPage() {
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
                   <h2>الأطول والأغزر</h2>
-                  <a href="#more-completed">المزيد ‹</a>
+                  <a href="/categories">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">
                   {longest.slice(0, 3).map((n) => (
@@ -114,7 +111,7 @@ export default async function MobileCompletedPage() {
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
                   <h2>الأكثر مبيعًا</h2>
-                  <a href="#more-completed">المزيد ‹</a>
+                  <a href="/categories">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">
                   {popular.slice(3, 6).map((n) => (
@@ -125,20 +122,6 @@ export default async function MobileCompletedPage() {
                 </ul>
               </section>
             )}
-
-            {/* 5) المزيد — القائمة الكاملة أسفل الصفحة */}
-            <section id="more-completed" className="mobile-reference-card px-3 py-3">
-              <div className="mobile-reference-section-heading">
-                <h2>المزيد</h2>
-              </div>
-              <ul className="flex flex-col gap-4">
-                {more.map((n) => (
-                  <li key={n.id}>
-                    <NovelListItem novel={n} wordCount={n.word_count} />
-                  </li>
-                ))}
-              </ul>
-            </section>
           </>
         )}
       </div>
