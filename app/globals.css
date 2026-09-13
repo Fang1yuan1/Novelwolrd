@@ -818,10 +818,9 @@ body {
 }
 .mobile-pick-quote-mark {
   margin-inline-end: 2px;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
   color: #c7c7cc;
-  vertical-align: -2px;
 }
 .mobile-pick-btn {
   flex: 1;

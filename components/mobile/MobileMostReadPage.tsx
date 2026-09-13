@@ -60,13 +60,10 @@ export default async function MobileMostReadPage() {
                     <span className="min-w-0 flex-1">
                       <span className="block text-[16px] font-bold text-ink-900">{n.title}</span>
                       {n.description && (
-                        <span className="line-clamp-1 mt-1 block text-[13px] text-ink-400">
+                        <span className="line-clamp-2 mt-1 block text-[13px] leading-snug text-ink-400">
                           {n.description}
                         </span>
                       )}
-                      <span className="mt-1 block text-[12px] text-ink-400">
-                        {n.author || "غير معروف"}
-                      </span>
                       <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
                         {cats[0] && <span className="mobile-pick-tag">{cats[0]}</span>}
                         {n.status && (
