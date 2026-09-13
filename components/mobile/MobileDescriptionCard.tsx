@@ -12,27 +12,22 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
     .filter(Boolean);
   const [expanded, setExpanded] = useState(false);
   const description = novel.description || "لا يوجد وصف لهذا العمل بعد.";
-
-  // Character-based truncation (approximates 3 lines on mobile width) instead
-  // of relying on CSS line-clamp + an absolutely-positioned overlay, which
-  // could visually collide with the underlying text.
-  const COLLAPSED_LENGTH = 100;
-  const isTruncatable = description.length > COLLAPSED_LENGTH;
-  const truncated = isTruncatable
-    ? description.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
-    : description;
+  // Heuristic only used to decide whether to show the toggle at all; the
+  // actual truncation to 3 lines is handled by CSS line-clamp so it always
+  // matches the real rendered width/font with pixel accuracy.
+  const isLong = description.length > 90;
 
   const Chevron = ({ up }: { up?: boolean }) => (
     <svg
-      width="12"
-      height="12"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={`inline-block align-middle ${up ? "rotate-180" : ""}`}
+      className={up ? "rotate-180" : ""}
     >
       <path d="M6 9l6 6 6-6" />
     </svg>
@@ -60,36 +55,23 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           ))}
         </div>
       )}
-      <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-700">
-        {expanded || !isTruncatable ? (
-          <>
-            {description}
-            {isTruncatable && (
-              <button
-                type="button"
-                onClick={() => setExpanded(false)}
-                className="mr-1 inline-flex items-center text-ink-500"
-                aria-label="إخفاء"
-              >
-                <Chevron up />
-              </button>
-            )}
-          </>
-        ) : (
-          <>
-            {truncated}
-            <button
-              type="button"
-              onClick={() => setExpanded(true)}
-              className="inline-flex items-center text-ink-500"
-              aria-label="المزيد"
-            >
-              ...
-              <Chevron />
-            </button>
-          </>
-        )}
+      <p
+        className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${
+          expanded ? "" : "line-clamp-3"
+        }`}
+      >
+        {description}
       </p>
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="mr-auto mt-1 flex w-fit items-center text-ink-500"
+          aria-label={expanded ? "إخفاء" : "المزيد"}
+        >
+          <Chevron up={expanded} />
+        </button>
+      )}
     </section>
   );
 }
