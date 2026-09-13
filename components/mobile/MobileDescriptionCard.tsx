@@ -52,7 +52,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
               : "absolute bottom-0 left-0 flex items-center gap-0.5 bg-gradient-to-r from-white via-white to-transparent py-0.5 pr-8 pl-0 text-[13px] font-medium text-ink-500"
           }
         >
-          {expanded ? "إخفاء" : "المزيد"}
+          {expanded ? "" : ""}
           <svg
             width="12"
             height="12"
