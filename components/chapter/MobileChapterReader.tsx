@@ -180,8 +180,8 @@ export default function MobileChapterReader({
         ))}
       </div>
 
-      {/* تنقل بسيط أسفل النص — سهمين وعدّاد الفصل الحالي/الإجمالي */}
-      <div className="flex items-center gap-3 px-5 py-5">
+      {/* تنقل بسيط أسفل النص — سهمين وعدّاد الفصل الحالي/الإجمالي (بترتيب LTR ثابت زي المرجع بالضبط) */}
+      <div className="flex items-center gap-3 px-5 py-5" dir="ltr">
         <a
           href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
           aria-disabled={prevNumber < 1}
@@ -197,7 +197,7 @@ export default function MobileChapterReader({
         </a>
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-2.5">
-          <span className="text-[15px] font-semibold" style={{ color: p.mutedText }}>
+          <span className="text-[15px] font-semibold" dir="ltr" style={{ color: p.mutedText }}>
             {chapter.chapter_number} / {novel.chapter_count ?? nextNumber}
           </span>
           <span className="h-px w-full" style={{ backgroundColor: p.divider }} />
