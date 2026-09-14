@@ -12,10 +12,14 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
     .filter(Boolean);
   const [expanded, setExpanded] = useState(false);
   const description = novel.description || "لا يوجد وصف لهذا العمل بعد.";
-  // Heuristic only used to decide whether to show the toggle at all; the
-  // actual truncation to 3 lines is handled by CSS line-clamp so it always
-  // matches the real rendered width/font with pixel accuracy.
-  const isLong = description.length > 90;
+  // Cut to a length that approximates 3 lines on mobile width, then trim
+  // back to the end of the last full word (never mid-word) and glue "..."
+  // directly onto it with no space, matching the reference exactly.
+  const COLLAPSED_LENGTH = 115;
+  const isTruncatable = description.length > COLLAPSED_LENGTH;
+  const truncated = isTruncatable
+    ? description.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
+    : description;
 
   const Chevron = ({ up }: { up?: boolean }) => (
     <svg
@@ -27,7 +31,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={up ? "rotate-180" : ""}
+      className={`inline-block align-middle ${up ? "rotate-180" : ""}`}
     >
       <path d="M6 9l6 6 6-6" />
     </svg>
@@ -55,23 +59,30 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           ))}
         </div>
       )}
-      <p
-        className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${
-          expanded ? "" : "line-clamp-3"
-        }`}
-      >
-        {description}
+      <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-700">
+        {expanded || !isTruncatable ? (
+          <>
+            {description}
+            {isTruncatable && (
+              <button
+                type="button"
+                onClick={() => setExpanded(false)}
+                className="mr-1 text-ink-500"
+                aria-label="إخفاء"
+              >
+                <Chevron up />
+              </button>
+            )}
+          </>
+        ) : (
+          <>
+            {truncated}
+            <button type="button" onClick={() => setExpanded(true)} className="text-ink-500" aria-label="المزيد">
+              ...<Chevron />
+            </button>
+          </>
+        )}
       </p>
-      {isLong && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mr-auto mt-1 flex w-fit items-center text-ink-500"
-          aria-label={expanded ? "إخفاء" : "المزيد"}
-        >
-          <Chevron up={expanded} />
-        </button>
-      )}
     </section>
   );
 }
