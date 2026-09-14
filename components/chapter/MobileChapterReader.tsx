@@ -8,7 +8,7 @@ import { useCopyProtection } from "@/lib/useCopyProtection";
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_SIZES = [16, 18, 20, 22, 24];
 
-type NovelData = { id: number; title: string };
+type NovelData = { id: number; title: string; chapter_count?: number };
 type ChapterData = {
   chapter_number: number;
   title: string | null;
@@ -37,6 +37,22 @@ function IconDots() {
       <circle cx="5" cy="12" r="1.6" />
       <circle cx="12" cy="12" r="1.6" />
       <circle cx="19" cy="12" r="1.6" />
+    </svg>
+  );
+}
+function IconArrowLeft() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5" />
+      <path d="M11 6l-6 6 6 6" />
+    </svg>
+  );
+}
+function IconArrowRight() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
     </svg>
   );
 }
@@ -164,30 +180,36 @@ export default function MobileChapterReader({
         ))}
       </div>
 
-      {/* تنقل بسيط أسفل النص فقط (وليس شريطًا ثابتًا) */}
-      <div
-        className="flex items-center justify-between gap-2 border-t px-4 py-4"
-        style={{ borderColor: p.divider }}
-      >
+      {/* تنقل بسيط أسفل النص — سهمين وعدّاد الفصل الحالي/الإجمالي */}
+      <div className="flex items-center gap-3 px-5 py-5">
         <a
           href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
           aria-disabled={prevNumber < 1}
-          className="rounded-full px-4 py-2 text-[13px] font-bold"
+          aria-label="السابق"
+          className="shrink-0"
           style={{
-            backgroundColor: p.chipBg,
-            color: prevNumber < 1 ? p.mutedText : p.chipText,
-            opacity: prevNumber < 1 ? 0.5 : 1,
+            color: p.mutedText,
+            opacity: prevNumber < 1 ? 0.35 : 1,
             pointerEvents: prevNumber < 1 ? "none" : "auto",
           }}
         >
-          السابق
+          <IconArrowLeft />
         </a>
+
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-2.5">
+          <span className="text-[15px] font-semibold" style={{ color: p.mutedText }}>
+            {chapter.chapter_number} / {novel.chapter_count ?? nextNumber}
+          </span>
+          <span className="h-px w-full" style={{ backgroundColor: p.divider }} />
+        </div>
+
         <a
           href={`/novel/${novel.id}/chapter/${nextNumber}`}
-          className="rounded-full px-4 py-2 text-[13px] font-bold"
-          style={{ backgroundColor: p.chipActiveBg, color: p.chipActiveText }}
+          aria-label="التالي"
+          className="shrink-0"
+          style={{ color: p.mutedText }}
         >
-          التالي
+          <IconArrowRight />
         </a>
       </div>
 
