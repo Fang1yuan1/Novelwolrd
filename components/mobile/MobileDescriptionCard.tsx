@@ -20,9 +20,9 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
   const truncated = isTruncatable
     ? description.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
     : description;
-  // Safety net: line-clamp-3 also caps the collapsed paragraph at 3 lines in
-  // CSS, so even if COLLAPSED_LENGTH is ever too generous for a given screen
-  // width or a run of unusually long words, it can never spill onto a 4th line.
+  // If the novel's own description already ends in "..." or "…" at the cut
+  // point, don't glue on a second one — avoids a "...…" double ellipsis.
+  const alreadyHasEllipsis = /(\.\.\.|…)$/.test(truncated);
 
   const Chevron = ({ up }: { up?: boolean }) => (
     <svg
@@ -62,7 +62,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           ))}
         </div>
       )}
-      <p className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${expanded ? "" : "line-clamp-3"}`}>
+      <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-700">
         {expanded || !isTruncatable ? (
           <>
             {description}
@@ -81,7 +81,8 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           <>
             {truncated}
             <button type="button" onClick={() => setExpanded(true)} className="text-ink-500" aria-label="المزيد">
-              ...<Chevron />
+              {alreadyHasEllipsis ? "" : "..."}
+              <Chevron />
             </button>
           </>
         )}
