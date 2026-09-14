@@ -12,14 +12,19 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
     .filter(Boolean);
   const [expanded, setExpanded] = useState(false);
   const description = novel.description || "لا يوجد وصف لهذا العمل بعد.";
+  // Collapse all whitespace/line breaks to single spaces for the preview.
+  // Otherwise a description with its own manual line breaks (paragraph
+  // style) forces extra visual lines regardless of character count, since
+  // whitespace-pre-line respects every literal newline.
+  const flattened = description.replace(/\s+/g, " ").trim();
   // Cut to a length that approximates 3 lines on mobile width, then trim
   // back to the end of the last full word (never mid-word) and glue "..."
   // directly onto it with no space, matching the reference exactly.
   const COLLAPSED_LENGTH = 165;
   const isTruncatable = description.length > COLLAPSED_LENGTH;
   const truncated = isTruncatable
-    ? description.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
-    : description;
+    ? flattened.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
+    : flattened;
   // If the novel's own description already ends in "..." or "…" at the cut
   // point, don't glue on a second one — avoids a "...…" double ellipsis.
   const alreadyHasEllipsis = /(\.\.\.|…)$/.test(truncated);
