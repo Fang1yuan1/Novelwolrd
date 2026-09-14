@@ -62,31 +62,26 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           ))}
         </div>
       )}
-      <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-700">
-        {expanded || !isTruncatable ? (
-          <>
-            {description}
-            {isTruncatable && (
-              <button
-                type="button"
-                onClick={() => setExpanded(false)}
-                className="mr-1 text-ink-500"
-                aria-label="إخفاء"
-              >
-                <Chevron up />
-              </button>
-            )}
-          </>
-        ) : (
-          <>
-            {truncated}
-            <button type="button" onClick={() => setExpanded(true)} className="text-ink-500" aria-label="المزيد">
-              {alreadyHasEllipsis ? "" : "..."}
-              <Chevron />
-            </button>
-          </>
+      <div className="relative">
+        <p
+          className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${
+            isTruncatable ? "pl-4" : ""
+          }`}
+        >
+          {expanded || !isTruncatable ? description : truncated}
+          {!expanded && isTruncatable && !alreadyHasEllipsis && "..."}
+        </p>
+        {isTruncatable && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="absolute bottom-0 left-0 text-ink-500"
+            aria-label={expanded ? "إخفاء" : "المزيد"}
+          >
+            <Chevron up={expanded} />
+          </button>
         )}
-      </p>
+      </div>
     </section>
   );
 }
