@@ -1,10 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "عالم الروايات — بوابة القراءة (نموذج واجهة تجريبي)",
   description:
     "تخطيط واجهة أمامية تجريبي مستوحى من بنية الصفحة الرئيسية لبوابة قراءة روايات. كل النصوص والشعارات والصور محتوى بديل (Placeholder).",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#eef0f1",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

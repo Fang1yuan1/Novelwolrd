@@ -99,6 +99,35 @@ export default function MobileChapterReader({
   }, [theme, fontIdx, brightness, mounted]);
 
   const p = READER_PALETTES[theme];
+
+  // يخلي خلفية الصفحة (html/body) ولون شريط الحالة يطابقوا لون ثيم القراءة الحالي —
+  // عشان ما يبانش أبيض عند الفرملة/التمرير الزايد فوق أو تحت المحتوى، ولا بأعلى الشاشة.
+  useEffect(() => {
+    const html = document.documentElement;
+    const prevHtmlBg = html.style.backgroundColor;
+    const prevBodyBg = document.body.style.backgroundColor;
+
+    html.style.backgroundColor = p.pageBg;
+    document.body.style.backgroundColor = p.pageBg;
+
+    let meta = document.querySelector('meta[name="theme-color"]');
+    const prevMetaContent = meta?.getAttribute("content") ?? null;
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "theme-color");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", p.pageBg);
+
+    return () => {
+      html.style.backgroundColor = prevHtmlBg;
+      document.body.style.backgroundColor = prevBodyBg;
+      if (meta && prevMetaContent !== null) {
+        meta.setAttribute("content", prevMetaContent);
+      }
+    };
+  }, [p.pageBg]);
+
   const fontSize = FONT_SIZES[fontIdx];
   const paragraphs = chapter.content
     .split(/\n+/)
