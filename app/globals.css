@@ -814,13 +814,14 @@ body {
   padding: 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #5b5b60;
+  color: #4b4b4b;
 }
 .mobile-pick-quote-mark {
-  margin-inline-end: 2px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #c7c7cc;
+  display: inline-block;
+  width: 19px;
+  height: auto;
+  margin-inline-end: 4px;
+  vertical-align: -3px;
 }
 .mobile-pick-btn {
   flex: 1;

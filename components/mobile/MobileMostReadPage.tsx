@@ -60,7 +60,7 @@ export default async function MobileMostReadPage() {
                     <span className="min-w-0 flex-1">
                       <span className="block text-[16px] font-bold text-ink-900">{n.title}</span>
                       {n.description && (
-                        <span className="line-clamp-2 mt-1 block text-[13px] leading-snug text-ink-400">
+                        <span className="line-clamp-2 mt-1 block text-[13px] leading-snug text-[#7f7f7f]">
                           {n.description}
                         </span>
                       )}
@@ -88,7 +88,13 @@ export default async function MobileMostReadPage() {
 
                   {n.description && (
                     <p className="mobile-pick-quote line-clamp-2">
-                      <span className="mobile-pick-quote-mark" aria-hidden>“</span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/icons/quote-mark.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="mobile-pick-quote-mark"
+                      />
                       {n.description}
                     </p>
                   )}
