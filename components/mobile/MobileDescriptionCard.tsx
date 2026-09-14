@@ -20,6 +20,9 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
   const truncated = isTruncatable
     ? description.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
     : description;
+  // Safety net: line-clamp-3 also caps the collapsed paragraph at 3 lines in
+  // CSS, so even if COLLAPSED_LENGTH is ever too generous for a given screen
+  // width or a run of unusually long words, it can never spill onto a 4th line.
 
   const Chevron = ({ up }: { up?: boolean }) => (
     <svg
@@ -59,7 +62,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
           ))}
         </div>
       )}
-      <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink-700">
+      <p className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${expanded ? "" : "line-clamp-3"}`}>
         {expanded || !isTruncatable ? (
           <>
             {description}
