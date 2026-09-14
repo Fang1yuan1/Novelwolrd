@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import type { Novel } from "@/lib/novels";
 import { parseCategories } from "@/lib/novels";
+
+const MAX_LINES = 3;
+// Used only as the very first paint, before the real measurement below runs
+// and corrects it — avoids a flash of the full untruncated text.
+const FALLBACK_LENGTH = 130;
 
 export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
   const categories = parseCategories(novel.category);
@@ -10,23 +15,59 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
-  const [expanded, setExpanded] = useState(false);
+
   const description = novel.description || "لا يوجد وصف لهذا العمل بعد.";
-  // Collapse all whitespace/line breaks to single spaces for the preview.
-  // Otherwise a description with its own manual line breaks (paragraph
-  // style) forces extra visual lines regardless of character count, since
-  // whitespace-pre-line respects every literal newline.
+  // Flatten manual line breaks for the collapsed preview so wrapping is
+  // governed purely by the container width, not the source formatting —
+  // otherwise a description with its own short paragraph breaks forces
+  // extra visual lines regardless of character count.
   const flattened = description.replace(/\s+/g, " ").trim();
-  // Cut to a length that approximates 3 lines on mobile width, then trim
-  // back to the end of the last full word (never mid-word) and glue "..."
-  // directly onto it with no space, matching the reference exactly.
-  const COLLAPSED_LENGTH = 165;
-  const isTruncatable = description.length > COLLAPSED_LENGTH;
-  const truncated = isTruncatable
-    ? flattened.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
-    : flattened;
-  // If the novel's own description already ends in "..." or "…" at the cut
-  // point, don't glue on a second one — avoids a "...…" double ellipsis.
+
+  const [expanded, setExpanded] = useState(false);
+  const [truncated, setTruncated] = useState(() =>
+    flattened.length > FALLBACK_LENGTH
+      ? flattened.slice(0, FALLBACK_LENGTH).replace(/\s+\S*$/, "")
+      : flattened
+  );
+  const [isTruncatable, setIsTruncatable] = useState(
+    flattened.length > FALLBACK_LENGTH
+  );
+  const measureRef = useRef<HTMLParagraphElement>(null);
+
+  // Measure against the ACTUAL rendered width/font and binary-search the
+  // exact character where 3 lines end. This works for any description
+  // regardless of word length, diacritics, or punctuation width — a fixed
+  // character budget can never be right for every novel's text.
+  useLayoutEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight || "0");
+    if (!lineHeight) return;
+    const maxHeight = lineHeight * MAX_LINES + 1;
+
+    el.textContent = flattened;
+    if (el.scrollHeight <= maxHeight) {
+      setIsTruncatable(false);
+      setTruncated(flattened);
+      return;
+    }
+
+    let lo = 0;
+    let hi = flattened.length;
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi + 1) / 2);
+      el.textContent = flattened.slice(0, mid) + "...";
+      if (el.scrollHeight <= maxHeight) {
+        lo = mid;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    setTruncated(flattened.slice(0, lo).replace(/\s+\S*$/, ""));
+    setIsTruncatable(true);
+  }, [flattened]);
+
   const alreadyHasEllipsis = /(\.\.\.|…)$/.test(truncated);
 
   const Chevron = ({ up }: { up?: boolean }) => (
@@ -68,6 +109,13 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
         </div>
       )}
       <div className="relative">
+        {/* Invisible measuring twin: same width/font/line-height as the
+            visible paragraph, used only to find the exact 3-line cut. */}
+        <p
+          ref={measureRef}
+          aria-hidden="true"
+          className="invisible absolute right-0 left-0 top-0 -z-10 whitespace-pre-line text-[15px] leading-relaxed"
+        />
         <p
           className={`whitespace-pre-line text-[15px] leading-relaxed text-ink-700 ${
             isTruncatable ? "pl-4" : ""
