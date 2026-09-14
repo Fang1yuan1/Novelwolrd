@@ -703,10 +703,10 @@ body {
   border-radius: 2px;
   background: linear-gradient(
     90deg,
-    #1a1a1a 0%,
-    #1a1a1a calc(var(--val, 50) * 1%),
-    rgba(0,0,0,0.15) calc(var(--val, 50) * 1%),
-    rgba(0,0,0,0.15) 100%
+    var(--fill, #1a1a1a) 0%,
+    var(--fill, #1a1a1a) calc(var(--val, 50) * 1%),
+    var(--empty, rgba(0,0,0,0.15)) calc(var(--val, 50) * 1%),
+    var(--empty, rgba(0,0,0,0.15)) 100%
   );
   outline: none;
 }
@@ -716,7 +716,7 @@ body {
   height: 22px;
   width: 22px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--thumb-bg, #fff);
   box-shadow: 0 1px 4px rgba(0,0,0,.35);
   cursor: pointer;
 }
@@ -725,7 +725,7 @@ body {
   width: 22px;
   border: 0;
   border-radius: 50%;
-  background: #fff;
+  background: var(--thumb-bg, #fff);
   box-shadow: 0 1px 4px rgba(0,0,0,.35);
   cursor: pointer;
 }

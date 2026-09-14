@@ -1,12 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_SIZES = [16, 18, 20, 22, 24];
+
+function readSavedPrefs(): { theme: ReaderTheme; fontIdx: number; brightness: number } {
+  const fallback: { theme: ReaderTheme; fontIdx: number; brightness: number } = {
+    theme: "original",
+    fontIdx: 1,
+    brightness: 100,
+  };
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return fallback;
+    const saved = JSON.parse(raw);
+    return {
+      theme: saved.theme && saved.theme in READER_PALETTES ? saved.theme : fallback.theme,
+      fontIdx: typeof saved.fontIdx === "number" ? saved.fontIdx : fallback.fontIdx,
+      brightness: typeof saved.brightness === "number" ? saved.brightness : fallback.brightness,
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 type NovelData = { id: number; title: string; chapter_count?: number };
 type ChapterData = {
@@ -68,35 +90,26 @@ export default function MobileChapterReader({
   prevNumber: number;
   nextNumber: number;
 }) {
-  const [theme, setTheme] = useState<ReaderTheme>("original");
-  const [fontIdx, setFontIdx] = useState(1);
-  const [brightness, setBrightness] = useState(100);
+  const [prefs, setPrefs] = useState(readSavedPrefs);
+  const { theme, fontIdx, brightness } = prefs;
+  const setTheme = (t: ReaderTheme) => setPrefs((prev) => ({ ...prev, theme: t }));
+  const setFontIdx = (fn: (i: number) => number) =>
+    setPrefs((prev) => ({ ...prev, fontIdx: fn(prev.fontIdx) }));
+  const setBrightness = (n: number) => setPrefs((prev) => ({ ...prev, brightness: n }));
   const [showSheet, setShowSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
   const contentRef = useCopyProtection<HTMLDivElement>();
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const saved = JSON.parse(raw);
-        if (saved.theme && saved.theme in READER_PALETTES) setTheme(saved.theme);
-        if (typeof saved.fontIdx === "number") setFontIdx(saved.fontIdx);
-        if (typeof saved.brightness === "number") setBrightness(saved.brightness);
-      }
-    } catch {}
     setMounted(true);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     try {
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ theme, fontIdx, brightness })
-      );
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
     } catch {}
-  }, [theme, fontIdx, brightness, mounted]);
+  }, [prefs, mounted]);
 
   const p = READER_PALETTES[theme];
 
@@ -146,9 +159,9 @@ export default function MobileChapterReader({
         className="sticky top-0 z-20 flex items-center gap-3 border-b px-3 py-2.5"
         style={{ backgroundColor: p.pageBg, borderColor: p.divider }}
       >
-        <a href={`/novel/${novel.id}`} aria-label="رجوع" className="shrink-0">
+        <Link href={`/novel/${novel.id}`} aria-label="رجوع" className="shrink-0">
           <IconBack />
-        </a>
+        </Link>
         <span className="line-clamp-1 min-w-0 flex-1 text-[13px] font-bold">
           {chapterLabel}
         </span>
@@ -211,19 +224,20 @@ export default function MobileChapterReader({
 
       {/* تنقل بسيط أسفل النص — سهمين وعدّاد الفصل الحالي/الإجمالي (بترتيب LTR ثابت زي المرجع بالضبط) */}
       <div className="flex items-center gap-3 px-5 py-5" dir="ltr">
-        <a
-          href={prevNumber >= 1 ? `/novel/${novel.id}/chapter/${prevNumber}` : undefined}
-          aria-disabled={prevNumber < 1}
-          aria-label="السابق"
-          className="shrink-0"
-          style={{
-            color: p.mutedText,
-            opacity: prevNumber < 1 ? 0.35 : 1,
-            pointerEvents: prevNumber < 1 ? "none" : "auto",
-          }}
-        >
-          <IconArrowLeft />
-        </a>
+        {prevNumber >= 1 ? (
+          <Link
+            href={`/novel/${novel.id}/chapter/${prevNumber}`}
+            aria-label="السابق"
+            className="shrink-0"
+            style={{ color: p.mutedText }}
+          >
+            <IconArrowLeft />
+          </Link>
+        ) : (
+          <span aria-hidden="true" className="shrink-0" style={{ color: p.mutedText, opacity: 0.35 }}>
+            <IconArrowLeft />
+          </span>
+        )}
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-2.5">
           <span className="text-[15px] font-semibold" dir="ltr" style={{ color: p.mutedText }}>
@@ -232,14 +246,14 @@ export default function MobileChapterReader({
           <span className="h-px w-full" style={{ backgroundColor: p.divider }} />
         </div>
 
-        <a
+        <Link
           href={`/novel/${novel.id}/chapter/${nextNumber}`}
           aria-label="التالي"
           className="shrink-0"
           style={{ color: p.mutedText }}
         >
           <IconArrowRight />
-        </a>
+        </Link>
       </div>
 
       {/* ستارة السطوع — تعتيم حقيقي فوق الشاشة حسب قيمة الشريط */}

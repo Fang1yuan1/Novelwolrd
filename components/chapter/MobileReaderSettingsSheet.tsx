@@ -41,10 +41,21 @@ function IconSunLarge() {
 }
 function IconGear() {
   return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V19.5a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H4.5a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H10.5a1.7 1.7 0 0 0 1.03-1.56V4.5a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.56 1.03h.09a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03Z" />
-    </svg>
+    <span
+      aria-hidden="true"
+      className="inline-block h-[15px] w-[15px] shrink-0"
+      style={{
+        backgroundColor: "currentColor",
+        WebkitMaskImage: "url(/icons/gear-icon.png)",
+        maskImage: "url(/icons/gear-icon.png)",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+      }}
+    />
   );
 }
 
@@ -80,6 +91,10 @@ export default function MobileReaderSettingsSheet({
   onCustomize: () => void;
 }) {
   const p = READER_PALETTES[theme];
+  const isDark = theme === "quiet";
+  const overlayTint = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
+  const dividerTint = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
+  const closeBtnTint = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
 
   // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
   const [visible, setVisible] = useState(false);
@@ -107,7 +122,7 @@ export default function MobileReaderSettingsSheet({
         className={`w-full max-w-md rounded-t-[22px] px-4 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 transition-transform duration-[280ms] ease-out ${
           visible ? "translate-y-0" : "translate-y-full"
         }`}
-        style={{ backgroundColor: "#f2f2f2", color: "#1a1a1a" }}
+        style={{ backgroundColor: p.pageBg, color: p.text }}
       >
         <div className="mb-1 flex items-center justify-between">
           <h2 className="text-[15px] font-bold">الثيمات والإعدادات</h2>
@@ -115,7 +130,8 @@ export default function MobileReaderSettingsSheet({
             type="button"
             onClick={handleClose}
             aria-label="إغلاق"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-black/10 text-[16px] font-normal text-black/70"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-[16px] font-normal"
+            style={{ backgroundColor: closeBtnTint, color: p.mutedText }}
           >
             ✕
           </button>
@@ -123,7 +139,10 @@ export default function MobileReaderSettingsSheet({
 
         {/* الصف الأول: تصغير/تكبير الخط مجمّعين بكبسولة واحدة، الثيمات/المظهر مجمّعين بكبسولة تانية */}
         <div className="mt-3 flex gap-2">
-          <div className="mobile-reader-pill-group flex flex-1">
+          <div
+            className="mobile-reader-pill-group flex flex-1"
+            style={{ backgroundColor: overlayTint, color: p.text }}
+          >
             <button
               type="button"
               onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
@@ -132,7 +151,7 @@ export default function MobileReaderSettingsSheet({
             >
               <span className="text-[15px] font-bold disabled:opacity-30">A</span>
             </button>
-            <span className="mobile-reader-pill-divider" />
+            <span className="mobile-reader-pill-divider" style={{ backgroundColor: dividerTint }} />
             <button
               type="button"
               onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
@@ -143,11 +162,14 @@ export default function MobileReaderSettingsSheet({
             </button>
           </div>
 
-          <div className="mobile-reader-pill-group flex flex-1">
+          <div
+            className="mobile-reader-pill-group flex flex-1"
+            style={{ backgroundColor: overlayTint, color: p.text }}
+          >
             <button type="button" className="flex flex-1 items-center justify-center py-3.5">
               <IconThemes />
             </button>
-            <span className="mobile-reader-pill-divider" />
+            <span className="mobile-reader-pill-divider" style={{ backgroundColor: dividerTint }} />
             <button
               type="button"
               onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
@@ -159,7 +181,7 @@ export default function MobileReaderSettingsSheet({
         </div>
 
         {/* شريط السطوع */}
-        <div className="mt-3.5 flex items-center gap-2.5">
+        <div className="mt-3.5 flex items-center gap-2.5" style={{ color: p.text }}>
           <IconSunSmall />
           <input
             type="range"
@@ -168,12 +190,19 @@ export default function MobileReaderSettingsSheet({
             value={brightness}
             onChange={(e) => setBrightness(Number(e.target.value))}
             className="mobile-reader-brightness flex-1"
-            style={{ ["--val" as string]: brightness } as React.CSSProperties}
+            style={
+              {
+                "--val": brightness,
+                "--fill": p.text,
+                "--empty": dividerTint,
+                "--thumb-bg": p.pageBg,
+              } as React.CSSProperties
+            }
             aria-label="سطوع الشاشة"
           />
           <IconSunLarge />
         </div>
-        <div className="mt-3 border-t border-black/10" />
+        <div className="mt-3 border-t" style={{ borderColor: dividerTint }} />
 
         {/* شبكة الثيمات */}
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -216,7 +245,8 @@ export default function MobileReaderSettingsSheet({
             handleClose();
             onCustomize();
           }}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-black/[0.06] py-2.5 text-[13px] font-bold"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[13px] font-bold"
+          style={{ backgroundColor: overlayTint, color: p.text }}
         >
           <IconGear />
           تخصيص
