@@ -15,7 +15,7 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
   // Cut to a length that approximates 3 lines on mobile width, then trim
   // back to the end of the last full word (never mid-word) and glue "..."
   // directly onto it with no space, matching the reference exactly.
-  const COLLAPSED_LENGTH = 115;
+  const COLLAPSED_LENGTH = 165;
   const isTruncatable = description.length > COLLAPSED_LENGTH;
   const truncated = isTruncatable
     ? description.slice(0, COLLAPSED_LENGTH).replace(/\s+\S*$/, "")
