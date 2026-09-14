@@ -44,8 +44,11 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
 
     const lineHeight = parseFloat(getComputedStyle(el).lineHeight || "0");
     if (!lineHeight) return;
-    const maxHeight = lineHeight * MAX_LINES + 1;
+    const maxHeight = lineHeight * MAX_LINES + 2;
 
+    // Step 1: does the full text even need truncating, at full width (no
+    // reserved arrow gutter, since that's how it renders when it fits)?
+    el.classList.remove("pl-4");
     el.textContent = flattened;
     if (el.scrollHeight <= maxHeight) {
       setIsTruncatable(false);
@@ -53,6 +56,10 @@ export default function MobileDescriptionCard({ novel }: { novel: Novel }) {
       return;
     }
 
+    // Step 2: it needs truncating — re-measure with the SAME reserved
+    // gutter (pl-4) the visible truncated paragraph actually uses, or the
+    // cut point would be based on a wider box than what really renders.
+    el.classList.add("pl-4");
     let lo = 0;
     let hi = flattened.length;
     while (lo < hi) {
