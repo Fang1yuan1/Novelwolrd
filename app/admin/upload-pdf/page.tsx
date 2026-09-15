@@ -207,7 +207,9 @@ export default function UploadPdfZipPage() {
     let error: any = null;
     let threw = false;
     try {
-      const res = await supabase.from('chapters').insert(batch);
+      const res = await supabase
+        .from('chapters')
+        .upsert(batch, { onConflict: 'novel_id,chapter_number' });
       error = res.error;
     } catch (err) {
       threw = true;
