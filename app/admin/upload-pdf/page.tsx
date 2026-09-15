@@ -110,7 +110,7 @@ function fixArabicLineDirection(line: string): string {
   for (const ch of line) {
     const isNeutral = NEUTRAL_CHAR.test(ch);
     const isArabic = ARABIC_RANGE.test(ch);
-    const rtl = isNeutral ? currentRtl ?? true : isArabic;
+    const rtl: boolean = isNeutral ? currentRtl ?? true : isArabic;
     if (currentRtl !== null && rtl !== currentRtl) {
       runs.push({ text: current, rtl: currentRtl });
       current = '';
