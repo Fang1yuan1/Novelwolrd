@@ -65,6 +65,32 @@ function stripControlChars(text: string): string {
   return text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 }
 
+// بعض الرموز/الأيقونات بخطوط معطوبة تتحول لـ"نص سرجت" غير مكتمل (نص شق زوج بدون التاني) —
+// Postgres يرفضه بنفس رسالة "unsupported Unicode escape sequence" تمامًا زي NUL،
+// فلازم نحذف أي سرجت وحيد (مو مكتمل بزوج) بدون ما نلمس أي حرف عادي أو سرجت صحيح (زي الإيموجي)
+function stripLoneSurrogates(text: string): string {
+  let out = '';
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = text.charCodeAt(i + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) {
+        out += text[i] + text[i + 1];
+        i++;
+      } // وإلا: سرجت عالي وحيد بدون شريك — يُحذف
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      // سرجت واطئ وحيد بدون سرجت عالي قبله — يُحذف
+    } else {
+      out += text[i];
+    }
+  }
+  return out;
+}
+
+function sanitizeForDb(text: string): string {
+  return stripLoneSurrogates(stripControlChars(text));
+}
+
 // عربي أساسي + أشكال العرض (Presentation Forms) — بعض الخطوط (زي خط هذا الملف) تخزن
 // الحروف العربية برموز "أشكال العرض" بدل الحروف الأساسية، فلازم نغطي النطاقين مع بعض
 const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
@@ -158,7 +184,7 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
       pageTexts.push(fixedLines.join('\n'));
       page.cleanup();
     }
-    return stripControlChars(pageTexts.join('\n\n'));
+    return sanitizeForDb(pageTexts.join('\n\n'));
   } finally {
     // يحرر ذاكرة المتصفح فورًا بعد كل ملف — أهم خطوة لتفادي انهيار الصفحة مع مئات الملفات
     await pdf.destroy();
@@ -179,14 +205,22 @@ export default function UploadPdfZipPage() {
 
   async function uploadBatch(batch: ParsedChapter[]) {
     const { error } = await supabase.from('chapters').insert(batch);
-    const nums = batch.map((b) => b.chapter_number).join('، ');
-    if (error) {
-      const extra = [error.details, error.hint].filter(Boolean).join(' | ');
-      addLog(`فشل رفع: ${nums} — ${error.message}${extra ? ` (${extra})` : ''}`);
-      return batch.length;
+    if (!error) {
+      addLog(`تم رفع: ${batch.map((b) => b.chapter_number).join('، ')}`);
+      return 0;
     }
-    addLog(`تم رفع: ${nums}`);
-    return 0;
+    if (batch.length === 1) {
+      const extra = [error.details, error.hint, (error as any).code].filter(Boolean).join(' | ');
+      addLog(`فشل رفع الفصل ${batch[0].chapter_number} — ${error.message}${extra ? ` (${extra})` : ''}`);
+      return 1;
+    }
+    // الدفعة فشلت كوحدة — نعيد رفع كل فصل لحاله عشان نعزل الفصل المشكلة بالضبط
+    // بدل ما نخسر الفصول السليمة الموجودة بنفس الدفعة
+    let failed = 0;
+    for (const chapter of batch) {
+      failed += await uploadBatch([chapter]);
+    }
+    return failed;
   }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -234,9 +268,9 @@ export default function UploadPdfZipPage() {
         const rawText = await extractPdfText(buf);
         // تنظيف نهائي احتياطي على المحتوى والعنوان الاثنين — يضمن عدم وصول أي NUL
         // لقاعدة البيانات حتى لو مصدره اسم الملف نفسه مو نص الـ PDF
-        const content = stripControlChars(stripLeadingLinkLines(rawText).trim());
+        const content = sanitizeForDb(stripLeadingLinkLines(rawText).trim());
         const rawTitle = guessTitle(shortName, num);
-        const title = rawTitle ? stripControlChars(rawTitle) || null : null;
+        const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
         }
