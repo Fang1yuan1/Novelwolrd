@@ -110,7 +110,7 @@ function fixArabicLineDirection(line: string): string {
   for (const ch of line) {
     const isNeutral = NEUTRAL_CHAR.test(ch);
     const isArabic = ARABIC_RANGE.test(ch);
-    const rtl: boolean = isNeutral ? currentRtl ?? true : isArabic;
+    const rtl = isNeutral ? currentRtl ?? true : isArabic;
     if (currentRtl !== null && rtl !== currentRtl) {
       runs.push({ text: current, rtl: currentRtl });
       current = '';
@@ -204,14 +204,36 @@ export default function UploadPdfZipPage() {
   }
 
   async function uploadBatch(batch: ParsedChapter[]) {
-    const { error } = await supabase.from('chapters').insert(batch);
+    let error: any = null;
+    let threw = false;
+    try {
+      const res = await supabase.from('chapters').insert(batch);
+      error = res.error;
+    } catch (err) {
+      threw = true;
+      error = err;
+    }
+
     if (!error) {
       addLog(`تم رفع: ${batch.map((b) => b.chapter_number).join('، ')}`);
       return 0;
     }
+
     if (batch.length === 1) {
-      const extra = [error.details, error.hint, (error as any).code].filter(Boolean).join(' | ');
-      addLog(`فشل رفع الفصل ${batch[0].chapter_number} — ${error.message}${extra ? ` (${extra})` : ''}`);
+      // نطبع كل شي عن الخطأ بدون ما نفترض شكله (بعض الأخطاء تطلع Exception مو استجابة API عادية)
+      const parts: string[] = [];
+      if (error.message) parts.push(`message: ${error.message}`);
+      if (error.details) parts.push(`details: ${error.details}`);
+      if (error.hint) parts.push(`hint: ${error.hint}`);
+      if (error.code) parts.push(`code: ${error.code}`);
+      if (error.name) parts.push(`name: ${error.name}`);
+      if (threw) parts.push('نوع: exception انرمى بالمتصفح (مو رد من Supabase)');
+      let dump = '';
+      try {
+        dump = JSON.stringify(error, Object.getOwnPropertyNames(error));
+      } catch {}
+      addLog(`فشل رفع الفصل ${batch[0].chapter_number} — ${parts.join(' | ') || 'خطأ بدون رسالة'}`);
+      if (dump && dump !== '{}') addLog(`تفاصيل خام: ${dump}`);
       return 1;
     }
     // الدفعة فشلت كوحدة — نعيد رفع كل فصل لحاله عشان نعزل الفصل المشكلة بالضبط

@@ -104,18 +104,6 @@ export default function MobileChapterReader({
     setMounted(true);
   }, []);
 
-  // مزامنة الثيم مع الإعدادات المحفوظة عند رجوع الصفحة من ذاكرة المتصفح (سجل التصفح/زرار رجوع)،
-  // عشان مايحصلش تعارض: خلفية الصفحة تفضل بيضاء بينما لوحة الثيمات لسه فاتحة على إنها داكنة
-  useEffect(() => {
-    const syncFromStorage = () => setPrefs(readSavedPrefs());
-    window.addEventListener("pageshow", syncFromStorage);
-    document.addEventListener("visibilitychange", syncFromStorage);
-    return () => {
-      window.removeEventListener("pageshow", syncFromStorage);
-      document.removeEventListener("visibilitychange", syncFromStorage);
-    };
-  }, []);
-
   useEffect(() => {
     if (!mounted) return;
     try {

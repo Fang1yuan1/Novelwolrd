@@ -52,23 +52,20 @@ export default async function MobileNovelHero({
             {novel.title}
           </h1>
           {novel.author && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-[14px]">
-              <span className="text-[#4e67e2]">{novel.author}</span>
+            <p className="mt-1.5 flex items-center gap-1.5 text-[13px]">
+              <span className="text-[#7fa8ff]">{novel.author}</span>
             </p>
           )}
-          <p className="mt-1.5 text-[13px] text-white/60">
+          <p className="mt-1.5 text-[12px] text-white/60">
             {categories[0] || "بدون تصنيف"}
             {categories[1] ? ` · ${categories[1]}` : ""}
           </p>
-          <p className="mt-1 text-[13px] text-white/60">
+          <p className="mt-1 text-[12px] text-white/60">
             {statusLabel}
             {lastChapter && (
               <span className="text-white/40">
                 {" "}
-                | تحديث{" "}
-                <span dir="ltr" className="tabular-nums">
-                  {formatFullDateTime(lastChapter.created_at)}
-                </span>
+                | تحديث {formatFullDateTime(lastChapter.created_at)}
               </span>
             )}
           </p>
@@ -79,13 +76,10 @@ export default async function MobileNovelHero({
         <div className="py-3 text-center">
           {rank ? (
             <>
-              <p
-                dir="ltr"
-                className="flex items-center justify-center gap-1 text-[17px] font-bold tabular-nums text-[#f9e8d8]"
-              >
-                <LaurelIcon variant="no" className="h-5 w-3.5" />
-                No.{rank.rank}
-                <LaurelIcon variant="no" flip className="h-5 w-3.5" />
+              <p className="flex items-center justify-center gap-1.5 text-[17px] font-bold tabular-nums text-[#c9a86a]">
+                <LaurelIcon />
+                رقم {rank.rank}
+                <LaurelIcon flip />
               </p>
               <p className="mt-0.5 text-[10px] text-white/50">
                 من {rank.total} حسب الفصول
