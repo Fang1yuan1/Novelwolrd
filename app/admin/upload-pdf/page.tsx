@@ -97,23 +97,14 @@ const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE7
 
 // PDF بيخزن سطر عربي كامل بترتيب العرض البصري (زي ما يبان بالصفحة) مو ترتيب القراءة.
 // نشتغل على مستوى "الكلمة" مو الحرف: نقلب ترتيب الكلمات بالسطر، ونعكس حروف كل كلمة عربية
-// لحالها (+ نصلح شكل الأقواس)، ونسيب أي كلمة إنجليزية/رقم زي ما هي تمامًا بدون ما نلمسها،
-// والمسافات نفسها تنحفظ بمكانها الصح تلقائيًا لأنها عناصر منفصلة بالتقسيم مو حروف مدموجة
+// لحالها، ونسيب أي كلمة إنجليزية/رقم زي ما هي تمامًا بدون ما نلمسها. ملاحظة مهمة: ما نقلب
+// شكل الأقواس يدويًا — المتصفح نفسه يعكس شكل القوس تلقائيًا داخل نص RTL (هذا سلوك يونيكود
+// قياسي)، فلو قلبناه إحنا كمان، ينقلب مرتين ويطلع بالشكل الغلط بالضبط زي ما لاحظت
 const LATIN_OR_DIGIT = /[A-Za-z0-9]/;
 
 function fixArabicLineDirection(line: string): string {
   const arabicCount = (line.match(ARABIC_RANGE) || []).length;
   if (arabicCount < line.length * 0.3) return line; // سطر مو عربي أغلبه (رابط/عنوان إنجليزي) — ما نلمسه
-
-  // بعض الرموز (الأقواس خصوصًا) لازم "تنعكس شكليًا" مو بس تتحرك بمكانها —
-  // قوس فاتح بالنص الأصلي المفروض يبان كقوس مقفل بعد العكس، والعكس صحيح
-  const MIRROR: Record<string, string> = {
-    '(': ')', ')': '(',
-    '[': ']', ']': '[',
-    '{': '}', '}': '{',
-    '«': '»', '»': '«',
-    '<': '>', '>': '<',
-  };
 
   // نقسم السطر لكلمات مع الاحتفاظ بالمسافات كعناصر بذاتها بالمصفوفة (بفضل القوس بالـ split)
   const tokens = line.split(/(\s+)/);
@@ -123,8 +114,8 @@ function fixArabicLineDirection(line: string): string {
     const latinCount = (token.match(LATIN_OR_DIGIT) || []).length;
     const isLatinWord = latinCount > token.length * 0.5;
     if (isLatinWord) return token; // كلمة إنجليزية/رقم — ما نلمس ترتيب حروفها إطلاقًا
-    // كلمة عربية أو رمز ترقيم قائم بذاته — نعكس ترتيب حروفه + نصلح شكل الأقواس
-    return [...token].reverse().map((c) => MIRROR[c] ?? c).join('');
+    // كلمة عربية أو رمز ترقيم قائم بذاته — نعكس ترتيب حروفه بس (بدون قلب شكل الأقواس)
+    return [...token].reverse().join('');
   });
 
   // نقلب ترتيب الكلمات نفسها (والمسافات بينها تنقلب معها بمكانها الصح تلقائيًا)
@@ -172,6 +163,13 @@ function guessTitle(filename: string, num: number): string | null {
   return withoutNum.length > 0 ? withoutNum : null;
 }
 
+function median(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   try {
@@ -179,27 +177,75 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
       const content = await page.getTextContent();
+      // نرتب العناصر أولًا حسب موقعها الفعلي بالصفحة (من فوق لتحت، ثم من يسار ليمين)
+      // بدل ما نعتمد على ترتيبها جوا ملف الـ PDF نفسه — بعض ملفات PDF تخزن نصوصها
+      // بترتيب داخلي غريب (مو بالضرورة من فوق لتحت)، وهذا اللي كان يسبب انتقال جمل
+      // إنجليزية لمكان غلط بالفصل
+      const items = (content.items as any[])
+        .filter((item) => typeof item.str === 'string')
+        .map((item) => ({
+          str: item.str as string,
+          x: item.transform?.[4] ?? 0,
+          y: item.transform?.[5] ?? 0,
+        }))
+        .sort((a, b) => (Math.abs(a.y - b.y) > 2 ? b.y - a.y : a.x - b.x));
+
+      // نجمع عناصر كل سطر بصري بالصفحة (زي قبل)، بس نحتفظ بموضع Y كل سطر
+      type RawLine = { text: string; y: number };
+      const rawLines: RawLine[] = [];
       let lastY: number | null = null;
       let line = '';
-      const lines: string[] = [];
-      for (const item of content.items as any[]) {
-        if (typeof item.str !== 'string') continue; // يتجاهل أي عنصر مو نص (صور/رموز)
-        const y = item.transform?.[5] ?? 0;
-        if (lastY !== null && Math.abs(y - lastY) > 2) {
-          if (line.trim()) lines.push(line.trim());
+      let lineY: number | null = null;
+      for (const item of items) {
+        if (lastY !== null && Math.abs(item.y - lastY) > 2) {
+          if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number });
           line = '';
         }
+        if (line === '') lineY = item.y;
         line += item.str;
-        lastY = y;
+        lastY = item.y;
       }
-      if (line.trim()) lines.push(line.trim());
-      // NFKC يرجّع رموز "أشكال العرض" المعطوبة لحروفها الأساسية العادية —
-      // هذا اللي يخلي المتصفح يقدر يوصل الحروف ببعض صح (تشكيل الحروف التلقائي)
-      // بدل ما تطلع منفصلة/مقطوعة عن بعض
-      const normalizedLines = lines.map((l) => l.normalize('NFKC'));
-      // يرجّع ترتيب القراءة الصح للسطر العربي، ثم يصلح رموز الخط المعطوبة (بالترتيب المنطقي الصح)
-      const fixedLines = normalizedLines.map((l) => fixPuaGlyphs(fixArabicLineDirection(l)));
-      pageTexts.push(fixedLines.join('\n'));
+      if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number });
+
+      // نصلح كل سطر (اتجاه + رموز الخط) بالترتيب المنطقي الصح أول شي
+      const fixedRawLines = rawLines.map((rl) => ({
+        text: fixPuaGlyphs(fixArabicLineDirection(rl.text.normalize('NFKC'))).replace(
+          /[ \t]{2,}/g,
+          ' '
+        ),
+        y: rl.y,
+      }));
+
+      // نحسب الفجوة "العادية" بين سطر وسطر بنفس الفقرة (وسيط كل الفجوات بالصفحة) —
+      // أي فجوة أكبر منها بوضوح تعتبر فاصل فقرة حقيقي، وأي فجوة عادية تعني إن
+      // السطرين لسا بنفس الفقرة (نوصلهم بمسافة، مو سطر جديد) — هذا يمنع نهاية
+      // السطر تطلع بحرف جر/عطف معلّق بالنص بينما بالـ PDF الأصلي كانت متصلة
+      const gaps: number[] = [];
+      for (let i = 1; i < fixedRawLines.length; i++) {
+        gaps.push(Math.abs(fixedRawLines[i - 1].y - fixedRawLines[i].y));
+      }
+      const typicalGap = median(gaps);
+
+      const paragraphs: string[] = [];
+      let current = '';
+      for (let i = 0; i < fixedRawLines.length; i++) {
+        const { text } = fixedRawLines[i];
+        if (i === 0) {
+          current = text;
+          continue;
+        }
+        const gap = Math.abs(fixedRawLines[i - 1].y - fixedRawLines[i].y);
+        const isNewParagraph = typicalGap > 0 && gap > typicalGap * 1.4;
+        if (isNewParagraph) {
+          paragraphs.push(current);
+          current = text;
+        } else {
+          current = current ? `${current} ${text}` : text;
+        }
+      }
+      if (current) paragraphs.push(current);
+
+      pageTexts.push(paragraphs.join('\n\n'));
       page.cleanup();
     }
     return sanitizeForDb(pageTexts.join('\n\n'));
