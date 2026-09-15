@@ -25,6 +25,12 @@ export default function AdminDashboard() {
       icon: '📥',
     },
     {
+      href: '/admin/upload-pdf',
+      title: 'رفع فصول من PDF (ZIP)',
+      desc: 'رفع مئات فصول PDF دفعة وحدة داخل ملف zip، ويستخرج النص تلقائيًا',
+      icon: '📦',
+    },
+    {
       href: '/admin/characters',
       title: 'الشخصيات',
       desc: 'إضافة/تعديل/حذف شخصيات كل رواية (تظهر بصفحة تفاصيل الرواية)',

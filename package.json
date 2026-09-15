@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
+    "jszip": "^3.10.1",
     "next": "latest",
+    "pdfjs-dist": "^4.6.82",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
