@@ -22,6 +22,95 @@ const DELAY_MS = 400;
 // أي رابط بأول أو تاني سطر بس يتشال — الباقي ما يتفحص إطلاقًا
 const URL_PATTERN = /https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|me|co|xyz|top)\b/i;
 
+// بعض مواقع الروايات (زي kolnovel) تصدّر PDF بخط عربي معطوب الترميز:
+// حروف/تشكيل معينة تتحول لرموز خاصة (Private Use Area) بدل الحرف الحقيقي.
+// هذا الجدول لكل رمز معروف السلوك الثابت (حرف واحد بس يقابله دايمًا):
+const PUA_FIXED_MAP: Record<string, string> = {
+  '\ue913': 'ى', // ألف مقصورة
+  '\ue915': 'ي', // ياء
+  '\ue940': 'ك', // كاف
+  '\ue823': 'ً', // تنوين فتح
+  '\ue824': 'ّ', // شدة
+};
+// \ue916 يمثل حالتين مختلفتين (ء و ئ) بنفس الرمز — لازم نحدده حسب الحرف قبله، مو استبدال ثابت
+const HAMZA_GLYPH = '\ue916';
+
+// القاعدة: همزة بعد حرف مد (ا و ي) تكتب غالبًا على السطر (ء)،
+// وبعد حرف ساكن (أي حرف ثاني) تكتب غالبًا على ياء (ئ) — نفس قاعدة "شيء" مقابل "خاطئ"
+function resolveHamzaGlyph(prevChar: string | undefined): string {
+  if (prevChar && /[اوي]/.test(prevChar)) return 'ء';
+  return 'ئ';
+}
+
+function fixPuaGlyphs(text: string): string {
+  let out = '';
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === HAMZA_GLYPH) {
+      out += resolveHamzaGlyph(out[out.length - 1]);
+    } else if (ch in PUA_FIXED_MAP) {
+      out += PUA_FIXED_MAP[ch];
+    } else if (ch >= '\ue000' && ch <= '\uf8ff') {
+      // رمز خاص غير معروف بهذا الخط — نتجاهله بدل ما يطلع مربع فاضي بالنص
+    } else {
+      out += ch;
+    }
+  }
+  return out;
+}
+
+// يحذف NUL وبقية رموز التحكم غير المرئية — Postgres/Supabase يرفض النص لو فيه NUL (\u0000)،
+// وهذا بالضبط سبب "فشل الرفع" (يطلع بشكل شائع بملفات PDF المصدّرة من بعض المواقع)
+function stripControlChars(text: string): string {
+  return text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+}
+
+// عربي أساسي + أشكال العرض (Presentation Forms) — بعض الخطوط (زي خط هذا الملف) تخزن
+// الحروف العربية برموز "أشكال العرض" بدل الحروف الأساسية، فلازم نغطي النطاقين مع بعض
+const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const NEUTRAL_CHAR = /[\s.,:;!؟،"'()\-\u060C\u061B\u061F]/;
+
+// PDF بيخزن سطر عربي كامل بترتيب العرض البصري (زي ما يبان بالصفحة) مو ترتيب القراءة،
+// فلازم نعكس ترتيب الحروف داخل كل "قطعة" عربية بس، ونسيب الأرقام/الروابط/الإنجليزي بترتيبها الصح
+function fixArabicLineDirection(line: string): string {
+  const arabicCount = (line.match(ARABIC_RANGE) || []).length;
+  if (arabicCount < line.length * 0.3) return line; // سطر مو عربي أغلبه (رابط/عنوان إنجليزي) — ما نلمسه
+
+  type Run = { text: string; rtl: boolean };
+  const runs: Run[] = [];
+  let current = '';
+  let currentRtl: boolean | null = null;
+
+  for (const ch of line) {
+    const isNeutral = NEUTRAL_CHAR.test(ch);
+    const isArabic = ARABIC_RANGE.test(ch);
+    const rtl = isNeutral ? currentRtl ?? true : isArabic;
+    if (currentRtl !== null && rtl !== currentRtl) {
+      runs.push({ text: current, rtl: currentRtl });
+      current = '';
+    }
+    currentRtl = rtl;
+    current += ch;
+  }
+  if (current) runs.push({ text: current, rtl: currentRtl ?? true });
+
+  return runs
+    .reverse()
+    .map((r) => (r.rtl ? [...r.text].reverse().join('') : r.text))
+    .join('');
+}
+
+function stripLeadingLinkLines(text: string): string {
+  const lines = text.split('\n');
+  for (let i = 0; i < Math.min(2, lines.length); i++) {
+    if (URL_PATTERN.test(lines[i])) lines[i] = '';
+  }
+  return lines
+    .filter((l, i) => !(i < 2 && l === ''))
+    .join('\n')
+    .replace(/^\n+/, '');
+}
+
 type ParsedChapter = {
   novel_id: number;
   chapter_number: number;
@@ -41,17 +130,6 @@ function guessTitle(filename: string, num: number): string | null {
     .replace(/^[\s_\-–—.]+|[\s_\-–—.]+$/g, '')
     .trim();
   return withoutNum.length > 0 ? withoutNum : null;
-}
-
-function stripLeadingLinkLines(text: string): string {
-  const lines = text.split('\n');
-  for (let i = 0; i < Math.min(2, lines.length); i++) {
-    if (URL_PATTERN.test(lines[i])) lines[i] = '';
-  }
-  return lines
-    .filter((l, i) => !(i < 2 && l === ''))
-    .join('\n')
-    .replace(/^\n+/, '');
 }
 
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
@@ -75,10 +153,12 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
         lastY = y;
       }
       if (line.trim()) lines.push(line.trim());
-      pageTexts.push(lines.join('\n'));
+      // يرجّع ترتيب القراءة الصح للسطر العربي، ثم يصلح رموز الخط المعطوبة (بالترتيب المنطقي الصح)
+      const fixedLines = lines.map((l) => fixPuaGlyphs(fixArabicLineDirection(l)));
+      pageTexts.push(fixedLines.join('\n'));
       page.cleanup();
     }
-    return pageTexts.join('\n\n');
+    return stripControlChars(pageTexts.join('\n\n'));
   } finally {
     // يحرر ذاكرة المتصفح فورًا بعد كل ملف — أهم خطوة لتفادي انهيار الصفحة مع مئات الملفات
     await pdf.destroy();
