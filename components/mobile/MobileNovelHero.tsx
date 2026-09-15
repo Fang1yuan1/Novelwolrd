@@ -52,20 +52,23 @@ export default async function MobileNovelHero({
             {novel.title}
           </h1>
           {novel.author && (
-            <p className="mt-1.5 flex items-center gap-1.5 text-[13px]">
-              <span className="text-[#7fa8ff]">{novel.author}</span>
+            <p className="mt-1.5 flex items-center gap-1.5 text-[14px]">
+              <span className="text-[#4e67e2]">{novel.author}</span>
             </p>
           )}
-          <p className="mt-1.5 text-[12px] text-white/60">
+          <p className="mt-1.5 text-[13px] text-white/60">
             {categories[0] || "بدون تصنيف"}
             {categories[1] ? ` · ${categories[1]}` : ""}
           </p>
-          <p className="mt-1 text-[12px] text-white/60">
+          <p className="mt-1 text-[13px] text-white/60">
             {statusLabel}
             {lastChapter && (
               <span className="text-white/40">
                 {" "}
-                | تحديث {formatFullDateTime(lastChapter.created_at)}
+                | تحديث{" "}
+                <span dir="ltr" className="tabular-nums">
+                  {formatFullDateTime(lastChapter.created_at)}
+                </span>
               </span>
             )}
           </p>
