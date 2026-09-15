@@ -110,7 +110,7 @@ function fixArabicLineDirection(line: string): string {
   for (const ch of line) {
     const isNeutral = NEUTRAL_CHAR.test(ch);
     const isArabic = ARABIC_RANGE.test(ch);
-    const rtl = isNeutral ? currentRtl ?? true : isArabic;
+    const rtl: boolean = isNeutral ? currentRtl ?? true : isArabic;
     if (currentRtl !== null && rtl !== currentRtl) {
       runs.push({ text: current, rtl: currentRtl });
       current = '';
@@ -120,9 +120,22 @@ function fixArabicLineDirection(line: string): string {
   }
   if (current) runs.push({ text: current, rtl: currentRtl ?? true });
 
+  // بعض الرموز (الأقواس خصوصًا) لازم "تنعكس شكليًا" مو بس تتحرك بمكانها —
+  // قوس فاتح بالنص الأصلي المفروض يبان كقوس مقفل بعد العكس، والعكس صحيح
+  const MIRROR: Record<string, string> = {
+    '(': ')', ')': '(',
+    '[': ']', ']': '[',
+    '{': '}', '}': '{',
+    '«': '»', '»': '«',
+  };
+
   return runs
     .reverse()
-    .map((r) => (r.rtl ? [...r.text].reverse().join('') : r.text))
+    .map((r) =>
+      r.rtl
+        ? [...r.text].reverse().map((c) => MIRROR[c] ?? c).join('')
+        : r.text
+    )
     .join('');
 }
 
@@ -135,6 +148,15 @@ function stripLeadingLinkLines(text: string): string {
     .filter((l, i) => !(i < 2 && l === ''))
     .join('\n')
     .replace(/^\n+/, '');
+}
+
+// بعض الملفات فيها ذيل ثابت (دعوة تبرع/دعم مالي) يبدأ برمز ⏳ — أي شيء من هذا الرمز
+// إلى آخر الفصل يُحذف بالكامل (السطر اللي فيه الرمز وكل اللي بعده)
+function stripAfterHourglassMarker(text: string): string {
+  const idx = text.indexOf('⏳');
+  if (idx === -1) return text;
+  const lineStart = text.lastIndexOf('\n', idx) + 1;
+  return text.slice(0, lineStart).trimEnd();
 }
 
 type ParsedChapter = {
@@ -179,8 +201,12 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
         lastY = y;
       }
       if (line.trim()) lines.push(line.trim());
+      // NFKC يرجّع رموز "أشكال العرض" المعطوبة لحروفها الأساسية العادية —
+      // هذا اللي يخلي المتصفح يقدر يوصل الحروف ببعض صح (تشكيل الحروف التلقائي)
+      // بدل ما تطلع منفصلة/مقطوعة عن بعض
+      const normalizedLines = lines.map((l) => l.normalize('NFKC'));
       // يرجّع ترتيب القراءة الصح للسطر العربي، ثم يصلح رموز الخط المعطوبة (بالترتيب المنطقي الصح)
-      const fixedLines = lines.map((l) => fixPuaGlyphs(fixArabicLineDirection(l)));
+      const fixedLines = normalizedLines.map((l) => fixPuaGlyphs(fixArabicLineDirection(l)));
       pageTexts.push(fixedLines.join('\n'));
       page.cleanup();
     }
@@ -292,7 +318,9 @@ export default function UploadPdfZipPage() {
         const rawText = await extractPdfText(buf);
         // تنظيف نهائي احتياطي على المحتوى والعنوان الاثنين — يضمن عدم وصول أي NUL
         // لقاعدة البيانات حتى لو مصدره اسم الملف نفسه مو نص الـ PDF
-        const content = sanitizeForDb(stripLeadingLinkLines(rawText).trim());
+        const content = sanitizeForDb(
+          stripAfterHourglassMarker(stripLeadingLinkLines(rawText)).trim()
+        );
         const rawTitle = guessTitle(shortName, num);
         const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
         if (!content) {
