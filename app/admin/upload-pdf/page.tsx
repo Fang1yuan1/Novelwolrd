@@ -56,39 +56,56 @@ function stripLeadingLinkLines(text: string): string {
 
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-  const pageTexts: string[] = [];
-  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-    const page = await pdf.getPage(pageNum);
-    const content = await page.getTextContent();
-    let lastY: number | null = null;
-    let line = '';
-    const lines: string[] = [];
-    for (const item of content.items as any[]) {
-      if (typeof item.str !== 'string') continue; // يتجاهل أي عنصر مو نص (صور/رموز)
-      const y = item.transform?.[5] ?? 0;
-      if (lastY !== null && Math.abs(y - lastY) > 2) {
-        if (line.trim()) lines.push(line.trim());
-        line = '';
+  try {
+    const pageTexts: string[] = [];
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const content = await page.getTextContent();
+      let lastY: number | null = null;
+      let line = '';
+      const lines: string[] = [];
+      for (const item of content.items as any[]) {
+        if (typeof item.str !== 'string') continue; // يتجاهل أي عنصر مو نص (صور/رموز)
+        const y = item.transform?.[5] ?? 0;
+        if (lastY !== null && Math.abs(y - lastY) > 2) {
+          if (line.trim()) lines.push(line.trim());
+          line = '';
+        }
+        line += item.str;
+        lastY = y;
       }
-      line += item.str;
-      lastY = y;
+      if (line.trim()) lines.push(line.trim());
+      pageTexts.push(lines.join('\n'));
+      page.cleanup();
     }
-    if (line.trim()) lines.push(line.trim());
-    pageTexts.push(lines.join('\n'));
+    return pageTexts.join('\n\n');
+  } finally {
+    // يحرر ذاكرة المتصفح فورًا بعد كل ملف — أهم خطوة لتفادي انهيار الصفحة مع مئات الملفات
+    await pdf.destroy();
   }
-  return pageTexts.join('\n\n');
 }
 
 export default function UploadPdfZipPage() {
   const [novelId, setNovelId] = useState('1');
   const [log, setLog] = useState<string[]>([]);
-  const [stage, setStage] = useState<'idle' | 'extracting' | 'uploading'>('idle');
+  const [stage, setStage] = useState<'idle' | 'working'>('idle');
   const [progress, setProgress] = useState(0);
   const [total, setTotal] = useState(0);
   const running = stage !== 'idle';
 
   function addLog(msg: string) {
     setLog((prev) => [...prev, msg]);
+  }
+
+  async function uploadBatch(batch: ParsedChapter[]) {
+    const { error } = await supabase.from('chapters').insert(batch);
+    const nums = batch.map((b) => b.chapter_number).join('، ');
+    if (error) {
+      addLog(`فشل رفع: ${nums} — ${error.message}`);
+      return batch.length;
+    }
+    addLog(`تم رفع: ${nums}`);
+    return 0;
   }
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -98,7 +115,7 @@ export default function UploadPdfZipPage() {
     setLog([]);
     setProgress(0);
 
-    // ١) فك ضغط الـ zip وجلب ملفات الـ PDF بس
+    // ١) فك ضغط الـ zip وجلب ملفات الـ PDF بس، وترتيبها برقم الفصل قبل البدء
     let zip: JSZip;
     try {
       zip = await JSZip.loadAsync(file);
@@ -106,22 +123,26 @@ export default function UploadPdfZipPage() {
       addLog('خطأ: الملف مو zip صحيح');
       return;
     }
-    const pdfEntries = Object.values(zip.files).filter(
-      (f) => !f.dir && f.name.toLowerCase().endsWith('.pdf')
-    );
+    const pdfEntries = Object.values(zip.files)
+      .filter((f) => !f.dir && f.name.toLowerCase().endsWith('.pdf'))
+      .map((f) => ({ entry: f, shortName: f.name.split('/').pop() || f.name }))
+      .map((f) => ({ ...f, num: parseChapterNumber(f.shortName) }))
+      .sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
+
     if (pdfEntries.length === 0) {
       addLog('ما لقيت أي ملف PDF داخل الـ zip');
       return;
     }
 
-    // ٢) استخراج النص من كل PDF
-    setStage('extracting');
+    // ٢) استخراج + رفع كل ملف على حدة (مو كل الملفات أول ثم الرفع) —
+    // عشان ما نحتفظ بمئات الفصول بالذاكرة بنفس الوقت، وهذا اللي كان يسبب توقف/انهيار الصفحة
+    setStage('working');
     setTotal(pdfEntries.length);
-    const parsed: ParsedChapter[] = [];
+    let failedCount = 0;
+    let pendingBatch: ParsedChapter[] = [];
+
     for (let i = 0; i < pdfEntries.length; i++) {
-      const entry = pdfEntries[i];
-      const shortName = entry.name.split('/').pop() || entry.name;
-      const num = parseChapterNumber(shortName);
+      const { entry, shortName, num } = pdfEntries[i];
       if (num === null) {
         addLog(`تخطّي: ${shortName} — ما فيه رقم فصل بالاسم`);
         setProgress(i + 1);
@@ -134,7 +155,7 @@ export default function UploadPdfZipPage() {
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
         }
-        parsed.push({
+        pendingBatch.push({
           novel_id: Number(novelId),
           chapter_number: num,
           title: guessTitle(shortName, num),
@@ -144,34 +165,16 @@ export default function UploadPdfZipPage() {
       } catch (err: any) {
         addLog(`فشل استخراج: ${shortName} — ${err?.message || 'خطأ غير معروف'}`);
       }
-      setProgress(i + 1);
-    }
 
-    if (parsed.length === 0) {
-      addLog('ما نجح استخراج أي فصل — توقفت العملية');
-      setStage('idle');
-      return;
-    }
-
-    parsed.sort((a, b) => a.chapter_number - b.chapter_number);
-
-    // ٣) رفع الفصول المستخرجة لقاعدة البيانات (نفس منطق رفع الـ JSON الحالي)
-    setStage('uploading');
-    setTotal(parsed.length);
-    setProgress(0);
-    let failedCount = 0;
-    for (let i = 0; i < parsed.length; i += BATCH_SIZE) {
-      const batch = parsed.slice(i, i + BATCH_SIZE);
-      const { error } = await supabase.from('chapters').insert(batch);
-      const nums = batch.map((b) => b.chapter_number).join('، ');
-      if (error) {
-        addLog(`فشل رفع: ${nums} — ${error.message}`);
-        failedCount += batch.length;
-      } else {
-        addLog(`تم رفع: ${nums}`);
+      // يرفع كل ما توصل الدفعة للحجم المحدد، أو آخر ملف بالقائمة
+      if (pendingBatch.length >= BATCH_SIZE || i === pdfEntries.length - 1) {
+        if (pendingBatch.length > 0) {
+          failedCount += await uploadBatch(pendingBatch);
+          pendingBatch = []; // تفريغ فوري — يحرر الذاكرة قبل ما نكمل استخراج الدفعة الجاية
+          await new Promise((r) => setTimeout(r, DELAY_MS));
+        }
       }
-      setProgress(i + batch.length);
-      await new Promise((r) => setTimeout(r, DELAY_MS));
+      setProgress(i + 1);
     }
 
     setStage('idle');
@@ -203,14 +206,13 @@ export default function UploadPdfZipPage() {
       {total > 0 && (
         <div style={{ marginTop: 16 }}>
           <div>
-            {stage === 'extracting' && 'استخراج النص: '}
-            {stage === 'uploading' && 'الرفع لقاعدة البيانات: '}
+            {stage === 'working' && 'جارٍ الاستخراج والرفع: '}
             {progress} / {total}
           </div>
           <div style={{ background: '#333', height: 10, borderRadius: 5 }}>
             <div
               style={{
-                background: stage === 'uploading' ? '#4f8cff' : '#a855f7',
+                background: '#4f8cff',
                 height: '100%',
                 width: `${(progress / total) * 100}%`,
                 borderRadius: 5,
