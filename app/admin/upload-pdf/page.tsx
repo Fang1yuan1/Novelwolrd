@@ -181,7 +181,8 @@ export default function UploadPdfZipPage() {
     const { error } = await supabase.from('chapters').insert(batch);
     const nums = batch.map((b) => b.chapter_number).join('، ');
     if (error) {
-      addLog(`فشل رفع: ${nums} — ${error.message}`);
+      const extra = [error.details, error.hint].filter(Boolean).join(' | ');
+      addLog(`فشل رفع: ${nums} — ${error.message}${extra ? ` (${extra})` : ''}`);
       return batch.length;
     }
     addLog(`تم رفع: ${nums}`);
@@ -231,14 +232,18 @@ export default function UploadPdfZipPage() {
       try {
         const buf = await entry.async('arraybuffer');
         const rawText = await extractPdfText(buf);
-        const content = stripLeadingLinkLines(rawText).trim();
+        // تنظيف نهائي احتياطي على المحتوى والعنوان الاثنين — يضمن عدم وصول أي NUL
+        // لقاعدة البيانات حتى لو مصدره اسم الملف نفسه مو نص الـ PDF
+        const content = stripControlChars(stripLeadingLinkLines(rawText).trim());
+        const rawTitle = guessTitle(shortName, num);
+        const title = rawTitle ? stripControlChars(rawTitle) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
         }
         pendingBatch.push({
           novel_id: Number(novelId),
           chapter_number: num,
-          title: guessTitle(shortName, num),
+          title,
           content,
         });
         addLog(`استخرجت: الفصل ${num} (${shortName})`);
