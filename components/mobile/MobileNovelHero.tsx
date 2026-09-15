@@ -78,7 +78,7 @@ export default async function MobileNovelHero({
             <>
               <p
                 dir="ltr"
-                className="flex items-center justify-center gap-1 text-[17px] font-bold tabular-nums text-[#f0e6d2]"
+                className="flex items-center justify-center gap-1 text-[17px] font-bold tabular-nums text-[#f9e8d8]"
               >
                 <LaurelIcon variant="no" className="h-5 w-3.5" />
                 No.({rank.rank})
