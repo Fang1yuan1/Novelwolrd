@@ -97,10 +97,17 @@ const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE7
 
 // PDF بيخزن سطر عربي كامل بترتيب العرض البصري (زي ما يبان بالصفحة) مو ترتيب القراءة.
 // نشتغل على مستوى "الكلمة" مو الحرف: نقلب ترتيب الكلمات بالسطر، ونعكس حروف كل كلمة عربية
-// لحالها، ونسيب أي كلمة إنجليزية/رقم زي ما هي تمامًا بدون ما نلمسها. ملاحظة مهمة: ما نقلب
-// شكل الأقواس يدويًا — المتصفح نفسه يعكس شكل القوس تلقائيًا داخل نص RTL (هذا سلوك يونيكود
-// قياسي)، فلو قلبناه إحنا كمان، ينقلب مرتين ويطلع بالشكل الغلط بالضبط زي ما لاحظت
+// لحالها (+ نصلح شكل الأقواس يدويًا — لاحظنا إنه لازم نسويها إحنا صراحة، الاعتماد على
+// المتصفح ما زبط)، ونسيب أي كلمة إنجليزية/رقم زي ما هي تمامًا بدون ما نلمسها
 const LATIN_OR_DIGIT = /[A-Za-z0-9]/;
+
+const MIRROR: Record<string, string> = {
+  '(': ')', ')': '(',
+  '[': ']', ']': '[',
+  '{': '}', '}': '{',
+  '«': '»', '»': '«',
+  '<': '>', '>': '<',
+};
 
 function fixArabicLineDirection(line: string): string {
   const arabicCount = (line.match(ARABIC_RANGE) || []).length;
@@ -114,8 +121,8 @@ function fixArabicLineDirection(line: string): string {
     const latinCount = (token.match(LATIN_OR_DIGIT) || []).length;
     const isLatinWord = latinCount > token.length * 0.5;
     if (isLatinWord) return token; // كلمة إنجليزية/رقم — ما نلمس ترتيب حروفها إطلاقًا
-    // كلمة عربية أو رمز ترقيم قائم بذاته — نعكس ترتيب حروفه بس (بدون قلب شكل الأقواس)
-    return [...token].reverse().join('');
+    // كلمة عربية أو رمز ترقيم قائم بذاته — نعكس ترتيب حروفه + نصلح شكل الأقواس
+    return [...token].reverse().map((c) => MIRROR[c] ?? c).join('');
   });
 
   // نقلب ترتيب الكلمات نفسها (والمسافات بينها تنقلب معها بمكانها الصح تلقائيًا)
@@ -163,13 +170,6 @@ function guessTitle(filename: string, num: number): string | null {
   return withoutNum.length > 0 ? withoutNum : null;
 }
 
-function median(nums: number[]): number {
-  if (nums.length === 0) return 0;
-  const sorted = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   try {
@@ -180,32 +180,38 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
       // نرتب العناصر أولًا حسب موقعها الفعلي بالصفحة (من فوق لتحت، ثم من يسار ليمين)
       // بدل ما نعتمد على ترتيبها جوا ملف الـ PDF نفسه — بعض ملفات PDF تخزن نصوصها
       // بترتيب داخلي غريب (مو بالضرورة من فوق لتحت)، وهذا اللي كان يسبب انتقال جمل
-      // إنجليزية لمكان غلط بالفصل
+      // إنجليزية لمكان غلط بالفصل. ونحتفظ بارتفاع الخط الفعلي لكل عنصر (height)
+      // عشان نستخدمه كمرجع مطلق لتمييز فاصل الفقرة الحقيقي عن مجرد لفّ سطر عادي
       const items = (content.items as any[])
         .filter((item) => typeof item.str === 'string')
         .map((item) => ({
           str: item.str as string,
           x: item.transform?.[4] ?? 0,
           y: item.transform?.[5] ?? 0,
+          height: (item.height as number) || Math.abs(item.transform?.[3] ?? 0) || 10,
         }))
         .sort((a, b) => (Math.abs(a.y - b.y) > 2 ? b.y - a.y : a.x - b.x));
 
-      // نجمع عناصر كل سطر بصري بالصفحة (زي قبل)، بس نحتفظ بموضع Y كل سطر
-      type RawLine = { text: string; y: number };
+      // نجمع عناصر كل سطر بصري بالصفحة (زي قبل)، بس نحتفظ بموضع Y وارتفاع الخط لكل سطر
+      type RawLine = { text: string; y: number; height: number };
       const rawLines: RawLine[] = [];
       let lastY: number | null = null;
       let line = '';
       let lineY: number | null = null;
+      let lineHeight = 10;
       for (const item of items) {
         if (lastY !== null && Math.abs(item.y - lastY) > 2) {
-          if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number });
+          if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number, height: lineHeight });
           line = '';
         }
-        if (line === '') lineY = item.y;
+        if (line === '') {
+          lineY = item.y;
+          lineHeight = item.height;
+        }
         line += item.str;
         lastY = item.y;
       }
-      if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number });
+      if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number, height: lineHeight });
 
       // نصلح كل سطر (اتجاه + رموز الخط) بالترتيب المنطقي الصح أول شي
       const fixedRawLines = rawLines.map((rl) => ({
@@ -214,28 +220,25 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
           ' '
         ),
         y: rl.y,
+        height: rl.height,
       }));
 
-      // نحسب الفجوة "العادية" بين سطر وسطر بنفس الفقرة (وسيط كل الفجوات بالصفحة) —
-      // أي فجوة أكبر منها بوضوح تعتبر فاصل فقرة حقيقي، وأي فجوة عادية تعني إن
-      // السطرين لسا بنفس الفقرة (نوصلهم بمسافة، مو سطر جديد) — هذا يمنع نهاية
-      // السطر تطلع بحرف جر/عطف معلّق بالنص بينما بالـ PDF الأصلي كانت متصلة
-      const gaps: number[] = [];
-      for (let i = 1; i < fixedRawLines.length; i++) {
-        gaps.push(Math.abs(fixedRawLines[i - 1].y - fixedRawLines[i].y));
-      }
-      const typicalGap = median(gaps);
-
+      // نقارن فجوة كل سطرين بارتفاع الخط الفعلي لهما (مرجع مطلق) — مو بمتوسط فجوات
+      // الصفحة (مرجع نسبي). هذا مهم: بعض الملفات أسلوبها إن كل جملة فقرة لحالها
+      // (فجوة كبيرة بين أغلب الأسطر)، فلو قارنا بمتوسط فجوات نفس الصفحة كان بيطلع
+      // إن الفجوة "طبيعية" ويلصقها بالغلط. ارتفاع الخط نفسه مرجع ثابت ما يتغير
+      // حسب أسلوب الملف، فيصير التمييز صح بأي ملف كان
       const paragraphs: string[] = [];
       let current = '';
       for (let i = 0; i < fixedRawLines.length; i++) {
-        const { text } = fixedRawLines[i];
+        const { text, height } = fixedRawLines[i];
         if (i === 0) {
           current = text;
           continue;
         }
         const gap = Math.abs(fixedRawLines[i - 1].y - fixedRawLines[i].y);
-        const isNewParagraph = typicalGap > 0 && gap > typicalGap * 1.4;
+        const refHeight = Math.max(fixedRawLines[i - 1].height, height, 1);
+        const isNewParagraph = gap > refHeight * 1.6;
         if (isNewParagraph) {
           paragraphs.push(current);
           current = text;
