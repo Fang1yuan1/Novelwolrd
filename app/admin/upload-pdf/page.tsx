@@ -94,31 +94,16 @@ function sanitizeForDb(text: string): string {
 // عربي أساسي + أشكال العرض (Presentation Forms) — بعض الخطوط (زي خط هذا الملف) تخزن
 // الحروف العربية برموز "أشكال العرض" بدل الحروف الأساسية، فلازم نغطي النطاقين مع بعض
 const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
-const NEUTRAL_CHAR = /[\s.,:;!؟،"'()\-\u060C\u061B\u061F]/;
 
-// PDF بيخزن سطر عربي كامل بترتيب العرض البصري (زي ما يبان بالصفحة) مو ترتيب القراءة،
-// فلازم نعكس ترتيب الحروف داخل كل "قطعة" عربية بس، ونسيب الأرقام/الروابط/الإنجليزي بترتيبها الصح
+// PDF بيخزن سطر عربي كامل بترتيب العرض البصري (زي ما يبان بالصفحة) مو ترتيب القراءة.
+// نشتغل على مستوى "الكلمة" مو الحرف: نقلب ترتيب الكلمات بالسطر، ونعكس حروف كل كلمة عربية
+// لحالها (+ نصلح شكل الأقواس)، ونسيب أي كلمة إنجليزية/رقم زي ما هي تمامًا بدون ما نلمسها،
+// والمسافات نفسها تنحفظ بمكانها الصح تلقائيًا لأنها عناصر منفصلة بالتقسيم مو حروف مدموجة
+const LATIN_OR_DIGIT = /[A-Za-z0-9]/;
+
 function fixArabicLineDirection(line: string): string {
   const arabicCount = (line.match(ARABIC_RANGE) || []).length;
   if (arabicCount < line.length * 0.3) return line; // سطر مو عربي أغلبه (رابط/عنوان إنجليزي) — ما نلمسه
-
-  type Run = { text: string; rtl: boolean };
-  const runs: Run[] = [];
-  let current = '';
-  let currentRtl: boolean | null = null;
-
-  for (const ch of line) {
-    const isNeutral = NEUTRAL_CHAR.test(ch);
-    const isArabic = ARABIC_RANGE.test(ch);
-    const rtl: boolean = isNeutral ? currentRtl ?? true : isArabic;
-    if (currentRtl !== null && rtl !== currentRtl) {
-      runs.push({ text: current, rtl: currentRtl });
-      current = '';
-    }
-    currentRtl = rtl;
-    current += ch;
-  }
-  if (current) runs.push({ text: current, rtl: currentRtl ?? true });
 
   // بعض الرموز (الأقواس خصوصًا) لازم "تنعكس شكليًا" مو بس تتحرك بمكانها —
   // قوس فاتح بالنص الأصلي المفروض يبان كقوس مقفل بعد العكس، والعكس صحيح
@@ -127,16 +112,23 @@ function fixArabicLineDirection(line: string): string {
     '[': ']', ']': '[',
     '{': '}', '}': '{',
     '«': '»', '»': '«',
+    '<': '>', '>': '<',
   };
 
-  return runs
-    .reverse()
-    .map((r) =>
-      r.rtl
-        ? [...r.text].reverse().map((c) => MIRROR[c] ?? c).join('')
-        : r.text
-    )
-    .join('');
+  // نقسم السطر لكلمات مع الاحتفاظ بالمسافات كعناصر بذاتها بالمصفوفة (بفضل القوس بالـ split)
+  const tokens = line.split(/(\s+)/);
+
+  const fixedTokens = tokens.map((token) => {
+    if (/^\s+$/.test(token) || token === '') return token; // مسافة — تنحفظ زي ما هي
+    const latinCount = (token.match(LATIN_OR_DIGIT) || []).length;
+    const isLatinWord = latinCount > token.length * 0.5;
+    if (isLatinWord) return token; // كلمة إنجليزية/رقم — ما نلمس ترتيب حروفها إطلاقًا
+    // كلمة عربية أو رمز ترقيم قائم بذاته — نعكس ترتيب حروفه + نصلح شكل الأقواس
+    return [...token].reverse().map((c) => MIRROR[c] ?? c).join('');
+  });
+
+  // نقلب ترتيب الكلمات نفسها (والمسافات بينها تنقلب معها بمكانها الصح تلقائيًا)
+  return fixedTokens.reverse().join('');
 }
 
 function stripLeadingLinkLines(text: string): string {
