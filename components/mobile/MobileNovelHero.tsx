@@ -76,10 +76,13 @@ export default async function MobileNovelHero({
         <div className="py-3 text-center">
           {rank ? (
             <>
-              <p className="flex items-center justify-center gap-1.5 text-[17px] font-bold tabular-nums text-[#c9a86a]">
-                <LaurelIcon />
-                رقم {rank.rank}
-                <LaurelIcon flip />
+              <p
+                dir="ltr"
+                className="flex items-center justify-center gap-1 text-[17px] font-bold tabular-nums text-[#f0e6d2]"
+              >
+                <LaurelIcon variant="no" className="h-5 w-3.5" />
+                No.({rank.rank})
+                <LaurelIcon variant="no" flip className="h-5 w-3.5" />
               </p>
               <p className="mt-0.5 text-[10px] text-white/50">
                 من {rank.total} حسب الفصول
