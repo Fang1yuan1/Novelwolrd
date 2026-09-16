@@ -93,40 +93,22 @@ function sanitizeForDb(text: string): string {
 
 // عربي أساسي + أشكال العرض (Presentation Forms) — بعض الخطوط (زي خط هذا الملف) تخزن
 // الحروف العربية برموز "أشكال العرض" بدل الحروف الأساسية، فلازم نغطي النطاقين مع بعض
-const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+const ARABIC_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g;
 
-// PDF بيخزن سطر عربي كامل بترتيب العرض البصري (زي ما يبان بالصفحة) مو ترتيب القراءة.
-// نشتغل على مستوى "الكلمة" مو الحرف: نقلب ترتيب الكلمات بالسطر، ونعكس حروف كل كلمة عربية
-// لحالها (+ نصلح شكل الأقواس يدويًا — لاحظنا إنه لازم نسويها إحنا صراحة، الاعتماد على
-// المتصفح ما زبط)، ونسيب أي كلمة إنجليزية/رقم زي ما هي تمامًا بدون ما نلمسها
-const LATIN_OR_DIGIT = /[A-Za-z0-9]/;
-
-const MIRROR: Record<string, string> = {
+// PDF بيعطينا كل سطر فعليًا بترتيب القراءة الصح (تأكدنا من هذا مباشرة بفحص مكتبة
+// pdf.js نفسها على بيانات حقيقية) — العنصر الوحيد المعكوس فعليًا بمصدر هذا النوع
+// من الملفات هو الأقواس نفسها (الفتح والإغلاق متبادلين بالمصدر)، فنصلحها بس
+// بدون أي إعادة ترتيب لبقية الكلام — إعادة الترتيب اللي كنا نسويها قبل كانت
+// هي اللي تخرب النص الصحيح أصلًا
+const BRACKET_SWAP: Record<string, string> = {
   '(': ')', ')': '(',
   '[': ']', ']': '[',
-  '{': '}', '}': '{',
-  '«': '»', '»': '«',
-  '<': '>', '>': '<',
 };
 
 function fixArabicLineDirection(line: string): string {
   const arabicCount = (line.match(ARABIC_RANGE) || []).length;
   if (arabicCount < line.length * 0.3) return line; // سطر مو عربي أغلبه (رابط/عنوان إنجليزي) — ما نلمسه
-
-  // نقسم السطر لكلمات مع الاحتفاظ بالمسافات كعناصر بذاتها بالمصفوفة (بفضل القوس بالـ split)
-  const tokens = line.split(/(\s+)/);
-
-  const fixedTokens = tokens.map((token) => {
-    if (/^\s+$/.test(token) || token === '') return token; // مسافة — تنحفظ زي ما هي
-    const latinCount = (token.match(LATIN_OR_DIGIT) || []).length;
-    const isLatinWord = latinCount > token.length * 0.5;
-    if (isLatinWord) return token; // كلمة إنجليزية/رقم — ما نلمس ترتيب حروفها إطلاقًا
-    // كلمة عربية أو رمز ترقيم قائم بذاته — نعكس ترتيب حروفه + نصلح شكل الأقواس
-    return [...token].reverse().map((c) => MIRROR[c] ?? c).join('');
-  });
-
-  // نقلب ترتيب الكلمات نفسها (والمسافات بينها تنقلب معها بمكانها الصح تلقائيًا)
-  return fixedTokens.reverse().join('');
+  return [...line].map((c) => BRACKET_SWAP[c] ?? c).join('');
 }
 
 function stripLeadingLinkLines(text: string): string {
@@ -191,7 +173,7 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
           height: (item.height as number) || Math.abs(item.transform?.[3] ?? 0) || 10,
         }))
         .sort((a, b) =>
-          Math.abs(a.y - b.y) > Math.max(a.height, b.height) * 0.4 ? b.y - a.y : a.x - b.x
+          Math.abs(a.y - b.y) > Math.max(a.height, b.height) * 0.4 ? b.y - a.y : b.x - a.x
         );
 
       // نجمع عناصر كل سطر بصري بالصفحة (زي قبل)، بس نحتفظ بموضع Y وارتفاع الخط لكل سطر.
