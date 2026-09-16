@@ -190,17 +190,25 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
           y: item.transform?.[5] ?? 0,
           height: (item.height as number) || Math.abs(item.transform?.[3] ?? 0) || 10,
         }))
-        .sort((a, b) => (Math.abs(a.y - b.y) > 2 ? b.y - a.y : a.x - b.x));
+        .sort((a, b) =>
+          Math.abs(a.y - b.y) > Math.max(a.height, b.height) * 0.4 ? b.y - a.y : a.x - b.x
+        );
 
-      // نجمع عناصر كل سطر بصري بالصفحة (زي قبل)، بس نحتفظ بموضع Y وارتفاع الخط لكل سطر
+      // نجمع عناصر كل سطر بصري بالصفحة (زي قبل)، بس نحتفظ بموضع Y وارتفاع الخط لكل سطر.
+      // ملاحظة مهمة: بعض الملفات فيها اختلاف بسيط بخط الأساس (baseline) بين الحروف
+      // العربية والإنجليزية حتى لو كانوا فعليًا بنفس السطر المرئي (فرق فعلي شفناه: 2.2
+      // نقطة بخط ارتفاعه 14) — فبدل حد ثابت "> 2" اللي كان يفصلهم غلط لسطرين منفصلين،
+      // نخلي الحد نسبة من ارتفاع الخط نفسه، فيتسامح مع هذا الفرق الطبيعي
       type RawLine = { text: string; y: number; height: number };
       const rawLines: RawLine[] = [];
       let lastY: number | null = null;
+      let lastHeight = 10;
       let line = '';
       let lineY: number | null = null;
       let lineHeight = 10;
       for (const item of items) {
-        if (lastY !== null && Math.abs(item.y - lastY) > 2) {
+        const sameLineThreshold = Math.max(lastHeight, item.height) * 0.4;
+        if (lastY !== null && Math.abs(item.y - lastY) > sameLineThreshold) {
           if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number, height: lineHeight });
           line = '';
         }
@@ -210,13 +218,14 @@ async function extractPdfText(buf: ArrayBuffer): Promise<string> {
         }
         line += item.str;
         lastY = item.y;
+        lastHeight = item.height;
       }
       if (line.trim()) rawLines.push({ text: line.trim(), y: lineY as number, height: lineHeight });
 
       // نصلح كل سطر (اتجاه + رموز الخط) بالترتيب المنطقي الصح أول شي
       const fixedRawLines = rawLines.map((rl) => ({
         text: fixPuaGlyphs(fixArabicLineDirection(rl.text.normalize('NFKC'))).replace(
-          /[ \t]{2,}/g,
+          /\s{2,}/g,
           ' '
         ),
         y: rl.y,
