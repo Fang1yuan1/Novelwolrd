@@ -108,6 +108,7 @@ function processParagraph(p: HTMLParagraphElement, range: Range) {
         const a = original[i];
         const b = original[i + 1];
         if (!isConnectableLetter(a) || !b) continue;
+        if (!/[\u0621-\u064A]/.test(b)) continue; // ب لازم يكون حرف عربي فعلي — لا علامة ترقيم ولا نقطة
         if (a === "ل" && ALEF_FORMS.has(b)) continue; // رابطة "لا" الإجبارية — ما تُكسر أبدًا
         gaps.push(i + 1);
       }
