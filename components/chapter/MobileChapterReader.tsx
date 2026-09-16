@@ -5,6 +5,7 @@ import Link from "next/link";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
+import { applyKashidaJustify } from "@/lib/kashida-justify";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_SIZES = [16, 18, 20, 22, 24];
@@ -147,6 +148,27 @@ export default function MobileChapterReader({
     .map((t) => t.trim())
     .filter(Boolean);
 
+  // تبرير بأسلوب الكشيدة — يصير على النص المعروض بالمتصفح بس، مرتبط بحجم الخط
+  // والمحتوى الحالي، ويعاد حسابه لو الشاشة تغيّر حجمها (تدوير الجهاز مثلًا)
+  useEffect(() => {
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        applyKashidaJustify(contentRef.current);
+      });
+    });
+    function handleResize() {
+      applyKashidaJustify(contentRef.current);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [chapter.content, fontSize, contentRef]);
+
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
 
   return (
@@ -208,11 +230,10 @@ export default function MobileChapterReader({
       {/* النص — الضغط في أي مكان بالفصل يفتح لوحة الثيمات والإعدادات */}
       <div
         ref={contentRef}
-        className="chapter-no-copy px-4 pb-16 pt-6 text-justify"
+        className="chapter-no-copy px-4 pb-16 pt-6"
         style={{
           fontSize,
           fontWeight: p.boldText ? 700 : 400,
-          textJustify: "inter-character",
         }}
         onClick={() => {
           if (window.getSelection()?.toString()) return;
