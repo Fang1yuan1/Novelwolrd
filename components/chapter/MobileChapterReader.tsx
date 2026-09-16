@@ -209,7 +209,11 @@ export default function MobileChapterReader({
       <div
         ref={contentRef}
         className="chapter-no-copy px-4 pb-16 pt-6 text-justify"
-        style={{ fontSize, fontWeight: p.boldText ? 700 : 400 }}
+        style={{
+          fontSize,
+          fontWeight: p.boldText ? 700 : 400,
+          textJustify: "inter-character",
+        }}
         onClick={() => {
           if (window.getSelection()?.toString()) return;
           setShowSheet(true);
