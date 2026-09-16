@@ -11,6 +11,10 @@ const NON_CONNECTING = new Set([
   "ا", "أ", "إ", "آ", "د", "ذ", "ر", "ز", "و", "ؤ", "ة", "ى",
 ]);
 
+// أشكال الألف اللي تكوّن مع "ل" رابطة إجبارية (لا) — لازم يضلوا ملتصقين ببعض
+// دايمًا، ولا نحط كشيدة بينهم أبدًا وإلا ينكسر شكل الحرفين الاثنين
+const ALEF_FORMS = new Set(["ا", "أ", "إ", "آ"]);
+
 function isConnectableLetter(ch: string): boolean {
   return /[\u0621-\u064A]/.test(ch) && !NON_CONNECTING.has(ch);
 }
@@ -83,9 +87,6 @@ function processParagraph(p: HTMLParagraphElement, range: Range) {
     const used = line.maxRight - line.minLeft;
     const deficit = fullWidth - used;
     if (deficit < tatweelWidth * 0.8) continue;
-    // لو الفجوة كبيرة جدًا نسبة لعرض السطر، الكشيدة بمفردها بتبان مبالغ فيها —
-    // نفضّل نسيب السطر طبيعي بدل ما نشوهه
-    if (deficit > fullWidth * 0.22) continue;
 
     // نحدد حدود كل كلمة بالسطر عشان نستثني الكلمات القصيرة من الكشيدة
     const wordBounds: { start: number; end: number }[] = [];
@@ -107,17 +108,18 @@ function processParagraph(p: HTMLParagraphElement, range: Range) {
         const a = original[i];
         const b = original[i + 1];
         if (!isConnectableLetter(a) || !b) continue;
+        if (a === "ل" && ALEF_FORMS.has(b)) continue; // رابطة "لا" الإجبارية — ما تُكسر أبدًا
         gaps.push(i + 1);
       }
     }
     if (gaps.length === 0) continue;
 
     // هامش أمان (-1) عشان نميل لتبرير أقل شوي بدل ما نفيض للسطر التالي
-    const totalTatweels = Math.max(0, Math.floor(deficit / tatweelWidth) - 1);
+    const totalTatweels = Math.min(
+      gaps.length,
+      Math.max(0, Math.floor(deficit / tatweelWidth) - 1)
+    );
     if (totalTatweels === 0) continue;
-    // ما نسوي كشيدة أكثر من عدد نقاط الاتصال المتاحة (يعني وحدة بس بكل نقطة) —
-    // لو احتجنا أكثر من كذا، معناه الفجوة كبيرة على عدد النقاط المتاحة، نتجاهلها
-    if (totalTatweels > gaps.length) continue;
 
     // نوزّع بالتساوي على أوسع عدد ممكن من نقاط الاتصال (نقفز بمسافات متساوية
     // بينها) بدل ما نكدّس بأول نقاط السطر
