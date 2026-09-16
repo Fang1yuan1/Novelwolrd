@@ -70,7 +70,10 @@ function processParagraph(p: HTMLParagraphElement, range: Range) {
 
   const fullWidth = p.getBoundingClientRect().width;
   const tatweelWidth = measureTatweelWidth(p);
-  const MAX_PER_GAP = 3;
+  // سقف واحد بس لكل نقطة اتصال — أكثر من هذا يطلع شكل مبالغ فيه وغير طبيعي
+  const MAX_PER_GAP = 1;
+  // أقل طول كلمة نسمح نحط فيها كشيدة — كلمة قصيرة ممدودة تبان غريبة
+  const MIN_WORD_LEN = 4;
 
   const insertions: { at: number; count: number }[] = [];
 
@@ -80,35 +83,50 @@ function processParagraph(p: HTMLParagraphElement, range: Range) {
     const used = line.maxRight - line.minLeft;
     const deficit = fullWidth - used;
     if (deficit < tatweelWidth * 0.8) continue;
+    // لو الفجوة كبيرة جدًا نسبة لعرض السطر، الكشيدة بمفردها بتبان مبالغ فيها —
+    // نفضّل نسيب السطر طبيعي بدل ما نشوهه
+    if (deficit > fullWidth * 0.22) continue;
+
+    // نحدد حدود كل كلمة بالسطر عشان نستثني الكلمات القصيرة من الكشيدة
+    const wordBounds: { start: number; end: number }[] = [];
+    let wStart: number | null = null;
+    for (let i = line.start; i <= line.end + 1; i++) {
+      const ch = original[i];
+      const isWordChar = ch && ch !== " ";
+      if (isWordChar && wStart === null) wStart = i;
+      if ((!isWordChar || i === line.end + 1) && wStart !== null) {
+        wordBounds.push({ start: wStart, end: i - 1 });
+        wStart = null;
+      }
+    }
 
     const gaps: number[] = [];
-    for (let i = line.start; i < line.end; i++) {
-      const a = original[i];
-      const b = original[i + 1];
-      if (!a || !b || a === " " || b === " ") continue;
-      if (!isConnectableLetter(a)) continue;
-      gaps.push(i + 1);
+    for (const w of wordBounds) {
+      if (w.end - w.start + 1 < MIN_WORD_LEN) continue; // كلمة قصيرة — تُستثنى بالكامل
+      for (let i = w.start; i < w.end; i++) {
+        const a = original[i];
+        const b = original[i + 1];
+        if (!isConnectableLetter(a) || !b) continue;
+        gaps.push(i + 1);
+      }
     }
     if (gaps.length === 0) continue;
 
     // هامش أمان (-1) عشان نميل لتبرير أقل شوي بدل ما نفيض للسطر التالي
     const totalTatweels = Math.max(0, Math.floor(deficit / tatweelWidth) - 1);
     if (totalTatweels === 0) continue;
+    // ما نسوي كشيدة أكثر من عدد نقاط الاتصال المتاحة (يعني وحدة بس بكل نقطة) —
+    // لو احتجنا أكثر من كذا، معناه الفجوة كبيرة على عدد النقاط المتاحة، نتجاهلها
+    if (totalTatweels > gaps.length) continue;
 
-    const perGap = new Map<number, number>();
-    let remaining = totalTatweels;
-    let gi = 0;
-    let safety = gaps.length * MAX_PER_GAP * 2 + 10;
-    while (remaining > 0 && safety-- > 0) {
-      const at = gaps[gi % gaps.length];
-      const count = perGap.get(at) ?? 0;
-      if (count < MAX_PER_GAP) {
-        perGap.set(at, count + 1);
-        remaining--;
-      }
-      gi++;
+    // نوزّع بالتساوي على أوسع عدد ممكن من نقاط الاتصال (نقفز بمسافات متساوية
+    // بينها) بدل ما نكدّس بأول نقاط السطر
+    const step = gaps.length / totalTatweels;
+    const chosen = new Set<number>();
+    for (let k = 0; k < totalTatweels; k++) {
+      chosen.add(gaps[Math.floor(k * step)]);
     }
-    perGap.forEach((count, at) => insertions.push({ at, count }));
+    chosen.forEach((at) => insertions.push({ at, count: MAX_PER_GAP }));
   }
 
   if (insertions.length === 0) return;
