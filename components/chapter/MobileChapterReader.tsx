@@ -147,37 +147,6 @@ export default function MobileChapterReader({
     .map((t) => t.trim())
     .filter(Boolean);
 
-  // محاذاة كل فقرة حسب طولها الفعلي بعد الرسم: جملة قصيرة (سطر وحد) تتوسط،
-  // وفقرة أطول (تلف لأكثر من سطر) تاخذ محاذاة عادية (تبدأ من اليمين) — بالضبط
-  // زي شكل الـ PDF الأصلي، بدل ما كل فقرة تتوسط بنفس الطريقة.
-  // نحسب عدد الأسطر الفعلي مباشرة من المتصفح (Range.getClientRects يرجع مستطيل
-  // واحد لكل سطر بصري) بدل ما نخمّن من ارتفاع السطر بـ CSS — تخمين الارتفاع كان
-  // غير موثوق بين متصفح ومتصفح، وهذا القياس المباشر ثابت ودقيق بكل الحالات
-  useEffect(() => {
-    function applyAlignment() {
-      const container = contentRef.current;
-      if (!container) return;
-      const ps = container.querySelectorAll("p");
-      const range = document.createRange();
-      ps.forEach((el) => {
-        const p = el as HTMLElement;
-        const textNode = p.firstChild;
-        if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
-        range.selectNodeContents(textNode);
-        const lineCount = range.getClientRects().length;
-        p.style.textAlign = lineCount > 1 ? "right" : "center";
-      });
-    }
-    const raf1 = requestAnimationFrame(() => {
-      requestAnimationFrame(applyAlignment);
-    });
-    window.addEventListener("resize", applyAlignment);
-    return () => {
-      cancelAnimationFrame(raf1);
-      window.removeEventListener("resize", applyAlignment);
-    };
-  }, [chapter.content, fontSize]);
-
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
 
   return (
