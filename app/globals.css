@@ -5,7 +5,7 @@
 :root {
   --font-sans: "Segoe UI", "PingFang SC", system-ui, sans-serif;
   /* فراغ رأسي موحّد بين كل أقسام الصفحة الرئيسية (بانر/أيقونات/كروت) — نفس القيمة بكل مكان */
-  --home-section-gap: 12px;
+  --home-section-gap: 7px;
 }
 
 html {
@@ -198,6 +198,8 @@ body {
   position: relative;
   padding: 0 14px;
   margin-top: var(--home-section-gap);
+  margin-bottom: var(--home-section-gap);
+  display: flow-root;
 }
 
 .mobile-reference-hero {
@@ -300,7 +302,7 @@ body {
   align-items: center;
   gap: 12px;
   min-height: 80px;
-  padding: 13px 16px;
+  padding: 13px 14px;
 }
 
 .mobile-reference-promo-icon {
