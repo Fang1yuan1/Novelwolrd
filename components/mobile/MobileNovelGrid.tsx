@@ -28,7 +28,11 @@ export default function MobileNovelGrid({
     <>
       <div className="mobile-reference-section-heading">
         <h2>{title}</h2>
-        <a href={moreHref}>تبديل ↻</a>
+        <a href={moreHref} className="flex items-center gap-1">
+          تبديل
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/ui/refresh.png" alt="" className="h-[13px] w-[13px]" aria-hidden="true" />
+        </a>
       </div>
       <div className="mobile-reference-book-grid">
         {shown.map((n) => {
