@@ -147,6 +147,35 @@ export default function MobileChapterReader({
     .map((t) => t.trim())
     .filter(Boolean);
 
+  // محاذاة كل فقرة حسب طولها الفعلي بعد الرسم: جملة قصيرة (سطر وحد) تتوسط،
+  // وفقرة أطول (تلف لأكثر من سطر) تاخذ محاذاة عادية (تبدأ من اليمين) — بالضبط
+  // زي شكل الـ PDF الأصلي، بدل ما كل فقرة تتوسط بنفس الطريقة
+  useEffect(() => {
+    function applyAlignment() {
+      const container = contentRef.current;
+      if (!container) return;
+      const ps = container.querySelectorAll("p");
+      ps.forEach((el) => {
+        const p = el as HTMLElement;
+        const cs = getComputedStyle(p);
+        const parsedLineHeight = parseFloat(cs.lineHeight);
+        const lineHeight =
+          !Number.isNaN(parsedLineHeight) && parsedLineHeight > 0
+            ? parsedLineHeight
+            : parseFloat(cs.fontSize) * 1.4;
+        const isMultiLine = p.getBoundingClientRect().height > lineHeight * 1.5;
+        p.style.textAlign = isMultiLine ? "right" : "center";
+      });
+    }
+    const raf1 = requestAnimationFrame(() => {
+      requestAnimationFrame(applyAlignment);
+    });
+    window.addEventListener("resize", applyAlignment);
+    return () => {
+      cancelAnimationFrame(raf1);
+      window.removeEventListener("resize", applyAlignment);
+    };
+  }, [chapter.content, fontSize]);
 
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
 
