@@ -39,7 +39,7 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
     <section className="mobile-reference-card px-3 py-3">
       <div className="mobile-reference-section-heading">
         <h2>لوحة الترتيب</h2>
-        <a href="/rankings">المزيد ‹</a>
+        <a href="/rankings" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
       <ul className="scroll-thin mb-3 flex gap-2 overflow-x-auto pb-1">
         {tabs.map((t) => (

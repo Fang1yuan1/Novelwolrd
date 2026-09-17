@@ -26,7 +26,7 @@ export default function MobileCategoryTabs({
           <h2>توصيات حسب التصنيف</h2>
           <span className="mobile-reference-badge-pill">اختيار المحرر</span>
         </span>
-        <a href="/categories">المزيد ‹</a>
+        <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
       <ul className="scroll-thin flex gap-2 overflow-x-auto pb-1">
         {categories.map((c) => (

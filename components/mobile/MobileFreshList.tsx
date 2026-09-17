@@ -16,7 +16,7 @@ export default async function MobileFreshList() {
           <h2>جديد سريع الانتشار</h2>
           <span className="mobile-reference-badge-pill">جديد آخر 24 ساعة</span>
         </span>
-        <a href="/categories">المزيد ‹</a>
+        <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
       <ul className="flex flex-col gap-4">
         {fresh.map((novel) => (

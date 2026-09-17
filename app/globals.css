@@ -5,7 +5,7 @@
 :root {
   --font-sans: "Segoe UI", "PingFang SC", system-ui, sans-serif;
   /* فراغ رأسي موحّد بين كل أقسام الصفحة الرئيسية (بانر/أيقونات/كروت) — نفس القيمة بكل مكان */
-  --home-section-gap: 7px;
+  --home-section-gap: 10px;
 }
 
 html {
@@ -337,6 +337,7 @@ body {
 .mobile-reference-section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .mobile-reference-section-heading h2 { margin: 0; font-size: clamp(21px, 4.5vw, 32px); }
 .mobile-reference-section-heading a { color: #5f94d0; font-size: clamp(12px, 2.8vw, 17px); text-decoration: none; font-weight: 700; }
+.mobile-reference-section-heading a.mobile-reference-more-link { color: #9a9a9f; }
 .mobile-reference-heading-group { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .mobile-reference-badge-pill { flex-shrink: 0; border-radius: 6px; background: #f2f2f3; padding: 3px 8px; font-size: 12px; font-weight: 500; color: #9b9b9e; }
 .mobile-reference-book-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }

@@ -77,7 +77,7 @@ export default async function MobileCompletedPage() {
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
                   <h2>الأحدث اكتمالًا</h2>
-                  <a href="/categories">المزيد ‹</a>
+                  <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">
                   {newest.slice(0, 3).map((n) => (
@@ -94,7 +94,7 @@ export default async function MobileCompletedPage() {
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
                   <h2>الأطول والأغزر</h2>
-                  <a href="/categories">المزيد ‹</a>
+                  <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">
                   {longest.slice(0, 3).map((n) => (
@@ -111,7 +111,7 @@ export default async function MobileCompletedPage() {
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
                   <h2>الأكثر مبيعًا</h2>
-                  <a href="/categories">المزيد ‹</a>
+                  <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">
                   {popular.slice(3, 6).map((n) => (
