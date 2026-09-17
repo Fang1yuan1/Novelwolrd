@@ -219,7 +219,7 @@ export default function MobileChapterReader({
         }}
       >
         {paragraphs.map((para, i) => (
-          <p key={i} className="mb-4 indent-8 leading-loose">
+          <p key={i} className="mb-4 leading-loose">
             {para}
           </p>
         ))}
