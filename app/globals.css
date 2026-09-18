@@ -206,7 +206,7 @@ body {
   position: relative;
   display: block;
   overflow: hidden;
-  aspect-ratio: 3.95 / 1;
+  aspect-ratio: 4.42 / 1;
   border-radius: 20px;
   background: #bfc1c4;
 }
@@ -349,9 +349,9 @@ body {
 .mobile-reference-book span { display: block; overflow: hidden; margin-top: 3px; color: #999; font-size: clamp(11px, 2.4vw, 15px); white-space: nowrap; text-overflow: ellipsis; }
 
 .mobile-reference-four-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; margin: var(--home-section-gap) 11px 0; }
-.mobile-reference-small-tile { min-height: 98px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; border-radius: 16px; background: #fff; color: #222; text-decoration: none; border: 1px solid rgba(20,20,30,.06); }
+.mobile-reference-small-tile { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 16px; background: #fff; color: #222; text-decoration: none; border: 1px solid rgba(20,20,30,.06); }
 .mobile-reference-small-placeholder { width: 40px; height: 40px; border-radius: 10px; background: #d1d2d4; }
-.mobile-reference-small-icon { width: clamp(26px, 6vw, 34px); height: clamp(26px, 6vw, 34px); object-fit: contain; }
+.mobile-reference-small-icon { width: clamp(24px, 5.6vw, 32px); height: clamp(24px, 5.6vw, 32px); object-fit: contain; }
 .mobile-reference-small-tile strong { font-size: clamp(12px, 2.6vw, 17px); }
 
 .mobile-reference-bottom-nav {
