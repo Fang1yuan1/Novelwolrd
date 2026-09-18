@@ -348,12 +348,7 @@ body {
 .mobile-reference-book strong { display: -webkit-box; overflow: hidden; margin-top: 8px; font-size: clamp(13px, 3vw, 19px); line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .mobile-reference-book span { display: block; overflow: hidden; margin-top: 3px; color: #999; font-size: clamp(11px, 2.4vw, 15px); white-space: nowrap; text-overflow: ellipsis; }
 
-.mobile-reference-four-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: var(--home-section-gap) 11px 0; }
-.mobile-reference-small-tile { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 16px; background: #fff; color: #222; text-decoration: none; border: 1px solid rgba(20,20,30,.06); }
 .mobile-reference-small-placeholder { width: 40px; height: 40px; border-radius: 10px; background: #d1d2d4; }
-/* الأيقونة تنزاح قليلاً لأعلى ولليمين مطابقةً للمرجع الصيني (translateX موجب = يمين حتى في RTL) */
-.mobile-reference-small-icon { width: clamp(28px, 6.8vw, 36px); height: clamp(28px, 6.8vw, 36px); object-fit: contain; transform: translate(4px, -2px); }
-.mobile-reference-small-tile strong { font-size: clamp(12px, 2.6vw, 17px); white-space: nowrap; transform: translateY(2px); }
 
 .mobile-reference-bottom-nav {
   position: fixed;
@@ -383,8 +378,7 @@ body {
   .mobile-app-button { padding: 6px 10px; font-size: 11px; }
   .mobile-reference-hero-wrap { padding-inline: 11px; margin-top: var(--home-section-gap); }
   .mobile-reference-card { margin-inline: 11px; }
-  .mobile-reference-four-tiles { margin-inline: 11px; gap: 8px; }
-  .mobile-reference-promo { padding-inline: 14px; gap: 9px; }
+    .mobile-reference-promo { padding-inline: 14px; gap: 9px; }
   .mobile-reference-promo-icon { width: 42px; height: 42px; border-radius: 11px; }
   .mobile-reference-promo-button { padding-inline: 11px; }
 }
@@ -898,4 +892,54 @@ body {
 .chapter-no-copy p {
   text-wrap: pretty;
   overflow-wrap: break-word;
+}
+
+
+/* ===== البطاقات الأربع (ويب تون / كتب صوتية / الأكثر قراءة / جديد اليوم) =====
+   مطابقة للمرجع الصيني بقياس لقطة الشاشة (عرض 828px).
+   الوحدة --u = 1px من لقطة 828 = 100vw/828، فالأبعاد تتناسب مع عرض أي جوال.
+   أسماء الكلاسات جديدة (nw-*) حتى لا تتعارض مع أي قواعد قديمة. */
+.nw-tiles {
+  --u: calc(100vw / 828);
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: calc(16 * var(--u)) !important;
+  margin: var(--home-section-gap) calc(24 * var(--u)) 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+.nw-tile {
+  position: relative;
+  display: block !important;
+  box-sizing: border-box;
+  height: calc(154 * var(--u)) !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: calc(22 * var(--u)) !important;
+  background: #fff;
+  color: #222;
+  text-decoration: none;
+  overflow: hidden;
+}
+.nw-tile-icon {
+  position: absolute;
+  top: calc(22.5 * var(--u));
+  left: calc(50% + 8 * var(--u) - 28 * var(--u));
+  width: calc(56 * var(--u));
+  height: calc(56 * var(--u));
+  object-fit: contain;
+}
+.nw-tile-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(109 * var(--u));
+  transform: translateY(-50%);
+  text-align: center;
+  white-space: nowrap;
+  font-size: calc(24 * var(--u));
+  line-height: 1.2;
+  font-weight: 700;
 }

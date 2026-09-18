@@ -39,12 +39,12 @@ export default async function MobileHome() {
         <MobilePromoStrip />
         <MobileNovelGrid title="الأكثر قراءة" novels={latest} />
 
-        <section className="mobile-reference-four-tiles">
+        <section className="nw-tiles">
           {bottomTiles.map(([label, href, icon]) => (
-            <a key={label} href={href} className="mobile-reference-small-tile">
+            <a key={label} href={href} className="nw-tile">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={icon} alt="" className="mobile-reference-small-icon" aria-hidden="true" />
-              <strong>{label}</strong>
+              <img src={icon} alt="" className="nw-tile-icon" aria-hidden="true" />
+              <strong className="nw-tile-label">{label}</strong>
             </a>
           ))}
         </section>
