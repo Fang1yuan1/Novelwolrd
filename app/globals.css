@@ -5,7 +5,7 @@
 :root {
   --font-sans: "Segoe UI", "PingFang SC", system-ui, sans-serif;
   /* فراغ رأسي موحّد بين كل أقسام الصفحة الرئيسية (بانر/أيقونات/كروت) — نفس القيمة بكل مكان */
-  --home-section-gap: 8px;
+  --home-section-gap: 7px;
 }
 
 html {
@@ -351,7 +351,7 @@ body {
 .mobile-reference-four-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 11px; margin: var(--home-section-gap) 11px 0; }
 .mobile-reference-small-tile { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border-radius: 16px; background: #fff; color: #222; text-decoration: none; border: 1px solid rgba(20,20,30,.06); }
 .mobile-reference-small-placeholder { width: 40px; height: 40px; border-radius: 10px; background: #d1d2d4; }
-.mobile-reference-small-icon { width: clamp(24px, 5.6vw, 32px); height: clamp(24px, 5.6vw, 32px); object-fit: contain; }
+.mobile-reference-small-icon { width: clamp(27px, 6.3vw, 36px); height: clamp(27px, 6.3vw, 36px); object-fit: contain; }
 .mobile-reference-small-tile strong { font-size: clamp(12px, 2.6vw, 17px); }
 
 .mobile-reference-bottom-nav {
