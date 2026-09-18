@@ -32,9 +32,6 @@ export default async function MobileHome() {
 
   return (
     <div className="mobile-reference-page">
-      <div style={{background:"#ff0000",color:"#fff",fontSize:"28px",fontWeight:900,textAlign:"center",padding:"20px",position:"relative",zIndex:9999}}>
-        TEST 777 — لو شايف الكلام ده يبقى الديبلوي اشتغل
-      </div>
       <MobileHeader />
       <main className="mobile-reference-content">
         <MobileHeroBanner />
