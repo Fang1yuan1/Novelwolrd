@@ -9,7 +9,7 @@ export default function MobilePromoStrip() {
         <strong>اقرأ مجانًا على موقعنا</strong>
         <span>مكتبة كبيرة من الروايات والفصول الجديدة</span>
       </div>
-      <a href="/categories" className="mobile-reference-promo-button">ابدأ الآن</a>
+      <a href="/categories" className="mobile-reference-promo-button">سجل الآن</a>
     </section>
   );
 }
