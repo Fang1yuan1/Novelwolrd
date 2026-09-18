@@ -1,5 +1,5 @@
 const items = [
-  ["قوائم الكتب", "/categories", "/icons/quicknav/booklists.png"],
+  ["القوائم", "/categories", "/icons/quicknav/booklists.png"],
   ["المميزون", "/rankings", "/icons/quicknav/top-authors.png"],
   ["مكتمل", "/completed", "/icons/quicknav/completed.png"],
   ["مجاني", "/free", "/icons/quicknav/free.png"],

@@ -15,7 +15,7 @@ import MobileRecommendedForYou from "./MobileRecommendedForYou";
 import { getNovels, getCategoriesWithCounts } from "@/lib/novels";
 
 const bottomTiles = [
-  ["القصص", "/categories", "/icons/hometiles/stories.png"],
+  ["ويب تون", "/categories", "/icons/hometiles/stories.png"],
   ["كتب صوتية", "/categories", "/icons/hometiles/audiobooks.png"],
   ["الأكثر قراءة", "/most-read", "/icons/hometiles/most-read.png"],
   ["جديد اليوم", "/new-today", "/icons/hometiles/new-today.png"],
