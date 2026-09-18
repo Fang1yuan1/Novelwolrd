@@ -5,7 +5,7 @@
 :root {
   --font-sans: "Segoe UI", "PingFang SC", system-ui, sans-serif;
   /* فراغ رأسي موحّد بين كل أقسام الصفحة الرئيسية (بانر/أيقونات/كروت) — نفس القيمة بكل مكان */
-  --home-section-gap: 10px;
+  --home-section-gap: 8px;
 }
 
 html {
