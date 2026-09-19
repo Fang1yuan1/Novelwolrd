@@ -50,7 +50,7 @@ export default function NovelListItem({
               </span>
             ))}
           </span>
-          <span className="shrink-0 text-[11px] text-ink-400">
+          <span className="shrink-0 text-[11px] text-[#adadad]">
             {countPlacement === "author" && countLabel && (
               <>
                 {countLabel}
@@ -66,10 +66,10 @@ export default function NovelListItem({
         <img
           src={novel.cover_url}
           alt={novel.title}
-          className="aspect-[0.88] w-[18vw] min-w-[64px] max-w-[92px] shrink-0 rounded object-cover"
+          className="nw-list-cover"
         />
       ) : (
-        <span className="ph-block aspect-[0.88] w-[18vw] min-w-[64px] max-w-[92px] shrink-0 rounded text-[9px]">
+        <span className="ph-block nw-list-cover text-[9px]">
           الغلاف
         </span>
       )}

@@ -38,7 +38,7 @@ export default async function MobileHome() {
         <MobileQuickNav />
         <MobilePromoStrip />
         <MobileNovelGrid
-          title="للداويين"
+          title="للمتدربين"
           badge="قائمة روايات novelwolrd المميزة"
           novels={latest}
         />

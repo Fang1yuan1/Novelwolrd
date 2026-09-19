@@ -1039,3 +1039,13 @@ body {
 
 /* مسافة رأسية/أفقية موحّدة بين كروت الصفحة الرئيسية = المرجع (26 رأسياً، 24 على الأطراف) */
 .nw-section { margin: calc(26 * var(--u)) calc(24 * var(--u)) 0 !important; }
+
+/* غلاف قوائم الروايات (الأكثر مبيعاً / قد يعجبك / ...) — 136×181 بنسبة 3:4 كالمرجع بدل شبه المربع القديم */
+.nw-list-cover {
+  display: block;
+  flex-shrink: 0;
+  width: calc(136 * var(--u));
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: calc(7 * var(--u));
+}

@@ -32,9 +32,9 @@ export default function MobileNovelGrid({
           {badge && <span className="nw-books-badge">{badge}</span>}
         </div>
         <a href={moreHref} className="nw-books-refresh">
-          تبديل
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/ui/refresh.png" alt="" aria-hidden="true" />
+          تبديل
         </a>
       </div>
       <div className="nw-books-grid">
