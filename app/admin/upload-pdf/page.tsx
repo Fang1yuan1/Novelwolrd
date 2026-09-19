@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
-import { extractChapterTitle } from '@/lib/chapter-title';
+import { extractChapterTitle, parseChapterNumber } from '@/lib/chapter-title';
 
 // يشغّل استخراج النص داخل المتصفح نفسه (مافي سيرفر معالجة) — يحتاج ملف الـ worker يترحّل مع الحزمة
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -138,11 +138,6 @@ type ParsedChapter = {
   title: string | null;
   content: string;
 };
-
-function parseChapterNumber(filename: string): number | null {
-  const m = filename.match(/(\d+)/);
-  return m ? parseInt(m[1], 10) : null;
-}
 
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -342,21 +337,14 @@ export default function UploadPdfZipPage() {
         const rawText = await extractPdfText(buf);
         // تنظيف نهائي احتياطي على المحتوى والعنوان الاثنين — يضمن عدم وصول أي NUL
         // لقاعدة البيانات حتى لو مصدره اسم الملف نفسه مو نص الـ PDF
-        const cleaned = sanitizeForDb(
+        const content = sanitizeForDb(
           stripAfterHourglassMarker(stripLeadingLinkLines(rawText)).trim()
         );
-        // العنوان من أول أسطر نص الـ PDF نفسه (اسم الملف فوضوي ما نستخدمه للعنوان).
-        // سطر العنوان يُحذف من النص لأن الموقع يعرضه لحاله بأعلى الفصل
-        const extracted = extractChapterTitle(cleaned, { removeTitleLine: true });
-        const content = extracted.content;
-        const title = extracted.title ? sanitizeForDb(extracted.title) || null : null;
+        // العنوان من أول أسطر نص الـ PDF (مو من اسم الملف الفوضوي) — النص يبقى كما هو
+        const rawTitle = extractChapterTitle(content);
+        const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
-        }
-        if (extracted.numberInText !== null && extracted.numberInText !== num) {
-          addLog(
-            `تنبيه: رقم الفصل بالنص (${extracted.numberInText}) يختلف عن رقم اسم الملف (${num}) — انرفع برقم اسم الملف`
-          );
         }
         pendingBatch.push({
           novel_id: Number(novelId),
@@ -364,7 +352,7 @@ export default function UploadPdfZipPage() {
           title,
           content,
         });
-        addLog(`استخرجت: الفصل ${num} — ${title ? `العنوان: ${title}` : 'بدون عنوان'}`);
+        addLog(`استخرجت: الفصل ${num}${title ? ` — ${title}` : ' — بدون عنوان'}`);
       } catch (err: any) {
         addLog(`فشل استخراج: ${shortName} — ${err?.message || 'خطأ غير معروف'}`);
       }
