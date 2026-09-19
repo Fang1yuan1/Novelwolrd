@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
+import { extractChapterTitle } from '@/lib/chapter-title';
 
 // يشغّل استخراج النص داخل المتصفح نفسه (مافي سيرفر معالجة) — يحتاج ملف الـ worker يترحّل مع الحزمة
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -141,15 +142,6 @@ type ParsedChapter = {
 function parseChapterNumber(filename: string): number | null {
   const m = filename.match(/(\d+)/);
   return m ? parseInt(m[1], 10) : null;
-}
-
-function guessTitle(filename: string, num: number): string | null {
-  const base = filename.replace(/\.pdf$/i, '');
-  const withoutNum = base
-    .replace(String(num), '')
-    .replace(/^[\s_\-–—.]+|[\s_\-–—.]+$/g, '')
-    .trim();
-  return withoutNum.length > 0 ? withoutNum : null;
 }
 
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
@@ -350,13 +342,21 @@ export default function UploadPdfZipPage() {
         const rawText = await extractPdfText(buf);
         // تنظيف نهائي احتياطي على المحتوى والعنوان الاثنين — يضمن عدم وصول أي NUL
         // لقاعدة البيانات حتى لو مصدره اسم الملف نفسه مو نص الـ PDF
-        const content = sanitizeForDb(
+        const cleaned = sanitizeForDb(
           stripAfterHourglassMarker(stripLeadingLinkLines(rawText)).trim()
         );
-        const rawTitle = guessTitle(shortName, num);
-        const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
+        // العنوان من أول أسطر نص الـ PDF نفسه (اسم الملف فوضوي ما نستخدمه للعنوان).
+        // سطر العنوان يُحذف من النص لأن الموقع يعرضه لحاله بأعلى الفصل
+        const extracted = extractChapterTitle(cleaned, { removeTitleLine: true });
+        const content = extracted.content;
+        const title = extracted.title ? sanitizeForDb(extracted.title) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
+        }
+        if (extracted.numberInText !== null && extracted.numberInText !== num) {
+          addLog(
+            `تنبيه: رقم الفصل بالنص (${extracted.numberInText}) يختلف عن رقم اسم الملف (${num}) — انرفع برقم اسم الملف`
+          );
         }
         pendingBatch.push({
           novel_id: Number(novelId),
@@ -364,7 +364,7 @@ export default function UploadPdfZipPage() {
           title,
           content,
         });
-        addLog(`استخرجت: الفصل ${num} (${shortName})`);
+        addLog(`استخرجت: الفصل ${num} — ${title ? `العنوان: ${title}` : 'بدون عنوان'}`);
       } catch (err: any) {
         addLog(`فشل استخراج: ${shortName} — ${err?.message || 'خطأ غير معروف'}`);
       }
@@ -397,7 +397,9 @@ export default function UploadPdfZipPage() {
       <p style={{ fontSize: 13, color: '#666', lineHeight: 1.7 }}>
         كل ملف PDF داخل الـ zip = فصل. رقم الفصل يُستخرج من اسم الملف (أول رقم موجود بالاسم).
         الصور والأيقونات تُتجاهل تلقائيًا، ويُستخرج النص فقط. أي رابط موجود بالسطر الأول أو
-        الثاني من كل ملف يُحذف تلقائيًا.
+        الثاني من كل ملف يُحذف تلقائيًا. عنوان الفصل يُستخرج من أول أسطر نص الـ PDF (سطر
+        «الفصل N عنوان»، أو السطر القصير الذي يلي «المجلد …») ولا يُؤخذ من اسم الملف؛ الفصل
+        الذي ليس له عنوان يُرفع برقمه فقط.
       </p>
       <label>
         رقم الرواية (novel_id):{' '}
