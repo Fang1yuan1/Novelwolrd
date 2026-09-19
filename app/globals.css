@@ -1072,22 +1072,30 @@ body {
   letter-spacing: calc(-0.4 * var(--u));
   font-variant-numeric: tabular-nums;
 }
-.nw-timer-box-red { background: #f95c65; }
+.nw-timer-box-red { background: url(/icons/ui/timer-red.png) center / 100% 100% no-repeat; }
 .nw-timer-colon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
   width: calc(26 * var(--u));
   height: calc(36 * var(--u));
-  color: #4e4e4e;
-  font-size: calc(26 * var(--u));
-  font-weight: 700;
-  line-height: 1;
 }
+/* نقطتان مربعتان صغيرتان بقياس المرجع: 3.5u، سوداء #191919، الأولى عند 13u والثانية عند 25u من أعلى المربع */
+.nw-timer-colon::before,
+.nw-timer-colon::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 1.75 * var(--u));
+  width: calc(3.5 * var(--u));
+  height: calc(3.5 * var(--u));
+  border-radius: calc(0.6 * var(--u));
+  background: #191919;
+}
+.nw-timer-colon::before { top: calc(13 * var(--u)); }
+.nw-timer-colon::after { top: calc(25 * var(--u)); }
 .nw-more {
   flex-shrink: 0;
   color: #808080;
-  font-size: calc(26 * var(--u));
+  font-size: calc(25 * var(--u));
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
@@ -1098,12 +1106,16 @@ body {
   align-items: flex-start;
   gap: calc(17 * var(--u));
   margin: 0 calc(-33 * var(--u));
-  padding: 0 calc(33 * var(--u));
+  padding: 0;
   list-style: none;
+  direction: rtl;
   overflow-x: auto;
   scrollbar-width: none;
 }
 .nw-free-scroll::-webkit-scrollbar { display: none; }
+/* فواصل حقيقية (33 = 16 + فراغ 17) بدل padding لأن Safari يتجاهل padding نهاية الصف القابل للتمرير */
+.nw-free-scroll::before,
+.nw-free-scroll::after { content: ""; flex: 0 0 calc(16 * var(--u)); }
 .nw-free-item { flex: 0 0 calc(165.75 * var(--u)); min-width: 0; margin: 0; padding: 0; }
 .nw-book-author {
   display: block;
@@ -1114,3 +1126,7 @@ body {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/* عنوان القسم: بحجم عنوان المرجع (ارتفاع ~33u) مع الصاعقة داخله كما في المرجع */
+.nw-free-title { display: flex; align-items: center; gap: calc(6 * var(--u)); font-size: calc(32 * var(--u)) !important; }
+.nw-bolt { flex-shrink: 0; width: auto; height: calc(25 * var(--u)); }

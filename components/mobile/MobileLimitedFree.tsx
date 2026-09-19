@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Novel } from "@/lib/novels";
 
 // عداد تنازلي شكلي فقط لعرض التصميم — لا يرتبط بميزة "مجانية مؤقتة" حقيقية
@@ -37,6 +37,14 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
   const { h, m, s } = useDisplayCountdown();
   const pad = (n: number) => String(n).padStart(2, "0");
   const items = novels.slice(0, 6);
+  const scrollRef = useRef<HTMLUListElement>(null);
+
+  // يضمن أن الصف يبدأ من أوله (يمين) — 4 أغلفة كاملة وجزء صغير من الخامس كالمرجع —
+  // حتى لو فتح Safari الصف بإزاحة أفقية غير متوقعة.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollLeft = 0;
+  }, [items.length]);
 
   if (items.length === 0) return null;
 
@@ -44,12 +52,17 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
     <section className="nw-books">
       <div className="nw-books-head">
         <div className="nw-books-titlegroup">
-          <h2>مجاني لفترة محدودة</h2>
+          <h2 className="nw-free-title">
+            <span>مجاني</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icons/ui/bolt.png" alt="" aria-hidden="true" className="nw-bolt" />
+            <span>لفترة محدودة</span>
+          </h2>
           <span className="nw-timer" dir="ltr">
             <span className="nw-timer-box">{pad(h)}</span>
-            <span className="nw-timer-colon">:</span>
+            <span className="nw-timer-colon" aria-hidden="true" />
             <span className="nw-timer-box">{pad(m)}</span>
-            <span className="nw-timer-colon">:</span>
+            <span className="nw-timer-colon" aria-hidden="true" />
             <span className="nw-timer-box nw-timer-box-red">{pad(s)}</span>
           </span>
         </div>
@@ -57,7 +70,7 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
           المزيد ‹
         </a>
       </div>
-      <ul className="nw-free-scroll">
+      <ul className="nw-free-scroll" ref={scrollRef}>
         {items.map((n) => (
           <li key={n.id} className="nw-free-item">
             <a href={`/novel/${n.id}`} className="nw-book">
