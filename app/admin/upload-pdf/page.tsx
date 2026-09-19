@@ -310,6 +310,8 @@ export default function UploadPdfZipPage() {
     const pdfEntries = Object.values(zip.files)
       .filter((f) => !f.dir && f.name.toLowerCase().endsWith('.pdf'))
       .map((f) => ({ entry: f, shortName: f.name.split('/').pop() || f.name }))
+      // ملفات ماك المخفية (__MACOSX/._اسم.pdf) ما هي PDF حقيقية — تفشل وتبطّئ الرفع
+      .filter((f) => !f.entry.name.startsWith('__MACOSX/') && !f.shortName.startsWith('._'))
       .map((f) => ({ ...f, num: parseChapterNumber(f.shortName) }))
       .sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
 
