@@ -318,6 +318,18 @@ export default function UploadPdfZipPage() {
       return;
     }
 
+    // نفس الرقم لأكثر من ملف = الفصول تُكتب فوق بعضها بالموقع (المفتاح: الرواية + رقم الفصل)
+    const numCounts = new Map<number, number>();
+    for (const p of pdfEntries) {
+      if (p.num !== null) numCounts.set(p.num, (numCounts.get(p.num) ?? 0) + 1);
+    }
+    const dupes = [...numCounts].filter(([, c]) => c > 1).map(([n, c]) => `${n} (×${c})`);
+    if (dupes.length > 0) {
+      addLog(
+        `تنبيه: أرقام فصول مكررة بين الملفات، وسيُكتب بعضها فوق بعض: ${dupes.slice(0, 15).join('، ')}${dupes.length > 15 ? ' …' : ''}`
+      );
+    }
+
     // ٢) استخراج + رفع كل ملف على حدة (مو كل الملفات أول ثم الرفع) —
     // عشان ما نحتفظ بمئات الفصول بالذاكرة بنفس الوقت، وهذا اللي كان يسبب توقف/انهيار الصفحة
     setStage('working');
