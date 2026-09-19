@@ -1,4 +1,5 @@
 import { getNovels } from "@/lib/novels";
+import ScrollRow from "./ScrollRow";
 
 export default async function MobileLightNovels() {
   const all = await getNovels();
@@ -7,37 +8,31 @@ export default async function MobileLightNovels() {
   if (items.length === 0) return null;
 
   return (
-    <section className="mobile-reference-card px-3 py-3">
-      <div className="mobile-reference-section-heading">
-        <h2>روايات قصيرة</h2>
-        <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
+    <section className="nw-books">
+      <div className="nw-books-head">
+        <div className="nw-books-titlegroup">
+          <h2>روايات خفيفة</h2>
+        </div>
+        <a href="/categories" className="nw-more">
+          المزيد ‹
+        </a>
       </div>
-      <ul className="scroll-thin flex gap-3 overflow-x-auto pb-1">
+      <ScrollRow className="nw-free-scroll">
         {items.map((n) => (
-          <li key={n.id} className="w-[110px] shrink-0">
-            <a href={`/novel/${n.id}`} className="block">
+          <li key={n.id} className="nw-free-item">
+            <a href={`/novel/${n.id}`} className="nw-book">
               {n.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={n.cover_url}
-                  alt={n.title}
-                  className="aspect-[0.72] w-full rounded-lg object-cover"
-                />
+                <img className="nw-book-cover" src={n.cover_url} alt={n.title} />
               ) : (
-                <span className="ph-block aspect-[0.72] block w-full rounded-lg text-[10px]">
-                  الغلاف
-                </span>
+                <span className="nw-book-cover" />
               )}
-              <span className="line-clamp-2 mt-1.5 block text-[12px] font-semibold leading-snug text-ink-900">
-                {n.title}
-              </span>
-              <span className="line-clamp-1 mt-0.5 block text-[11px] text-ink-400">
-                {n.author || "—"}
-              </span>
+              <strong className="nw-book-title">{n.title}</strong>
+              <span className="nw-book-author">{n.author || "—"}</span>
             </a>
           </li>
         ))}
-      </ul>
+      </ScrollRow>
     </section>
   );
 }
