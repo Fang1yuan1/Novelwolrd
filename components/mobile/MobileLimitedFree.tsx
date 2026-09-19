@@ -41,41 +41,34 @@ export default function MobileLimitedFree({ novels }: { novels: Novel[] }) {
   if (items.length === 0) return null;
 
   return (
-    <section className="mobile-reference-card px-3 py-3">
-      <div className="mobile-reference-section-heading">
-        <span className="mobile-reference-heading-group">
+    <section className="nw-books">
+      <div className="nw-books-head">
+        <div className="nw-books-titlegroup">
           <h2>مجاني لفترة محدودة</h2>
-        <span className="flex items-center gap-1 text-[13px] font-bold tabular-nums" dir="ltr">
-          <span className="rounded bg-[#2b2b2e] px-1.5 py-0.5 text-white">{pad(h)}</span>
-          :
-          <span className="rounded bg-[#2b2b2e] px-1.5 py-0.5 text-white">{pad(m)}</span>
-          :
-          <span className="rounded bg-[#e5353e] px-1.5 py-0.5 text-white">{pad(s)}</span>
-        </span>
-      </span>
-    </div>
-      <ul className="scroll-thin flex gap-2 overflow-x-auto pb-1">
+          <span className="nw-timer" dir="ltr">
+            <span className="nw-timer-box">{pad(h)}</span>
+            <span className="nw-timer-colon">:</span>
+            <span className="nw-timer-box">{pad(m)}</span>
+            <span className="nw-timer-colon">:</span>
+            <span className="nw-timer-box nw-timer-box-red">{pad(s)}</span>
+          </span>
+        </div>
+        <a href="/free" className="nw-more">
+          المزيد ‹
+        </a>
+      </div>
+      <ul className="nw-free-scroll">
         {items.map((n) => (
-          <li key={n.id} className="w-[79px] shrink-0">
-            <a href={`/novel/${n.id}`} className="block">
+          <li key={n.id} className="nw-free-item">
+            <a href={`/novel/${n.id}`} className="nw-book">
               {n.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={n.cover_url}
-                  alt={n.title}
-                  className="aspect-[0.72] w-full rounded-lg object-cover"
-                />
+                <img className="nw-book-cover" src={n.cover_url} alt={n.title} />
               ) : (
-                <span className="ph-block aspect-[0.72] block w-full rounded-lg text-[10px]">
-                  الغلاف
-                </span>
+                <span className="nw-book-cover" />
               )}
-              <span className="line-clamp-2 mt-1 block text-[11px] font-semibold leading-snug text-ink-900">
-                {n.title}
-              </span>
-              <span className="line-clamp-1 mt-0.5 block text-[10px] text-ink-400">
-                {n.author || "—"}
-              </span>
+              <strong className="nw-book-title">{n.title}</strong>
+              <span className="nw-book-author">{n.author || "—"}</span>
             </a>
           </li>
         ))}

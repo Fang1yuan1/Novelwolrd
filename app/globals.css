@@ -1049,3 +1049,68 @@ body {
   object-fit: cover;
   border-radius: calc(7 * var(--u));
 }
+
+/* ===== قسم "مجاني لفترة محدودة" — مطابق للمرجع (限时免费) بقياس لقطة 828 ===== */
+/* مربعات العداد: اللون والنسب مأخوذة من الأيقونة عالية الجودة (05):
+   مربع 36u، لون #4e4e4e، نصف قطر الزوايا 21.9%، ارتفاع الأرقام 51% من المربع وترتفع 1.9% فوق المنتصف. */
+.nw-timer { display: inline-flex; align-items: center; flex-shrink: 0; margin-inline-start: calc(3 * var(--u)); }
+.nw-timer-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: calc(36 * var(--u));
+  height: calc(36 * var(--u));
+  padding-bottom: calc(1.4 * var(--u));
+  border-radius: 21.9%;
+  background: #4e4e4e;
+  color: #fff;
+  font-family: "DIN Alternate", "Bahnschrift", "Roboto Condensed", "Arial Narrow", Arial, sans-serif;
+  font-size: calc(25 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: calc(-0.4 * var(--u));
+  font-variant-numeric: tabular-nums;
+}
+.nw-timer-box-red { background: #f95c65; }
+.nw-timer-colon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(26 * var(--u));
+  height: calc(36 * var(--u));
+  color: #4e4e4e;
+  font-size: calc(26 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+}
+.nw-more {
+  flex-shrink: 0;
+  color: #808080;
+  font-size: calc(26 * var(--u));
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* الصف الأفقي يمتد لحواف الكارت فيظهر الغلاف الخامس مقطوعاً كما في المرجع */
+.nw-free-scroll {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(17 * var(--u));
+  margin: 0 calc(-33 * var(--u));
+  padding: 0 calc(33 * var(--u));
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nw-free-scroll::-webkit-scrollbar { display: none; }
+.nw-free-item { flex: 0 0 calc(165.75 * var(--u)); min-width: 0; margin: 0; padding: 0; }
+.nw-book-author {
+  display: block;
+  overflow: hidden;
+  font-size: calc(24 * var(--u));
+  line-height: calc(39.5 * var(--u));
+  color: #7f7f7f;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
