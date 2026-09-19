@@ -17,7 +17,7 @@ export default function MobileRecommendedForYou({ novels }: { novels: Novel[] })
   if (novels.length === 0) return null;
 
   return (
-    <section className="mobile-reference-card nw-section px-3 py-3">
+    <section className="mobile-reference-card nw-section">
       <div className="mobile-reference-section-heading">
         <span className="mobile-reference-heading-group">
           <h2>قد يعجبك</h2>
@@ -33,7 +33,7 @@ export default function MobileRecommendedForYou({ novels }: { novels: Novel[] })
           تبديل الدفعة
         </button>
       </div>
-      <ul className="flex flex-col gap-4">
+      <ul className="nw-list">
         {batch.map((n) => (
           <li key={n.id}>
             <NovelListItem novel={n} wordCount={n.word_count} countPlacement="author" />

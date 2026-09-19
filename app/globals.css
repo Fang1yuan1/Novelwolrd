@@ -986,9 +986,10 @@ body {
   padding: 0 calc(13 * var(--u));
   border-radius: calc(8 * var(--u));
   background: #f5f5f5;
-  color: #9b9b9e;
+  color: #808080;
   font-size: calc(24 * var(--u));
   font-weight: 400;
+  transform: translateY(calc(2 * var(--u)));
 }
 .nw-books-refresh {
   display: flex;
@@ -1130,3 +1131,65 @@ body {
 /* عنوان القسم: بحجم عنوان المرجع (ارتفاع ~33u) مع الصاعقة داخله كما في المرجع */
 .nw-free-title { display: flex; align-items: center; gap: calc(6 * var(--u)); font-size: calc(32 * var(--u)) !important; }
 .nw-bolt { flex-shrink: 0; width: auto; height: calc(25 * var(--u)); }
+
+
+/* ===== أقسام القوائم (توصيات حسب التصنيف / جديد سريع الانتشار / الأكثر مبيعاً / ...) — ترويسة وحواف المرجع ===== */
+.nw-section {
+  padding: 0 calc(33 * var(--u)) calc(32 * var(--u)) !important;
+  border: 0 !important;
+  border-radius: calc(20 * var(--u)) !important;
+}
+.nw-section .mobile-reference-section-heading { height: calc(105.5 * var(--u)); margin: 0; }
+.nw-section .mobile-reference-section-heading h2 {
+  flex-shrink: 0;
+  font-size: calc(40 * var(--u));
+  font-weight: 700;
+  line-height: 1;
+  color: #181818;
+  white-space: nowrap;
+}
+.nw-section .mobile-reference-heading-group { gap: calc(14 * var(--u)); }
+.nw-section .mobile-reference-badge-pill {
+  height: calc(39 * var(--u));
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 calc(13 * var(--u));
+  border-radius: calc(8 * var(--u));
+  background: #f5f5f5;
+  color: #808080;
+  font-size: calc(24 * var(--u));
+  font-weight: 400;
+  line-height: calc(39 * var(--u));
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transform: translateY(calc(2 * var(--u)));
+}
+.nw-section .mobile-reference-section-heading a.mobile-reference-more-link {
+  flex-shrink: 0;
+  color: #808080;
+  font-size: calc(25 * var(--u));
+  font-weight: 400;
+  line-height: 1;
+}
+.nw-list { display: flex; flex-direction: column; gap: calc(46.7 * var(--u)); margin: 0; padding: 0; list-style: none; }
+
+/* شرائح التصنيف: ارتفاع 50، عرض بحسب النص، فراغ 17، زوايا 12 — أعلى الشرائح 3.5 تحت الترويسة */
+.nw-chips { margin-top: calc(3.5 * var(--u)); }
+.nw-chip {
+  display: block;
+  height: calc(50 * var(--u));
+  padding: 0 calc(19 * var(--u));
+  border: 0;
+  border-radius: calc(12 * var(--u));
+  background: #f5f5f5;
+  color: #7e7e7e;
+  font-family: inherit;
+  font-size: calc(26 * var(--u));
+  font-weight: 500;
+  line-height: calc(50 * var(--u));
+  white-space: nowrap;
+  cursor: pointer;
+}
+.nw-chip.is-active { background: #ffe7e7; color: #e5333f; font-weight: 700; }
+/* أعلى الأغلفة 195 من أعلى البطاقة = 36.5 تحت الشرائح */
+.nw-cat-list { margin-top: calc(36.5 * var(--u)); }

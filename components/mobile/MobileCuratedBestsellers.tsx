@@ -11,12 +11,12 @@ export default async function MobileCuratedBestsellers() {
   
 
   return (
-    <section className="mobile-reference-card nw-section px-3 py-3">
+    <section className="mobile-reference-card nw-section">
       <div className="mobile-reference-section-heading">
         <h2>مبيعات مختارة</h2>
         <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
-      <ul className="flex flex-col gap-4">
+      <ul className="nw-list">
         {picks.map((novel) => (
           <li key={novel.id}>
             <NovelListItem novel={novel} wordCount={novel.word_count} countPlacement="chips-start" />

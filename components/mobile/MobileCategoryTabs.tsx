@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Novel } from "@/lib/novels";
 import { parseCategories } from "@/lib/novels";
 
@@ -12,6 +12,16 @@ export default function MobileCategoryTabs({
   novels: Novel[];
 }) {
   const [active, setActive] = useState(categories[0] || "");
+  const chipsRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // الصفوف الأفقية تبدأ دائماً من أولها (يمين): 4 أغلفة كاملة + جزء من الخامس كالمرجع
+  useEffect(() => {
+    if (chipsRef.current) chipsRef.current.scrollLeft = 0;
+  }, [categories.length]);
+  useEffect(() => {
+    if (listRef.current) listRef.current.scrollLeft = 0;
+  }, [active]);
 
   const filtered = novels
     .filter((n) => parseCategories(n.category).includes(active))
@@ -20,7 +30,7 @@ export default function MobileCategoryTabs({
   if (categories.length === 0) return null;
 
   return (
-    <section className="mobile-reference-card px-3 py-3">
+    <section className="mobile-reference-card nw-section">
       <div className="mobile-reference-section-heading">
         <span className="mobile-reference-heading-group">
           <h2>توصيات حسب التصنيف</h2>
@@ -28,51 +38,34 @@ export default function MobileCategoryTabs({
         </span>
         <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
-      <ul className="scroll-thin flex gap-2 overflow-x-auto pb-1">
+      <ul className="nw-free-scroll nw-chips" ref={chipsRef}>
         {categories.map((c) => (
           <li key={c} className="shrink-0">
             <button
               type="button"
               onClick={() => setActive(c)}
-              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${
-                active === c
-                  ? "bg-[#fce9ea] text-[#e5353e]"
-                  : "bg-[#f2f2f3] text-[#5b5b60]"
-              }`}
+              className={`nw-chip${active === c ? " is-active" : ""}`}
             >
               {c}
             </button>
           </li>
         ))}
       </ul>
-      <ul className="scroll-thin mt-3 flex gap-2.5 overflow-x-auto pb-1">
-        {filtered.map((n) => {
-          const cats = parseCategories(n.category);
-          return (
-            <li key={n.id} className="w-[86px] shrink-0">
-              <a href={`/novel/${n.id}`} className="block">
-                {n.cover_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={n.cover_url}
-                    alt={n.title}
-                    className="aspect-[0.72] w-full rounded-lg object-cover"
-                  />
-                ) : (
-                  <span className="ph-block aspect-[0.72] block w-full rounded-lg text-[10px]">
-                    الغلاف
-                  </span>
-                )}
-                <span className="line-clamp-2 mt-1.5 block text-[11px] font-semibold leading-snug text-ink-900">
-                  {n.title}
-                </span>
-                <span className="line-clamp-1 mt-0.5 block text-[10px] text-ink-400">
-                  {cats.length > 0 ? cats.slice(0, 2).join(" · ") : "رواية"}
-                </span>
-              </a>
-            </li>
-          );
-        })}
+      <ul className="nw-free-scroll nw-cat-list" ref={listRef}>
+        {filtered.map((n) => (
+          <li key={n.id} className="nw-free-item">
+            <a href={`/novel/${n.id}`} className="nw-book">
+              {n.cover_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="nw-book-cover" src={n.cover_url} alt={n.title} />
+              ) : (
+                <span className="nw-book-cover" />
+              )}
+              <strong className="nw-book-title">{n.title}</strong>
+              <span className="nw-book-author">{n.author || "—"}</span>
+            </a>
+          </li>
+        ))}
       </ul>
     </section>
   );
