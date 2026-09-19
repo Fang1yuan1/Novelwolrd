@@ -1193,3 +1193,48 @@ body {
 .nw-chip.is-active { background: #ffe7e7; color: #e5333f; font-weight: 700; }
 /* أعلى الأغلفة 195 من أعلى البطاقة = 36.5 تحت الشرائح */
 .nw-cat-list { margin-top: calc(36.5 * var(--u)); }
+
+/* ===== كرت "اقرأ مجاناً على موقعنا" — مطابق لكرت 上起点读书App في المرجع (وحدة u = بكسل لقطة 828) ===== */
+.nw-promo {
+  display: flex !important;
+  align-items: center;
+  gap: calc(15 * var(--u));
+  box-sizing: border-box;
+  height: calc(147 * var(--u));
+  min-height: 0 !important;
+  margin: calc(26 * var(--u)) calc(24 * var(--u)) 0 !important;
+  padding: 0 calc(33 * var(--u)) !important;
+  border: 0 !important;
+  border-radius: calc(20 * var(--u)) !important;
+  background: #fff;
+}
+/* أيقونة 89×89 بلا هوامش بيضاء (app-icon.png مقصوصة بزوايا شفافة) */
+.nw-promo-icon { display: block; flex: 0 0 calc(89 * var(--u)); width: calc(89 * var(--u)); height: calc(89 * var(--u)); }
+.nw-promo-copy { flex: 1; min-width: 0; transform: translateY(calc(1 * var(--u))); }
+.nw-promo-copy strong,
+.nw-promo-copy span {
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  line-height: calc(44 * var(--u));
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.nw-promo-copy strong { font-size: calc(30 * var(--u)); font-weight: 700; color: #191919; }
+.nw-promo-copy span { font-size: calc(24 * var(--u)); font-weight: 400; color: #808080; }
+/* الزر: خلفية 138×65 بزوايا كاملة ولون المرجع #e5353e (rgb 229,53,62) */
+.nw-promo-button {
+  display: block;
+  flex: 0 0 calc(138 * var(--u));
+  width: calc(138 * var(--u));
+  height: calc(65 * var(--u));
+  border-radius: calc(32.5 * var(--u));
+  background: #e5353e;
+  color: #fff;
+  font-size: calc(25 * var(--u));
+  font-weight: 700;
+  line-height: calc(65 * var(--u));
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
