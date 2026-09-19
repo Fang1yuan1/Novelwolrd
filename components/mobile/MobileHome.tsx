@@ -37,7 +37,11 @@ export default async function MobileHome() {
         <MobileHeroBanner />
         <MobileQuickNav />
         <MobilePromoStrip />
-        <MobileNovelGrid title="الأكثر قراءة" novels={latest} />
+        <MobileNovelGrid
+          title="للداويين"
+          badge="قائمة روايات novelwolrd المميزة"
+          novels={latest}
+        />
 
         <section className="nw-tiles">
           {bottomTiles.map(([label, href, icon]) => (

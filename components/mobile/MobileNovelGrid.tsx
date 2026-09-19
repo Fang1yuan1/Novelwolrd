@@ -3,17 +3,17 @@ import { parseCategories } from "@/lib/novels";
 
 export default function MobileNovelGrid({
   title,
+  badge,
   novels,
   count = 4,
   moreHref = "/categories",
-  bare = false,
 }: {
   title: string;
+  /** الشريحة الرمادية بجانب العنوان (مثل 起点优质书单 في المرجع) */
+  badge?: string;
   novels: Novel[];
   count?: number;
   moreHref?: string;
-  /** لو true: من غير كارت أبيض مستقل حواليه (يبقى مسؤولية الحاوية اللي بتستدعيه) */
-  bare?: boolean;
 }) {
   if (novels.length === 0) return null;
 
@@ -24,29 +24,32 @@ export default function MobileNovelGrid({
   const showCount = fullRows > 0 ? fullRows * 4 : available;
   const shown = novels.slice(0, showCount);
 
-  const content = (
-    <>
-      <div className="mobile-reference-section-heading">
-        <h2>{title}</h2>
-        <a href={moreHref} className="flex items-center gap-1">
+  return (
+    <section className="nw-books">
+      <div className="nw-books-head">
+        <div className="nw-books-titlegroup">
+          <h2>{title}</h2>
+          {badge && <span className="nw-books-badge">{badge}</span>}
+        </div>
+        <a href={moreHref} className="nw-books-refresh">
           تبديل
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/ui/refresh.png" alt="" className="h-[13px] w-[13px]" aria-hidden="true" />
+          <img src="/icons/ui/refresh.png" alt="" aria-hidden="true" />
         </a>
       </div>
-      <div className="mobile-reference-book-grid">
+      <div className="nw-books-grid">
         {shown.map((n) => {
           const categories = parseCategories(n.category);
           return (
-            <a key={n.id} href={`/novel/${n.id}`} className="mobile-reference-book">
+            <a key={n.id} href={`/novel/${n.id}`} className="nw-book">
               {n.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={n.cover_url} alt={n.title} />
+                <img className="nw-book-cover" src={n.cover_url} alt={n.title} />
               ) : (
-                <span className="mobile-reference-cover-placeholder" />
+                <span className="nw-book-cover" />
               )}
-              <strong>{n.title}</strong>
-              <span>
+              <strong className="nw-book-title">{n.title}</strong>
+              <span className="nw-book-cat">
                 {categories.length > 0
                   ? categories.slice(0, 2).join(" · ")
                   : "رواية · قراءة"}
@@ -55,11 +58,6 @@ export default function MobileNovelGrid({
           );
         })}
       </div>
-    </>
+    </section>
   );
-
-  if (bare) {
-    return <div className="mobile-reference-books">{content}</div>;
-  }
-  return <section className="mobile-reference-card mobile-reference-books">{content}</section>;
 }

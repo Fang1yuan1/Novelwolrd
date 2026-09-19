@@ -10,7 +10,7 @@ export default async function MobileFreshList() {
   
 
   return (
-    <section className="mobile-reference-card px-3 py-3">
+    <section className="mobile-reference-card nw-section px-3 py-3">
       <div className="mobile-reference-section-heading">
         <span className="mobile-reference-heading-group">
           <h2>جديد سريع الانتشار</h2>
@@ -21,7 +21,7 @@ export default async function MobileFreshList() {
       <ul className="flex flex-col gap-4">
         {fresh.map((novel) => (
           <li key={novel.id}>
-            <NovelListItem novel={novel} wordCount={novel.word_count} />
+            <NovelListItem novel={novel} wordCount={novel.word_count} countPlacement="chips-start" />
           </li>
         ))}
       </ul>

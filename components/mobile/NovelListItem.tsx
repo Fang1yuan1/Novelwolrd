@@ -4,13 +4,24 @@ import { parseCategories, formatCount } from "@/lib/novels";
 export default function NovelListItem({
   novel,
   wordCount,
+  countPlacement = "chips",
 }: {
   novel: Novel;
   wordCount?: number;
+  /**
+   * مكان عدد الأحرف:
+   * - "chips": بين الشرائح بعد الحالة (الافتراضي)
+   * - "chips-start": أول شريحة (يمين التصنيف والحالة)
+   * - "author": بجانب اسم المؤلف (على يمينه)
+   */
+  countPlacement?: "chips" | "chips-start" | "author";
 }) {
   const cats = parseCategories(novel.category);
   const tags = parseCategories(novel.tags).slice(0, 2);
   const statusLabel = novel.status === "completed" ? "مكتملة" : "مستمرة";
+  const countLabel =
+    typeof wordCount === "number" && wordCount > 0 ? `${formatCount(wordCount)} حرف` : null;
+  const chipCls = "rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]";
 
   return (
     <a href={`/novel/${novel.id}`} className="flex items-start gap-3 text-right">
@@ -25,29 +36,27 @@ export default function NovelListItem({
         )}
         <span className="mt-2 flex items-center justify-between gap-2">
           <span className="flex flex-wrap items-center gap-1">
-            {cats[0] && (
-              <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-                {cats[0]}
-              </span>
+            {countPlacement === "chips-start" && countLabel && (
+              <span className={chipCls}>{countLabel}</span>
             )}
-            <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-              {statusLabel}
-            </span>
-            {typeof wordCount === "number" && wordCount > 0 && (
-              <span className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]">
-                {formatCount(wordCount)} حرف
-              </span>
+            {cats[0] && <span className={chipCls}>{cats[0]}</span>}
+            <span className={chipCls}>{statusLabel}</span>
+            {countPlacement === "chips" && countLabel && (
+              <span className={chipCls}>{countLabel}</span>
             )}
             {tags.map((t) => (
-              <span
-                key={t}
-                className="rounded bg-[#f2f2f3] px-1.5 py-0.5 text-[10px] text-[#8a8a8f]"
-              >
+              <span key={t} className={chipCls}>
                 {t}
               </span>
             ))}
           </span>
           <span className="shrink-0 text-[11px] text-ink-400">
+            {countPlacement === "author" && countLabel && (
+              <>
+                {countLabel}
+                {novel.author ? " · " : ""}
+              </>
+            )}
             {novel.author || ""}
           </span>
         </span>
