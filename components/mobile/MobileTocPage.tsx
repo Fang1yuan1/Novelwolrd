@@ -47,6 +47,7 @@ export default function MobileTocPage({
   const [tab, setTab] = useState<TabKey>("toc");
   const [atBottom, setAtBottom] = useState(false);
   const [volName, setVolName] = useState(volumes[0]?.name ?? "");
+  const scrollRef = useRef<HTMLDivElement>(null);
   const bandRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
@@ -57,24 +58,26 @@ export default function MobileTocPage({
 
   // زر الهيدر ثابت («للأسفل» + سهم لأسفل) ويتبدّل إلى «للأعلى» (سهم لأعلى) فقط عند الوصول لآخر القائمة
   useEffect(() => {
+    const sc = scrollRef.current;
+    if (!sc) return;
     const update = () => {
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
-      setAtBottom(max > 8 && window.scrollY >= max - 24);
+      const max = sc.scrollHeight - sc.clientHeight;
+      setAtBottom(max > 8 && sc.scrollTop >= max - 24);
     };
     update();
-    window.addEventListener("scroll", update, { passive: true });
+    sc.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("scroll", update);
+      sc.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
     };
-  }, [tab]);
+  }, [tab, hasChapters]);
 
-  const goTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const goTop = () =>
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   const goBottom = () =>
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
 
@@ -84,7 +87,8 @@ export default function MobileTocPage({
   useEffect(() => {
     const pill = pillRef.current;
     const bar = barRef.current;
-    if (!pill || !bar) return;
+    const sc = scrollRef.current;
+    if (!pill || !bar || !sc) return;
 
     let hideTimer: ReturnType<typeof setTimeout> | undefined;
     let calmTimer: ReturnType<typeof setTimeout> | undefined;
@@ -97,11 +101,10 @@ export default function MobileTocPage({
       const maxTop = bar.getBoundingClientRect().top - pill.offsetHeight;
       return Math.max(0, maxTop - minTop);
     };
-    const maxScroll = () =>
-      Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const maxScroll = () => Math.max(0, sc.scrollHeight - sc.clientHeight);
     const place = () => {
       const max = maxScroll();
-      const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      const progress = max > 0 ? Math.min(1, Math.max(0, sc.scrollTop / max)) : 0;
       const offset = progress * range();
       pill.style.transform = `translateY(${offset}px)`;
       return offset;
@@ -138,7 +141,7 @@ export default function MobileTocPage({
       const r = range();
       if (r <= 0) return;
       const offset = Math.min(r, Math.max(0, grabOffset + (e.clientY - grabY)));
-      window.scrollTo(0, (offset / r) * maxScroll());
+      sc.scrollTop = (offset / r) * maxScroll();
       pill.style.transform = `translateY(${offset}px)`;
     };
     const onUp = () => {
@@ -150,7 +153,7 @@ export default function MobileTocPage({
 
     place();
     show(); // تظهر لحظات عند فتح الصفحة زي المرجع
-    window.addEventListener("scroll", onScroll, { passive: true });
+    sc.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     pill.addEventListener("pointerdown", onDown);
     pill.addEventListener("pointermove", onMove);
@@ -159,7 +162,7 @@ export default function MobileTocPage({
     return () => {
       clearTimeout(hideTimer);
       clearTimeout(calmTimer);
-      window.removeEventListener("scroll", onScroll);
+      sc.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       pill.removeEventListener("pointerdown", onDown);
       pill.removeEventListener("pointermove", onMove);
@@ -172,7 +175,8 @@ export default function MobileTocPage({
   useEffect(() => {
     const band = bandRef.current;
     const body = bodyRef.current;
-    if (!band || !body || volumes.length < 2) return;
+    const sc = scrollRef.current;
+    if (!band || !body || !sc || volumes.length < 2) return;
     let frame = 0;
     const update = () => {
       frame = 0;
@@ -188,9 +192,9 @@ export default function MobileTocPage({
       if (!frame) frame = requestAnimationFrame(update);
     };
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    sc.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      sc.removeEventListener("scroll", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [tab, hasChapters, volumes]);
@@ -242,28 +246,23 @@ export default function MobileTocPage({
         </div>
       </header>
 
-      {tab !== "toc" ? (
-        <p className="nw-toc-empty">لا توجد بيانات بعد.</p>
-      ) : !hasChapters ? (
-        <>
-          <section className="nw-toc-band">
-            <a href={`/novel/${novelId}`} className="nw-toc-band-title">
-              <span>{novelTitle}</span>
-              <TocTitleChevron className="nw-toc-band-chevron" />
-            </a>
-          </section>
-          <p className="nw-toc-empty">لم تُرفع فصول لهذا العمل بعد.</p>
-        </>
-      ) : (
-        <>
-          <div ref={bandRef} className="nw-toc-band">
-            <a href={`/novel/${novelId}`} className="nw-toc-band-title">
-              <span>{novelTitle}</span>
-              <TocTitleChevron className="nw-toc-band-chevron" />
-            </a>
-            <p className="nw-toc-volume-name">{volName}</p>
-          </div>
+      {tab === "toc" && (
+        <div ref={bandRef} className="nw-toc-band">
+          <a href={`/novel/${novelId}`} className="nw-toc-band-title">
+            <span>{novelTitle}</span>
+            <TocTitleChevron className="nw-toc-band-chevron" />
+          </a>
+          {hasChapters && <p className="nw-toc-volume-name">{volName}</p>}
+        </div>
+      )}
 
+      {/* منطقة الفصول: هي اللي بتتحرك، والهيدر والشريط الرمادي والشريط السفلي ثابتين خارجها تمامًا (زي تطبيق) */}
+      <div ref={scrollRef} className="nw-toc-scroll">
+        {tab !== "toc" ? (
+          <p className="nw-toc-empty">لا توجد بيانات بعد.</p>
+        ) : !hasChapters ? (
+          <p className="nw-toc-empty">لم تُرفع فصول لهذا العمل بعد.</p>
+        ) : (
           <div ref={bodyRef} className="nw-toc-body">
             {volumes.map((v, vi) => (
               <section key={v.name} data-vol={vi}>
@@ -298,7 +297,11 @@ export default function MobileTocPage({
               </section>
             ))}
           </div>
+        )}
+      </div>
 
+      {tab === "toc" && hasChapters && (
+        <>
           <div ref={pillRef} className="nw-toc-pill" aria-hidden="true">
             <span className="nw-toc-pill-btn">
               <TocPillChevron direction="up" className="nw-toc-pill-chevron" />
