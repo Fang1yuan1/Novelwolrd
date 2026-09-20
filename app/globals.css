@@ -1291,26 +1291,30 @@ body {
 }
 .nw-toc-back-icon { display: block; flex: none; width: calc(18.2 * var(--u)); height: calc(32 * var(--u)); }
 
-/* التبويبات: أول تبويب على بعد 227 من الحافة، فراغ 34 (النص العربي أعرض من الصيني)، الفعّال 32 عريض أسود وباقي التبويبات 30 رمادي #808080 */
+/* التبويبات: مجموعة واحدة متمركزة بمنتصف الشاشة (بالمرجع تمتد 227→598 من 828 أي مركزها ≈ منتصف الشاشة)،
+   الفعّال 30 عريض أسود والباقي 28 رمادي #808080 (الخط العربي أعرض من الصيني فأصغر شوية) وفراغ 26 */
 .nw-toc-tabs {
   position: absolute;
   top: 0;
-  inset-inline-start: calc(227 * var(--u));
+  inset-inline: 0;
   display: flex;
-  gap: calc(34 * var(--u));
+  justify-content: center;
+  gap: calc(26 * var(--u));
   height: calc(96 * var(--u));
+  pointer-events: none;
 }
 .nw-toc-tab {
   position: relative;
   height: calc(96 * var(--u));
-  padding-top: calc(30.5 * var(--u));
-  font-size: calc(30 * var(--u));
+  padding-top: calc(25 * var(--u));
+  font-size: calc(28 * var(--u));
   font-weight: 400;
   line-height: calc(44 * var(--u));
   color: #808080;
   white-space: nowrap;
+  pointer-events: auto;
 }
-.nw-toc-tab.is-active { font-size: calc(32 * var(--u)); font-weight: 700; color: #191919; }
+.nw-toc-tab.is-active { font-size: calc(30 * var(--u)); font-weight: 700; color: #191919; }
 /* خط التبويب الفعّال 16×4 أحمر #ed424b تحت النص بعلو 80 من أعلى الهيدر */
 .nw-toc-tab-line {
   position: absolute;
@@ -1339,7 +1343,7 @@ body {
   line-height: calc(28 * var(--u));
   white-space: nowrap;
 }
-.nw-toc-bottom-icon { display: block; flex: none; width: calc(23.74 * var(--u)); height: calc(25.4 * var(--u)); margin-bottom: calc(8.1 * var(--u)); }
+.nw-toc-bottom-icon { display: block; flex: none; width: calc(23.74 * var(--u)); height: calc(25.4 * var(--u)); margin-bottom: calc(12.1 * var(--u)); }
 .nw-toc-bottom-icon.is-flipped { transform: rotate(180deg); }
 
 /* الشريط الرمادي: ارتفاع 136 — عنوان الرواية 38 عريض + شيفرون رمادي، ثم اسم المجلد 24 رمادي */

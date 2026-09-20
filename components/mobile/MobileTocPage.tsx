@@ -117,7 +117,7 @@ export default function MobileTocPage({
             <TocArrowDownIcon
               className={`nw-toc-bottom-icon${atBottom ? " is-flipped" : ""}`}
             />
-            <span>{atBottom ? "إلى البداية" : "إلى النهاية"}</span>
+            <span>{atBottom ? "للأعلى" : "للأسفل"}</span>
           </button>
         </div>
       </header>
