@@ -4,12 +4,15 @@ import { useState } from "react";
 import type { Chapter, Novel } from "@/lib/novels";
 import { groupChaptersByVolume } from "@/lib/novels";
 
+// البطاقة محتاجة بس هذه الحقول — فتقبل الفصل الكامل أو النسخة الخفيفة (ChapterListItem) بدون نص
+type ChapterRow = Pick<Chapter, "id" | "chapter_number" | "title" | "volume">;
+
 export default function ChapterListCard({
   novel,
   chapters,
 }: {
   novel: Novel;
-  chapters: Chapter[];
+  chapters: ChapterRow[];
 }) {
   const [reversed, setReversed] = useState(false);
 

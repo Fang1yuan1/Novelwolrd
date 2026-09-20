@@ -27,6 +27,15 @@ export type Chapter = {
   volume: string | null;
 };
 
+// نسخة خفيفة من الفصل (بدون النص الكامل) — لصفحة الفهرس اللي محتاجة عنوان/تاريخ/عدد أحرف بس
+export type ChapterListItem = Pick<
+  Chapter,
+  "id" | "created_at" | "novel_id" | "chapter_number" | "title" | "volume"
+> & {
+  // عدد أحرف الفصل
+  word_count: number;
+};
+
 export type LatestUpdate = {
   chapter_id: number;
   chapter_number: number;
@@ -85,6 +94,58 @@ export async function getChaptersByNovel(novelId: number | string): Promise<Chap
   return all;
 }
 
+// جلب كل صفوف الفصول بأعمدة محددة على دفعات (نفس فكرة getChaptersByNovel).
+// بيرجّع null لو الطلب فشل (مثلًا عمود مش موجود) عشان المستدعي يجرّب بديل.
+async function fetchAllChapterRows(
+  novelId: number | string,
+  columns: string
+): Promise<Record<string, unknown>[] | null> {
+  if (!supabase) return null;
+  const pageSize = 1000;
+  let from = 0;
+  const all: Record<string, unknown>[] = [];
+  while (true) {
+    const { data, error } = await supabase
+      .from("chapters")
+      .select(columns)
+      .eq("novel_id", novelId)
+      .order("chapter_number", { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error || !data) return null;
+    const rows = data as unknown as Record<string, unknown>[];
+    all.push(...rows);
+    if (rows.length < pageSize) break;
+    from += pageSize;
+  }
+  return all;
+}
+
+// قائمة الفصول لصفحة الفهرس: من غير نص الفصول (أخف بكتير من getChaptersByNovel)، ومعاها عدد أحرف كل فصل.
+// لو عمود chapters.word_count موجود (supabase_add_chapter_word_count.sql) بنقراه مباشرة — سريع.
+// لو لسه مش موجود بنحسب الطول من النص على السيرفر (أبطأ بس بيشتغل من غير أي إعداد).
+export async function getChapterListItems(
+  novelId: number | string
+): Promise<ChapterListItem[]> {
+  const base = "id, novel_id, chapter_number, title, created_at, volume";
+
+  const fast = await fetchAllChapterRows(novelId, `${base}, word_count`);
+  if (fast) {
+    return fast.map((r) => ({
+      ...(r as unknown as ChapterListItem),
+      word_count: Number(r.word_count) || 0,
+    }));
+  }
+
+  const slow = await fetchAllChapterRows(novelId, `${base}, content`);
+  if (!slow) return [];
+  return slow.map((r) => {
+    const { content, ...rest } = r as unknown as ChapterListItem & {
+      content: string | null;
+    };
+    return { ...rest, word_count: content?.length ?? 0 };
+  });
+}
+
 // فصل واحد برقمه
 export async function getChapterByNumber(
   novelId: number | string,
@@ -102,10 +163,10 @@ export async function getChapterByNumber(
 }
 
 // تجميع الفصول حسب الجزء/المجلد (volume)
-export function groupChaptersByVolume(
-  chapters: Chapter[]
-): { volume: string; chapters: Chapter[] }[] {
-  const groups = new Map<string, Chapter[]>();
+export function groupChaptersByVolume<T extends { volume: string | null }>(
+  chapters: T[]
+): { volume: string; chapters: T[] }[] {
+  const groups = new Map<string, T[]>();
   const noVolumeKey = "الفصول";
   for (const ch of chapters) {
     const key = ch.volume?.trim() || noVolumeKey;
@@ -255,4 +316,16 @@ export function formatFullDateTime(iso: string): string {
   const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   return `${date} ${time}`;
+}
+
+// ختم وقت الفصل بصفحة الفهرس (مثال: 07-13 06:56، ولو من سنة غير الحالية: 2025-07-13 06:56)
+// بتوقيت UTC صراحةً عشان يطلع نفس النص بالسيرفر وبالمتصفح (من غير اختلاف هيدريشن بين المناطق الزمنية)
+export function formatChapterStamp(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const year =
+    d.getUTCFullYear() === new Date().getUTCFullYear()
+      ? ""
+      : `${d.getUTCFullYear()}-`;
+  return `${year}${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
