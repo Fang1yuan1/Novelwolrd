@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   TocArrowDownIcon,
   TocBackIcon,
@@ -46,6 +46,8 @@ export default function MobileTocPage({
 }) {
   const [tab, setTab] = useState<TabKey>("toc");
   const [atBottom, setAtBottom] = useState(false);
+  const pillRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
 
   const firstChapter = volumes[0]?.rows[0];
   const hasChapters = Boolean(firstChapter);
@@ -75,11 +77,95 @@ export default function MobileTocPage({
       behavior: "smooth",
     });
 
-  // الكبسولة العائمة: سهم لأعلى/لأسفل يحرّك القائمة صفحة كاملة (تقريبًا الجزء المرئي من الفصول)
-  const scrollPage = (dir: 1 | -1) => {
-    const step = Math.round(window.innerHeight * 0.8);
-    window.scrollBy({ top: dir * step, behavior: "smooth" });
-  };
+  // الكبسولة العائمة (زي المرجع): مؤشر تمرير — بتنزل وتطلع مع موضع القائمة من أول الفصول لآخرها،
+  // وبتغمق وقت الحركة، وبتظهر عند فتح الصفحة وأثناء التمرير وبتختفي بعد لحظات من التوقف.
+  // وتقدر تسحبها بإصبعك لتحرّك القائمة بسرعة.
+  useEffect(() => {
+    const pill = pillRef.current;
+    const bar = barRef.current;
+    if (!pill || !bar) return;
+
+    let hideTimer: ReturnType<typeof setTimeout> | undefined;
+    let calmTimer: ReturnType<typeof setTimeout> | undefined;
+    let dragging = false;
+    let grabY = 0;
+    let grabOffset = 0;
+
+    const range = () => {
+      const minTop = parseFloat(getComputedStyle(pill).top) || 0;
+      const maxTop = bar.getBoundingClientRect().top - pill.offsetHeight;
+      return Math.max(0, maxTop - minTop);
+    };
+    const maxScroll = () =>
+      Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const place = () => {
+      const max = maxScroll();
+      const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      const offset = progress * range();
+      pill.style.transform = `translateY(${offset}px)`;
+      return offset;
+    };
+    const show = () => {
+      pill.classList.add("is-visible");
+      clearTimeout(hideTimer);
+      if (!dragging) {
+        hideTimer = setTimeout(() => pill.classList.remove("is-visible"), 1300);
+      }
+    };
+    const onScroll = () => {
+      place();
+      pill.classList.add("is-active");
+      show();
+      clearTimeout(calmTimer);
+      calmTimer = setTimeout(() => {
+        if (!dragging) pill.classList.remove("is-active");
+      }, 160);
+    };
+    const onResize = () => place();
+
+    const onDown = (e: PointerEvent) => {
+      dragging = true;
+      grabY = e.clientY;
+      grabOffset = place();
+      pill.setPointerCapture(e.pointerId);
+      pill.classList.add("is-active", "is-visible");
+      clearTimeout(hideTimer);
+      e.preventDefault();
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const r = range();
+      if (r <= 0) return;
+      const offset = Math.min(r, Math.max(0, grabOffset + (e.clientY - grabY)));
+      window.scrollTo(0, (offset / r) * maxScroll());
+      pill.style.transform = `translateY(${offset}px)`;
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      pill.classList.remove("is-active");
+      show();
+    };
+
+    place();
+    show(); // تظهر لحظات عند فتح الصفحة زي المرجع
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    pill.addEventListener("pointerdown", onDown);
+    pill.addEventListener("pointermove", onMove);
+    pill.addEventListener("pointerup", onUp);
+    pill.addEventListener("pointercancel", onUp);
+    return () => {
+      clearTimeout(hideTimer);
+      clearTimeout(calmTimer);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      pill.removeEventListener("pointerdown", onDown);
+      pill.removeEventListener("pointermove", onMove);
+      pill.removeEventListener("pointerup", onUp);
+      pill.removeEventListener("pointercancel", onUp);
+    };
+  }, [tab, hasChapters]);
 
   const goBack = () => {
     if (window.history.length > 1) window.history.back();
@@ -183,26 +269,16 @@ export default function MobileTocPage({
             </section>
           ))}
 
-          <div className="nw-toc-pill" role="group" aria-label="تنقل سريع">
-            <button
-              type="button"
-              onClick={() => scrollPage(-1)}
-              aria-label="صفحة للأعلى"
-              className="nw-toc-pill-btn"
-            >
+          <div ref={pillRef} className="nw-toc-pill" aria-hidden="true">
+            <span className="nw-toc-pill-btn">
               <TocPillChevron direction="up" className="nw-toc-pill-chevron" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollPage(1)}
-              aria-label="صفحة للأسفل"
-              className="nw-toc-pill-btn"
-            >
+            </span>
+            <span className="nw-toc-pill-btn">
               <TocPillChevron direction="down" className="nw-toc-pill-chevron" />
-            </button>
+            </span>
           </div>
 
-          <div className="nw-toc-bar">
+          <div ref={barRef} className="nw-toc-bar">
             <button
               type="button"
               disabled
