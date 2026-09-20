@@ -25,7 +25,8 @@ function MaskIcon({ name, w, h }: { name: string; w: number; h: number }) {
     />
   );
 }
-const IconThemes = () => <MaskIcon name="themes" w={20.8} h={25.9} />;
+// أيقونة فقاعة التعليق (بدل أيقونة الورقة السابقة) — مقصوصة من الصورة المرسلة
+const IconThemes = () => <MaskIcon name="comments" w={25.4} h={22.7} />;
 const IconAppearance = () => <MaskIcon name="appearance" w={25.3} h={25.3} />;
 const IconSunSmall = () => <MaskIcon name="sun-small" w={19.3} h={20.6} />;
 const IconSunLarge = () => <MaskIcon name="sun-large" w={21.7} h={22.2} />;
