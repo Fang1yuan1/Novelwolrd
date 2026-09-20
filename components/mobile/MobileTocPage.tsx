@@ -75,6 +75,12 @@ export default function MobileTocPage({
       behavior: "smooth",
     });
 
+  // الكبسولة العائمة: سهم لأعلى/لأسفل يحرّك القائمة صفحة كاملة (تقريبًا الجزء المرئي من الفصول)
+  const scrollPage = (dir: 1 | -1) => {
+    const step = Math.round(window.innerHeight * 0.8);
+    window.scrollBy({ top: dir * step, behavior: "smooth" });
+  };
+
   const goBack = () => {
     if (window.history.length > 1) window.history.back();
     else window.location.href = `/novel/${novelId}`;
@@ -164,7 +170,7 @@ export default function MobileTocPage({
                         {row.title ? `: ${row.title}` : ""}
                       </span>
                       <span className="nw-toc-row-meta">
-                        {row.words} حرف · <bdi dir="ltr">{row.stamp}</bdi>
+                        {row.words} حرف · <bdi>{row.stamp}</bdi>
                       </span>
                       {/* تحميل الفصل منفردًا غير متاح — الأيقونة شكلية بلون المرجع */}
                       <span className="nw-toc-row-dl" aria-hidden="true">
@@ -180,16 +186,16 @@ export default function MobileTocPage({
           <div className="nw-toc-pill" role="group" aria-label="تنقل سريع">
             <button
               type="button"
-              onClick={goTop}
-              aria-label="إلى البداية"
+              onClick={() => scrollPage(-1)}
+              aria-label="صفحة للأعلى"
               className="nw-toc-pill-btn"
             >
               <TocPillChevron direction="up" className="nw-toc-pill-chevron" />
             </button>
             <button
               type="button"
-              onClick={goBottom}
-              aria-label="إلى النهاية"
+              onClick={() => scrollPage(1)}
+              aria-label="صفحة للأسفل"
               className="nw-toc-pill-btn"
             >
               <TocPillChevron direction="down" className="nw-toc-pill-chevron" />

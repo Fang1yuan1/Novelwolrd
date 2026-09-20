@@ -329,14 +329,30 @@ export function formatFullDateTime(iso: string): string {
   return `${date} ${time}`;
 }
 
-// ختم وقت الفصل بصفحة الفهرس (مثال: 07-13 06:56، ولو من سنة غير الحالية: 2025-07-13 06:56)
+// ختم وقت الفصل بصفحة الفهرس — زي المرجع (شهر ويوم + ساعة): «20 سبتمبر 00:06»،
+// ولو من سنة غير الحالية: «13 يوليو 2025 06:56».
 // بتوقيت UTC صراحةً عشان يطلع نفس النص بالسيرفر وبالمتصفح (من غير اختلاف هيدريشن بين المناطق الزمنية)
+const ARABIC_MONTHS = [
+  "يناير",
+  "فبراير",
+  "مارس",
+  "أبريل",
+  "مايو",
+  "يونيو",
+  "يوليو",
+  "أغسطس",
+  "سبتمبر",
+  "أكتوبر",
+  "نوفمبر",
+  "ديسمبر",
+];
+
 export function formatChapterStamp(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
   const year =
     d.getUTCFullYear() === new Date().getUTCFullYear()
       ? ""
-      : `${d.getUTCFullYear()}-`;
-  return `${year}${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+      : ` ${d.getUTCFullYear()}`;
+  return `${d.getUTCDate()} ${ARABIC_MONTHS[d.getUTCMonth()]}${year} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
