@@ -46,6 +46,9 @@ export default function MobileTocPage({
 }) {
   const [tab, setTab] = useState<TabKey>("toc");
   const [atBottom, setAtBottom] = useState(false);
+  const [volName, setVolName] = useState(volumes[0]?.name ?? "");
+  const bandRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
@@ -167,6 +170,33 @@ export default function MobileTocPage({
     };
   }, [tab, hasChapters]);
 
+  // الشريط الرمادي مثبّت تحت الهيدر (زي المرجع) واسم المجلد اللي فيه بيتبدّل حسب المجلد اللي عند حافته السفلية
+  useEffect(() => {
+    const band = bandRef.current;
+    const body = bodyRef.current;
+    if (!band || !body || volumes.length < 2) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const edge = band.getBoundingClientRect().bottom;
+      const sections = body.querySelectorAll<HTMLElement>("[data-vol]");
+      let current = 0;
+      sections.forEach((el, i) => {
+        if (el.getBoundingClientRect().top <= edge + 1) current = i;
+      });
+      setVolName(volumes[current].name);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [tab, hasChapters, volumes]);
+
   const goBack = () => {
     if (window.history.length > 1) window.history.back();
     else window.location.href = `/novel/${novelId}`;
@@ -228,46 +258,48 @@ export default function MobileTocPage({
         </>
       ) : (
         <>
-          {volumes.map((v, vi) => (
-            <section key={v.name}>
-              {vi === 0 ? (
-                <div className="nw-toc-band">
-                  <a href={`/novel/${novelId}`} className="nw-toc-band-title">
-                    <span>{novelTitle}</span>
-                    <TocTitleChevron className="nw-toc-band-chevron" />
-                  </a>
-                  <p className="nw-toc-volume-name">{v.name}</p>
-                </div>
-              ) : (
-                <div className="nw-toc-volume">
-                  <p className="nw-toc-volume-name">{v.name}</p>
-                </div>
-              )}
+          <div ref={bandRef} className="nw-toc-band">
+            <a href={`/novel/${novelId}`} className="nw-toc-band-title">
+              <span>{novelTitle}</span>
+              <TocTitleChevron className="nw-toc-band-chevron" />
+            </a>
+            <p className="nw-toc-volume-name">{volName}</p>
+          </div>
 
-              <ul className="nw-toc-list">
-                {v.rows.map((row) => (
-                  <li key={row.id}>
-                    <a
-                      href={`/novel/${novelId}/chapter/${row.number}`}
-                      className="nw-toc-row"
-                    >
-                      <span className="nw-toc-row-title">
-                        الفصل {row.number}
-                        {row.title ? `: ${row.title}` : ""}
-                      </span>
-                      <span className="nw-toc-row-meta">
-                        {row.words} حرف · <bdi>{row.stamp}</bdi>
-                      </span>
-                      {/* تحميل الفصل منفردًا غير متاح — الأيقونة شكلية بلون المرجع */}
-                      <span className="nw-toc-row-dl" aria-hidden="true">
-                        <TocDownloadIcon className="nw-toc-dl-icon" />
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          <div ref={bodyRef} className="nw-toc-body">
+            {volumes.map((v, vi) => (
+              <section key={v.name} data-vol={vi}>
+                {vi > 0 && (
+                  <div className="nw-toc-volume">
+                    <p className="nw-toc-volume-name">{v.name}</p>
+                  </div>
+                )}
+
+                <ul className="nw-toc-list">
+                  {v.rows.map((row) => (
+                    <li key={row.id}>
+                      <a
+                        href={`/novel/${novelId}/chapter/${row.number}`}
+                        className="nw-toc-row"
+                      >
+                        <span className="nw-toc-row-title">
+                          الفصل {row.number}
+                          {row.title ? `: ${row.title}` : ""}
+                        </span>
+                        <span className="nw-toc-row-meta">
+                          {row.words} حرف · <bdi>{row.stamp}</bdi>
+                        </span>
+                        {/* تحميل الفصل منفردًا غير متاح — الأيقونة شكلية بلون المرجع */}
+                        <span className="nw-toc-row-dl" aria-hidden="true">
+                          <TocDownloadIcon className="nw-toc-dl-icon" />
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
 
           <div ref={pillRef} className="nw-toc-pill" aria-hidden="true">
             <span className="nw-toc-pill-btn">
