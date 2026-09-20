@@ -8,7 +8,12 @@ export const dynamic = "force-dynamic";
 
 export default async function RankingsPage() {
   const novels = await getNovels();
-  const counts = await Promise.all(novels.map((n) => getChapterCount(n.id)));
+  // عدد الفصول من العمود المخزّن novels.chapter_count (بدون عدّ فصول كل رواية بطلب مستقل — كان يبطّئ الصفحة)؛
+  // الطريقة القديمة بس احتياطي لو العمود مش موجود أصلًا
+  const hasStoredCounts = novels.every((n) => n.chapter_count !== undefined);
+  const counts = hasStoredCounts
+    ? novels.map((n) => n.chapter_count ?? 0)
+    : await Promise.all(novels.map((n) => getChapterCount(n.id)));
   const ranked = novels
     .map((n, i) => ({ novel: n, chapterCount: counts[i] }))
     .sort((a, b) => b.chapterCount - a.chapterCount);

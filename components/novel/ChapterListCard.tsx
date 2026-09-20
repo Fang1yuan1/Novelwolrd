@@ -10,10 +10,15 @@ type ChapterRow = Pick<Chapter, "id" | "chapter_number" | "title" | "volume">;
 export default function ChapterListCard({
   novel,
   chapters,
+  total,
 }: {
   novel: Novel;
   chapters: ChapterRow[];
+  /** العدد الكلي للفصول لو القائمة هنا مجرد آخر الفصول (صفحة التفاصيل)؛ بصفحة الفهرس القائمة كاملة فما يتحدد */
+  total?: number;
 }) {
+  const totalChapters = total ?? chapters.length;
+  const isPartial = totalChapters > chapters.length;
   const [reversed, setReversed] = useState(false);
 
   const ordered = reversed ? [...chapters].reverse() : chapters;
@@ -26,7 +31,7 @@ export default function ChapterListCard({
         <h2 className="text-sm font-bold text-ink-900">
           الفهرس{" "}
           <span className="text-[11px] font-normal text-ink-300">
-            ({chapters.length} فصل)
+            ({totalChapters} فصل)
           </span>
         </h2>
         <div className="flex items-center gap-2 text-[11px]">
@@ -77,6 +82,15 @@ export default function ChapterListCard({
             </details>
           ))}
         </div>
+      )}
+
+      {isPartial && (
+        <a
+          href={`/novel/${novel.id}/toc`}
+          className="mt-3 block rounded bg-surface px-2 py-2 text-center text-[13px] font-semibold text-brand hover:underline"
+        >
+          عرض كل الفصول ({totalChapters}) ‹
+        </a>
       )}
     </div>
   );

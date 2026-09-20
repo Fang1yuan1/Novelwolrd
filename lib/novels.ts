@@ -1,4 +1,13 @@
+import * as React from "react";
 import { supabase } from "./supabase";
+
+// تخزين مؤقت لنتيجة الدالة طول الطلب الواحد فقط (React cache): لو أكتر من مكون بالصفحة طلب نفس البيانات
+// (مثلًا كل الروايات) بتتجلب مرة واحدة بدل ما تتكرر. بنمر عبر متغير عشان ما ينكسر بناء نسخة المتصفح
+// (ولو الدالة مش موجودة بتشتغل الدالة زي ما هي من غير تخزين).
+const requestCache: <A extends unknown[], R>(
+  fn: (...args: A) => R
+) => (...args: A) => R =
+  (React as unknown as { cache?: <F>(fn: F) => F }).cache ?? ((fn) => fn);
 
 export type Novel = {
   id: number;
@@ -50,7 +59,7 @@ export type LatestUpdate = {
 };
 
 // كل الروايات، الأحدث أولًا
-export async function getNovels(limit?: number): Promise<Novel[]> {
+const fetchNovels = requestCache(async (limit?: number): Promise<Novel[]> => {
   if (!supabase) return [];
   let query = supabase
     .from("novels")
@@ -60,19 +69,26 @@ export async function getNovels(limit?: number): Promise<Novel[]> {
   const { data, error } = await query;
   if (error || !data) return [];
   return data as Novel[];
+});
+
+// كل مستدعٍ بياخد نسخة مصفوفة خاصة به (فأي ترتيب/فلترة عنده ما تأثر على غيره بنفس الطلب)
+export async function getNovels(limit?: number): Promise<Novel[]> {
+  return [...(await fetchNovels(limit))];
 }
 
 // رواية واحدة بالتفصيل
-export async function getNovelById(id: number | string): Promise<Novel | null> {
-  if (!supabase) return null;
-  const { data, error } = await supabase
-    .from("novels")
-    .select("*")
-    .eq("id", id)
-    .single();
-  if (error || !data) return null;
-  return data as Novel;
-}
+export const getNovelById = requestCache(
+  async (id: number | string): Promise<Novel | null> => {
+    if (!supabase) return null;
+    const { data, error } = await supabase
+      .from("novels")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error || !data) return null;
+    return data as Novel;
+  }
+);
 
 // كل فصول رواية معيّنة، مرتبة برقم الفصل
 // كل فصول رواية معيّنة — بيجيبهم على دفعات (Supabase بيحدد حد أقصى ~1000 صف بالطلب
@@ -97,28 +113,38 @@ export async function getChaptersByNovel(novelId: number | string): Promise<Chap
   return all;
 }
 
-// جلب كل صفوف الفصول بأعمدة محددة على دفعات (Supabase بيحدد ~1000 صف بالطلب).
-// بيرجّع null لو الطلب فشل (مثلًا عمود مش موجود) عشان المستدعي يجرّب بديل.
+// جلب كل صفوف الفصول بأعمدة محددة (Supabase بيحدد ~1000 صف بالطلب): الدفعة الأولى بتجيب معاها العدد الكلي،
+// وباقي الدفعات بتتجلب مع بعض في نفس الوقت (مو واحدة ورا الثانية).
+// بيرجّع null لو أي طلب فشل (مثلًا عمود مش موجود) عشان المستدعي يجرّب بديل.
 async function fetchAllChapterRows(
   novelId: number | string,
   columns: string
 ): Promise<Record<string, unknown>[] | null> {
   if (!supabase) return null;
   const pageSize = 1000;
-  let from = 0;
-  const all: Record<string, unknown>[] = [];
-  while (true) {
-    const { data, error } = await supabase
+  const page = (from: number) =>
+    supabase!
       .from("chapters")
-      .select(columns)
+      .select(columns, { count: "exact" })
       .eq("novel_id", novelId)
       .order("chapter_number", { ascending: true })
       .range(from, from + pageSize - 1);
-    if (error || !data) return null;
-    const rows = data as unknown as Record<string, unknown>[];
-    all.push(...rows);
-    if (rows.length < pageSize) break;
-    from += pageSize;
+
+  const first = await page(0);
+  if (first.error || !first.data) return null;
+  const rows = first.data as unknown as Record<string, unknown>[];
+  const total = first.count ?? rows.length;
+  if (rows.length < pageSize || total <= pageSize) return rows;
+
+  const rest = await Promise.all(
+    Array.from({ length: Math.ceil(total / pageSize) - 1 }, (_, i) =>
+      page((i + 1) * pageSize)
+    )
+  );
+  const all = [...rows];
+  for (const r of rest) {
+    if (r.error || !r.data) return null;
+    all.push(...(r.data as unknown as Record<string, unknown>[]));
   }
   return all;
 }
@@ -167,6 +193,61 @@ export async function getChapterSummaries(
     ...(r as unknown as ChapterSummary),
     volume: (r.volume as string | null | undefined) ?? null,
   }));
+}
+
+// معاينة الفصول لصفحة تفاصيل الرواية: أول فصل + آخر N فصل + العدد الكلي — بطلبين خفيفين مع بعض،
+// مهما كان عدد الفصول (بدل سحب كل القائمة لمجرد عرض آخر ٣ فصول). القائمة الكاملة بصفحة الفهرس.
+export type ChapterPreview = {
+  total: number;
+  first: ChapterSummary | null;
+  recent: ChapterSummary[]; // آخر N فصل بترتيب تصاعدي
+};
+
+export async function getChapterPreview(
+  novelId: number | string,
+  recentCount = 30
+): Promise<ChapterPreview> {
+  const empty: ChapterPreview = { total: 0, first: null, recent: [] };
+  if (!supabase) return empty;
+
+  const cached = workingColumns.get("preview");
+  const fresh = cached && Date.now() - cached.at < COLUMNS_TTL_MS;
+  const candidates = [`${CHAPTER_BASE_COLUMNS}, volume`, CHAPTER_BASE_COLUMNS];
+  const order = fresh
+    ? [cached.cols, ...candidates.filter((c) => c !== cached.cols)]
+    : candidates;
+
+  for (const cols of order) {
+    const [firstRes, lastRes] = await Promise.all([
+      supabase
+        .from("chapters")
+        .select(cols)
+        .eq("novel_id", novelId)
+        .order("chapter_number", { ascending: true })
+        .limit(1),
+      supabase
+        .from("chapters")
+        .select(cols, { count: "exact" })
+        .eq("novel_id", novelId)
+        .order("chapter_number", { ascending: false })
+        .limit(recentCount),
+    ]);
+    if (firstRes.error || lastRes.error || !firstRes.data || !lastRes.data) {
+      continue;
+    }
+    workingColumns.set("preview", { cols, at: Date.now() });
+    const norm = (r: unknown): ChapterSummary => ({
+      ...(r as ChapterSummary),
+      volume: (r as { volume?: string | null }).volume ?? null,
+    });
+    const recentDesc = (lastRes.data as unknown[]).map(norm);
+    return {
+      total: lastRes.count ?? recentDesc.length,
+      first: firstRes.data[0] ? norm(firstRes.data[0]) : null,
+      recent: recentDesc.reverse(),
+    };
+  }
+  return empty;
 }
 
 // قائمة الفصول لصفحة الفهرس: ملخّص كل فصل + عدد أحرفه، من غير جلب النص أبدًا.
@@ -305,7 +386,13 @@ export function joinCategories(categories: string[]): string {
 export async function getCategoriesWithCounts(): Promise<
   { category: string; count: number }[]
 > {
-  const novels = await getNovels();
+  return countCategories(await getNovels());
+}
+
+// نفس الحساب على قائمة روايات محمّلة أصلًا (بدون جلبها مرة ثانية)
+export function countCategories(
+  novels: Novel[]
+): { category: string; count: number }[] {
   const map = new Map<string, number>();
   for (const n of novels) {
     for (const cat of parseCategories(n.category)) {

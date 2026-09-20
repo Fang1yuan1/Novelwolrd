@@ -9,16 +9,18 @@ import MobileRelatedNovels from "./MobileRelatedNovels";
 export default function MobileNovelDetail({
   novel,
   chapters,
+  chapterTotal,
   related,
 }: {
   novel: Novel;
   chapters: ChapterSummary[];
+  chapterTotal?: number;
   related: Novel[];
 }) {
   return (
     <div className="min-h-screen bg-surface pb-6">
       <MobileBackHeader title={novel.title} />
-      <MobileNovelHero novel={novel} chapters={chapters} />
+      <MobileNovelHero novel={novel} chapters={chapters} chapterTotal={chapterTotal} />
       <MobileDescriptionCard novel={novel} />
       <MobileChapterPreview novel={novel} chapters={chapters} />
       <MobileCharactersSection novelId={novel.id} />

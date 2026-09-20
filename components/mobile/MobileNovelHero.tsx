@@ -10,13 +10,16 @@ import LaurelIcon from "./LaurelIcon";
 export default async function MobileNovelHero({
   novel,
   chapters,
+  chapterTotal,
 }: {
   novel: Novel;
   chapters: ChapterSummary[];
+  /** العدد الكلي للفصول (لأن chapters هنا معاينة فقط: أول فصل + آخر فصول) */
+  chapterTotal?: number;
 }) {
   const lastChapter = chapters[chapters.length - 1];
   const wordCount = novel.word_count ?? 0;
-  const chapterCount = novel.chapter_count ?? chapters.length;
+  const chapterCount = chapterTotal ?? novel.chapter_count ?? chapters.length;
   const categories = parseCategories(novel.category);
   const statusLabel = novel.status === "completed" ? "مكتملة" : "مستمرة";
   const rank = await getNovelRank(novel.id);

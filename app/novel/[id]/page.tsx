@@ -1,5 +1,5 @@
 import {
-  getChapterSummaries,
+  getChapterPreview,
   getNovelById,
   getNovelsByAuthor,
   getRelatedNovels,
@@ -35,12 +35,19 @@ export default async function NovelPage({
 
   const authorName = novel.author?.trim() || "";
 
-  // كل الطلبات مع بعض (مو ورا بعض) وكلها خفيفة: الفصول بدون نصها، وأعمال المؤلف والمشابهة بفلتر بقاعدة البيانات
-  const [chapters, related, sameAuthor] = await Promise.all([
-    getChapterSummaries(id),
+  // كل الطلبات مع بعض (مو ورا بعض) وكلها خفيفة: معاينة الفصول (أول فصل + آخر ٣٠ + العدد) بدل القائمة كاملة، وأعمال المؤلف والمشابهة بفلتر بقاعدة البيانات
+  const [preview, related, sameAuthor] = await Promise.all([
+    getChapterPreview(id),
     getRelatedNovels(novel.category, novel.id, 6),
     authorName ? getNovelsByAuthor(authorName) : Promise.resolve([]),
   ]);
+
+  // معاينة الفصول: أول فصل (لزر «ابدأ القراءة») + آخر الفصول، بدون تكرار
+  const chapters =
+    preview.first && !preview.recent.some((c) => c.id === preview.first!.id)
+      ? [preview.first, ...preview.recent]
+      : preview.recent;
+  const chapterTotal = preview.total;
 
   let authorNovels: typeof related = [];
   let authorTotalWords = novel.word_count ?? 0;
@@ -58,7 +65,12 @@ export default async function NovelPage({
     <>
       {/* النسخة التقليدية — شاشات صغيرة (موبايل) */}
       <div className="sm:hidden">
-        <MobileNovelDetail novel={novel} chapters={chapters} related={related} />
+        <MobileNovelDetail
+          novel={novel}
+          chapters={chapters}
+          chapterTotal={chapterTotal}
+          related={related}
+        />
       </div>
 
       {/* النسخة الغنية — شاشات كبيرة (آيباد/لابتوب) */}
@@ -84,7 +96,7 @@ export default async function NovelPage({
             <div className="flex min-w-0 flex-1 flex-col gap-3">
               <div className="flex flex-col gap-3 lg:flex-row">
                 <div className="min-w-0 flex-1">
-                  <InfoCard novel={novel} chapters={chapters} />
+                  <InfoCard novel={novel} chapters={chapters} chapterTotal={chapterTotal} />
                 </div>
                 <AuthorCard
                   novel={novel}
@@ -103,7 +115,7 @@ export default async function NovelPage({
 
               <BookListsCard />
 
-              <ChapterListCard novel={novel} chapters={chapters} />
+              <ChapterListCard novel={novel} chapters={preview.recent} total={chapterTotal} />
             </div>
 
             <div className="flex w-full flex-col gap-3 sm:w-48 lg:w-72">

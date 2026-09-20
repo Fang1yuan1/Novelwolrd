@@ -4,9 +4,12 @@ import { formatCount, formatRelativeTime, parseCategories } from "@/lib/novels";
 export default function InfoCard({
   novel,
   chapters,
+  chapterTotal,
 }: {
   novel: Novel;
   chapters: ChapterSummary[];
+  /** العدد الكلي للفصول (لأن chapters هنا معاينة فقط: أول فصل + آخر فصول) */
+  chapterTotal?: number;
 }) {
   const lastChapter = chapters[chapters.length - 1];
   const wordCount = novel.word_count ?? 0;
@@ -96,7 +99,7 @@ export default function InfoCard({
           </span>
           <span className="text-ink-300">|</span>
           <span>
-            <b className="text-ink-900">{chapters.length}</b> فصل
+            <b className="text-ink-900">{chapterTotal ?? chapters.length}</b> فصل
           </span>
         </div>
 

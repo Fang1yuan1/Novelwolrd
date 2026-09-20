@@ -1,6 +1,6 @@
 import {
   getNovels,
-  getCategoriesWithCounts,
+  countCategories,
   parseCategories,
   type Novel,
 } from "@/lib/novels";
@@ -55,7 +55,7 @@ export default async function MobileRankingsPage() {
   }
 
   // أقسام إضافية حسب أكبر التصنيفات فعليًا بالموقع (بيانات حقيقية من قاعدة البيانات)
-  const categoryCounts = await getCategoriesWithCounts();
+  const categoryCounts = countCategories(novels); // من الروايات المحمّلة أصلًا
   const topCategories = categoryCounts
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
