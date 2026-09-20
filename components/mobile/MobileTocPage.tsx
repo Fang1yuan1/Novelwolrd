@@ -55,14 +55,12 @@ export default function MobileTocPage({
   const firstChapter = volumes[0]?.rows[0];
   const hasChapters = Boolean(firstChapter);
 
-  // زر الهيدر بيتحوّل من "إلى النهاية" لـ"إلى البداية" لما توصل آخر الصفحة (زي المرجع)
+  // زر الهيدر ثابت («للأسفل» + سهم لأسفل) ويتبدّل إلى «للأعلى» (سهم لأعلى) فقط عند الوصول لآخر القائمة
   useEffect(() => {
     const update = () => {
       const doc = document.documentElement;
-      const scrollable = doc.scrollHeight > window.innerHeight + 8;
-      setAtBottom(
-        scrollable && window.innerHeight + window.scrollY >= doc.scrollHeight - 8
-      );
+      const max = doc.scrollHeight - window.innerHeight;
+      setAtBottom(max > 8 && window.scrollY >= max - 24);
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
