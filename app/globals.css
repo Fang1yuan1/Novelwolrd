@@ -1471,7 +1471,8 @@ body {
   width: 100%;
   max-width: 448px;
   box-sizing: border-box;
-  padding: 8px 16.5px max(46px, calc(13px + env(safe-area-inset-bottom, 0px)));
+  /* أسفل قصير: 13 فقط (زائد منطقة الأمان لو موجودة) — المرجع كان فيه مساحة فاضية لمؤشر الهوم بأسفل الجهاز مالها لزوم بالمتصفح */
+  padding: 8px 16.5px calc(13px + env(safe-area-inset-bottom, 0px));
   border-radius: 35px 35px 46px 46px;
   transform: translateY(calc(100% + 24px));
   transition: transform 0.28s ease-out;
