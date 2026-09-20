@@ -26,8 +26,8 @@ function MaskIcon({ name, w, h }: { name: string; w: number; h: number }) {
   );
 }
 const IconThemes = () => <MaskIcon name="themes" w={20.8} h={25.9} />;
-const IconAppearance = () => <MaskIcon name="appearance" w={24.5} h={24.9} />;
-const IconSunSmall = () => <MaskIcon name="sun-small" w={20.3} h={19.9} />;
+const IconAppearance = () => <MaskIcon name="appearance" w={25.3} h={25.3} />;
+const IconSunSmall = () => <MaskIcon name="sun-small" w={19.3} h={20.6} />;
 const IconSunLarge = () => <MaskIcon name="sun-large" w={21.7} h={22.2} />;
 const IconClose = () => <MaskIcon name="close" w={19.4} h={19.4} />;
 function IconGear() {
@@ -36,8 +36,8 @@ function IconGear() {
       aria-hidden="true"
       className="inline-block shrink-0"
       style={{
-        width: 18,
-        height: 18,
+        width: 21.5,
+        height: 21.5,
         backgroundColor: "currentColor",
         WebkitMaskImage: "url(/icons/gear-icon.png)",
         maskImage: "url(/icons/gear-icon.png)",
@@ -88,9 +88,8 @@ export default function MobileReaderSettingsSheet({
   const overlayTint = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
   const dividerTint = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)";
   const closeBtnTint = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)";
-  // لون اللوحة بالثيم الأصلي رمادي فاتح (#f2f2f2) زي المرجع، وباقي الثيمات بلون صفحتها. والحافة ظل رفيع حولها
+  // لون اللوحة بالثيم الأصلي رمادي فاتح (#f2f2f2) زي المرجع، وباقي الثيمات بلون صفحتها (بدون إطار ولا ظل حولها)
   const panelBg = theme === "original" ? "#f2f2f2" : p.pageBg;
-  const rimTint = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.20)";
 
   // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
   const [visible, setVisible] = useState(false);
@@ -114,11 +113,7 @@ export default function MobileReaderSettingsSheet({
       <div
         onClick={(e) => e.stopPropagation()}
         className="nw-rs-panel"
-        style={{
-          backgroundColor: panelBg,
-          color: p.text,
-          border: `3px solid ${rimTint}`,
-        }}
+        style={{ backgroundColor: panelBg, color: p.text }}
       >
         <div className="nw-rs-head">
           <h2 className="nw-rs-title">الثيمات والإعدادات</h2>
@@ -133,6 +128,8 @@ export default function MobileReaderSettingsSheet({
           </button>
         </div>
 
+        {/* كل الأدوات بترتيب المرجع بالضبط (يسار→يمين): كبسولة الخط ثم الثيمات، شريط السطوع، الشبكة — لذلك dir=ltr. العنوان وزر الإغلاق فوق بقوا كما هم */}
+        <div dir="ltr">
         {/* الصف الأول: كبسولة الخط (أعرض) + كبسولة الثيمات/المظهر (أضيق) */}
         <div className="nw-rs-pills">
           <div className="nw-rs-pill nw-rs-pill--wide" style={{ backgroundColor: overlayTint, color: p.text }}>
@@ -240,6 +237,7 @@ export default function MobileReaderSettingsSheet({
           <IconGear />
           تخصيص
         </button>
+        </div>
       </div>
     </div>
   );
