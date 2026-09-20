@@ -121,29 +121,40 @@ async function fetchAllChapterRows(
 }
 
 // قائمة الفصول لصفحة الفهرس: من غير نص الفصول (أخف بكتير من getChaptersByNovel)، ومعاها عدد أحرف كل فصل.
-// لو عمود chapters.word_count موجود (supabase_add_chapter_word_count.sql) بنقراه مباشرة — سريع.
-// لو لسه مش موجود بنحسب الطول من النص على السيرفر (أبطأ بس بيشتغل من غير أي إعداد).
+// بنجرّب بالترتيب لحد ما ينجح طلب (أعمدة اختيارية ممكن ما تكونش موجودة بقاعدة البيانات):
+//   1) word_count (supabase_add_chapter_word_count.sql) — سريع، وإلا نحسب الطول من النص على السيرفر
+//   2) volume — لو العمود مش موجود بجدول chapters نكمّل من غيره (كل الفصول تحت مجلد واحد)
 export async function getChapterListItems(
   novelId: number | string
 ): Promise<ChapterListItem[]> {
-  const base = "id, novel_id, chapter_number, title, created_at, volume";
+  const cols = ["id", "novel_id", "chapter_number", "title", "created_at"];
+  for (const withVolume of [true, false]) {
+    const base = (withVolume ? [...cols, "volume"] : cols).join(", ");
 
-  const fast = await fetchAllChapterRows(novelId, `${base}, word_count`);
-  if (fast) {
-    return fast.map((r) => ({
-      ...(r as unknown as ChapterListItem),
-      word_count: Number(r.word_count) || 0,
-    }));
+    const fast = await fetchAllChapterRows(novelId, `${base}, word_count`);
+    if (fast) {
+      return fast.map((r) => ({
+        ...(r as unknown as ChapterListItem),
+        volume: withVolume ? ((r.volume as string | null) ?? null) : null,
+        word_count: Number(r.word_count) || 0,
+      }));
+    }
+
+    const slow = await fetchAllChapterRows(novelId, `${base}, content`);
+    if (slow) {
+      return slow.map((r) => {
+        const { content, ...rest } = r as unknown as ChapterListItem & {
+          content: string | null;
+        };
+        return {
+          ...rest,
+          volume: withVolume ? (rest.volume ?? null) : null,
+          word_count: content?.length ?? 0,
+        };
+      });
+    }
   }
-
-  const slow = await fetchAllChapterRows(novelId, `${base}, content`);
-  if (!slow) return [];
-  return slow.map((r) => {
-    const { content, ...rest } = r as unknown as ChapterListItem & {
-      content: string | null;
-    };
-    return { ...rest, word_count: content?.length ?? 0 };
-  });
+  return [];
 }
 
 // فصل واحد برقمه
