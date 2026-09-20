@@ -111,7 +111,7 @@ export const rankingLists: RankingList[] = [
   },
   {
     id: "bestseller",
-    title: "الأكثر مبيعًا",
+    title: "روايات مميزة",
     badge: "الأسرع نموًا",
     entries: [
       { rank: 1, title: "أيام الجبل الأخضر", meta: "بطل المبيعات" },

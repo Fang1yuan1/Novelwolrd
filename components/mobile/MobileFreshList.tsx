@@ -13,8 +13,8 @@ export default async function MobileFreshList() {
     <section className="mobile-reference-card nw-section">
       <div className="mobile-reference-section-heading">
         <span className="mobile-reference-heading-group">
-          <h2>جديد سريع الانتشار</h2>
-          <span className="mobile-reference-badge-pill">جديد آخر 24 ساعة</span>
+          <h2>روايات جديدة</h2>
+          <span className="mobile-reference-badge-pill">روايات جديدة على مدار 24 ساعة</span>
         </span>
         <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
       </div>

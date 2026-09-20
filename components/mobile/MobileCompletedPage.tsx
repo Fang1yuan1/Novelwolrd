@@ -110,7 +110,7 @@ export default async function MobileCompletedPage() {
             {popular.length > 3 && (
               <section className="mobile-reference-card px-3 py-3">
                 <div className="mobile-reference-section-heading">
-                  <h2>الأكثر مبيعًا</h2>
+                  <h2>روايات مميزة</h2>
                   <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
                 </div>
                 <ul className="flex flex-col gap-4">

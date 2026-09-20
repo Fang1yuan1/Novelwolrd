@@ -6,7 +6,7 @@ import type { Novel } from "@/lib/novels";
 type RankedNovel = Novel & { wordCount: number; chapterCount: number };
 
 const tabs = [
-  { key: "bestseller", label: "الأكثر مبيعاً" },
+  { key: "bestseller", label: "روايات مميزة" },
   { key: "trending", label: "الأكثر تفاعلاً" },
   { key: "newest", label: "الأحدث توقيعاً" },
   { key: "picks", label: "توصياتنا" },

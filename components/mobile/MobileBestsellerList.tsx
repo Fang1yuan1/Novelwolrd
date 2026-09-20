@@ -12,7 +12,7 @@ export default async function MobileBestsellerList() {
   return (
     <section className="mobile-reference-card nw-section">
       <div className="mobile-reference-section-heading">
-        <h2>الأكثر مبيعاً</h2>
+        <h2>روايات مميزة</h2>
         <a href="/categories" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
       <ul className="nw-list">
