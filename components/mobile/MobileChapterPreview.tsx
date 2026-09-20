@@ -1,4 +1,4 @@
-import type { Chapter, Novel } from "@/lib/novels";
+import type { ChapterSummary, Novel } from "@/lib/novels";
 
 function formatDate(iso: string): string {
   return new Date(iso).toISOString().slice(0, 10);
@@ -10,7 +10,7 @@ export default function MobileChapterPreview({
   chapters,
 }: {
   novel: Novel;
-  chapters: Chapter[];
+  chapters: ChapterSummary[];
 }) {
   const previewCount = 3;
   const recentFirst = [...chapters].reverse();

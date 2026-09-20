@@ -21,14 +21,17 @@ export default async function NovelTocPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const novel = await getNovelById(id);
+  // الرواية وقائمة فصولها مع بعض (قائمة خفيفة بدون نص الفصول)
+  const [novel, chapters] = await Promise.all([
+    getNovelById(id),
+    getChapterListItems(id),
+  ]);
 
   if (!novel) {
     notFound();
   }
 
-  // قائمة خفيفة (بدون نص الفصول) — التنسيق كله هنا بالسيرفر وللمتصفح بس نصوص جاهزة
-  const chapters = await getChapterListItems(id);
+  // التنسيق كله هنا بالسيرفر وللمتصفح بس نصوص جاهزة
   const volumes: TocVolume[] = groupChaptersByVolume(chapters).map((v) => ({
     name: v.volume,
     rows: v.chapters.map((ch) => ({

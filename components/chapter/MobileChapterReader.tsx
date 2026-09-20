@@ -263,6 +263,8 @@ export default function MobileChapterReader({
 
         <Link
           href={`/novel/${novel.id}/chapter/${nextNumber}`}
+          // تحميل مسبق كامل للفصل التالي أول ما يقرب الزر — فيفتح فورًا (ما نعمل ذلك لو ما فيه فصل تالي)
+          prefetch={novel.chapter_count == null || nextNumber <= novel.chapter_count}
           aria-label="التالي"
           className="shrink-0"
           style={{ color: p.mutedText }}

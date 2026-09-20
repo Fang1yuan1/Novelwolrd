@@ -1,4 +1,4 @@
-import type { Chapter, Novel } from "@/lib/novels";
+import type { ChapterSummary, Novel } from "@/lib/novels";
 import MobileBackHeader from "./MobileBackHeader";
 import MobileNovelHero from "./MobileNovelHero";
 import MobileDescriptionCard from "./MobileDescriptionCard";
@@ -12,7 +12,7 @@ export default function MobileNovelDetail({
   related,
 }: {
   novel: Novel;
-  chapters: Chapter[];
+  chapters: ChapterSummary[];
   related: Novel[];
 }) {
   return (

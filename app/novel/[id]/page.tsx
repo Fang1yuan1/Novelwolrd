@@ -1,7 +1,7 @@
 import {
-  getChaptersByNovel,
+  getChapterSummaries,
   getNovelById,
-  getNovels,
+  getNovelsByAuthor,
   getRelatedNovels,
 } from "@/lib/novels";
 import { notFound } from "next/navigation";
@@ -33,18 +33,19 @@ export default async function NovelPage({
     notFound();
   }
 
-  const chapters = await getChaptersByNovel(id);
-  const related = await getRelatedNovels(novel.category, novel.id, 6);
-
   const authorName = novel.author?.trim() || "";
+
+  // كل الطلبات مع بعض (مو ورا بعض) وكلها خفيفة: الفصول بدون نصها، وأعمال المؤلف والمشابهة بفلتر بقاعدة البيانات
+  const [chapters, related, sameAuthor] = await Promise.all([
+    getChapterSummaries(id),
+    getRelatedNovels(novel.category, novel.id, 6),
+    authorName ? getNovelsByAuthor(authorName) : Promise.resolve([]),
+  ]);
+
   let authorNovels: typeof related = [];
   let authorTotalWords = novel.word_count ?? 0;
 
   if (authorName) {
-    const allNovels = await getNovels();
-    const sameAuthor = allNovels.filter(
-      (n) => (n.author?.trim() || "") === authorName
-    );
     authorNovels = sameAuthor.filter((n) => n.id !== novel.id);
 
     // إجمالي أحرف كل أعمال المؤلف (يشمل هذه الرواية) — من العمود المحسوب مسبقًا بقاعدة البيانات، مش بجلب كل الفصول

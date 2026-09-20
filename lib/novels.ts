@@ -27,12 +27,15 @@ export type Chapter = {
   volume: string | null;
 };
 
-// نسخة خفيفة من الفصل (بدون النص الكامل) — لصفحة الفهرس اللي محتاجة عنوان/تاريخ/عدد أحرف بس
-export type ChapterListItem = Pick<
+// نسخة خفيفة من الفصل (بدون النص الكامل) — كفاية لكل صفحات القوائم والتفاصيل
+export type ChapterSummary = Pick<
   Chapter,
   "id" | "created_at" | "novel_id" | "chapter_number" | "title" | "volume"
-> & {
-  // عدد أحرف الفصل
+>;
+
+// ملخّص الفصل + عدد أحرفه — لصفحة الفهرس
+export type ChapterListItem = ChapterSummary & {
+  // عدد أحرف الفصل (0 = غير معروف، لو عمود word_count لسه ما اتضافش بقاعدة البيانات)
   word_count: number;
 };
 
@@ -94,7 +97,7 @@ export async function getChaptersByNovel(novelId: number | string): Promise<Chap
   return all;
 }
 
-// جلب كل صفوف الفصول بأعمدة محددة على دفعات (نفس فكرة getChaptersByNovel).
+// جلب كل صفوف الفصول بأعمدة محددة على دفعات (Supabase بيحدد ~1000 صف بالطلب).
 // بيرجّع null لو الطلب فشل (مثلًا عمود مش موجود) عشان المستدعي يجرّب بديل.
 async function fetchAllChapterRows(
   novelId: number | string,
@@ -120,41 +123,70 @@ async function fetchAllChapterRows(
   return all;
 }
 
-// قائمة الفصول لصفحة الفهرس: من غير نص الفصول (أخف بكتير من getChaptersByNovel)، ومعاها عدد أحرف كل فصل.
-// بنجرّب بالترتيب لحد ما ينجح طلب (أعمدة اختيارية ممكن ما تكونش موجودة بقاعدة البيانات):
-//   1) word_count (supabase_add_chapter_word_count.sql) — سريع، وإلا نحسب الطول من النص على السيرفر
-//   2) volume — لو العمود مش موجود بجدول chapters نكمّل من غيره (كل الفصول تحت مجلد واحد)
+// أعمدة اختيارية (volume / word_count) ممكن ما تكونش موجودة بقاعدة البيانات.
+// بنجرّب الأعمدة من الأكمل للأبسط، وبنتذكّر التركيبة اللي اشتغلت (5 دقايق) عشان الطلبات الجاية تنجح من أول مرة
+// من غير محاولات فاشلة، ولو أضفت العمود بعدين بيتلقّطه الموقع تلقائيًا بعد دقايق.
+const COLUMNS_TTL_MS = 5 * 60 * 1000;
+const workingColumns = new Map<string, { cols: string; at: number }>();
+
+async function fetchChapterRowsAdaptive(
+  novelId: number | string,
+  key: string,
+  candidates: string[]
+): Promise<Record<string, unknown>[] | null> {
+  const cached = workingColumns.get(key);
+  const fresh = cached && Date.now() - cached.at < COLUMNS_TTL_MS;
+  const order = fresh
+    ? [cached.cols, ...candidates.filter((c) => c !== cached.cols)]
+    : candidates;
+  for (const cols of order) {
+    const rows = await fetchAllChapterRows(novelId, cols);
+    if (rows) {
+      if (!fresh || cached?.cols !== cols) {
+        workingColumns.set(key, { cols, at: Date.now() });
+      }
+      return rows;
+    }
+  }
+  return null;
+}
+
+const CHAPTER_BASE_COLUMNS = "id, novel_id, chapter_number, title, created_at";
+
+// كل فصول الرواية بدون نصها (id, رقم, عنوان, تاريخ, مجلد) — للقوائم وصفحة التفاصيل.
+// أخف بمراحل من getChaptersByNovel اللي بتسحب نص كل فصل.
+export async function getChapterSummaries(
+  novelId: number | string
+): Promise<ChapterSummary[]> {
+  const rows = await fetchChapterRowsAdaptive(novelId, "summaries", [
+    `${CHAPTER_BASE_COLUMNS}, volume`,
+    CHAPTER_BASE_COLUMNS,
+  ]);
+  if (!rows) return [];
+  return rows.map((r) => ({
+    ...(r as unknown as ChapterSummary),
+    volume: (r.volume as string | null | undefined) ?? null,
+  }));
+}
+
+// قائمة الفصول لصفحة الفهرس: ملخّص كل فصل + عدد أحرفه، من غير جلب النص أبدًا.
+// عدد الأحرف بيجي من عمود chapters.word_count (supabase_add_chapter_word_count.sql)؛
+// لو العمود لسه مش موجود بيرجع 0 والواجهة بتخفي العدد بدل ما تسحب نص كل الفصول وتبطّئ الصفحة.
 export async function getChapterListItems(
   novelId: number | string
 ): Promise<ChapterListItem[]> {
-  const cols = ["id", "novel_id", "chapter_number", "title", "created_at"];
-  for (const withVolume of [true, false]) {
-    const base = (withVolume ? [...cols, "volume"] : cols).join(", ");
-
-    const fast = await fetchAllChapterRows(novelId, `${base}, word_count`);
-    if (fast) {
-      return fast.map((r) => ({
-        ...(r as unknown as ChapterListItem),
-        volume: withVolume ? ((r.volume as string | null) ?? null) : null,
-        word_count: Number(r.word_count) || 0,
-      }));
-    }
-
-    const slow = await fetchAllChapterRows(novelId, `${base}, content`);
-    if (slow) {
-      return slow.map((r) => {
-        const { content, ...rest } = r as unknown as ChapterListItem & {
-          content: string | null;
-        };
-        return {
-          ...rest,
-          volume: withVolume ? (rest.volume ?? null) : null,
-          word_count: content?.length ?? 0,
-        };
-      });
-    }
-  }
-  return [];
+  const rows = await fetchChapterRowsAdaptive(novelId, "toc", [
+    `${CHAPTER_BASE_COLUMNS}, volume, word_count`,
+    `${CHAPTER_BASE_COLUMNS}, word_count`,
+    `${CHAPTER_BASE_COLUMNS}, volume`,
+    CHAPTER_BASE_COLUMNS,
+  ]);
+  if (!rows) return [];
+  return rows.map((r) => ({
+    ...(r as unknown as ChapterSummary),
+    volume: (r.volume as string | null | undefined) ?? null,
+    word_count: Number(r.word_count) || 0,
+  }));
 }
 
 // فصل واحد برقمه
@@ -202,13 +234,30 @@ export async function getChapterCount(novelId: number | string): Promise<number>
 }
 
 // ترتيب رواية بين كل الروايات حسب عدد الفصول (مقياس حقيقي بديل عن أي "ترتيب" وهمي)
+// بنستخدم العمود المخزّن novels.chapter_count (طلب واحد خفيف) بدل عدّ فصول كل رواية بطلب مستقل.
 export async function getNovelRank(
   novelId: number | string
 ): Promise<{ rank: number; total: number } | null> {
-  const novels = await getNovels();
-  if (novels.length === 0) return null;
-  const counts = await Promise.all(novels.map((n) => getChapterCount(n.id)));
-  const withCounts = novels.map((n, i) => ({ id: n.id, count: counts[i] }));
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("novels")
+    .select("id, chapter_count")
+    .order("created_at", { ascending: false });
+
+  let withCounts: { id: number; count: number }[];
+  if (!error && data && data.length > 0) {
+    withCounts = (data as { id: number; chapter_count: number | null }[]).map(
+      (n) => ({ id: n.id, count: n.chapter_count ?? 0 })
+    );
+  } else {
+    // احتياطي لو العمود chapter_count مش موجود: الطريقة القديمة (أبطأ)
+    const novels = await getNovels();
+    if (novels.length === 0) return null;
+    const counts = await Promise.all(novels.map((n) => getChapterCount(n.id)));
+    withCounts = novels.map((n, i) => ({ id: n.id, count: counts[i] }));
+  }
+
   withCounts.sort((a, b) => b.count - a.count);
   const idx = withCounts.findIndex((n) => String(n.id) === String(novelId));
   if (idx === -1) return null;
@@ -275,6 +324,18 @@ export async function getNovelsByCategory(categoryName: string): Promise<Novel[]
   return all.filter((n) => parseCategories(n.category).includes(categoryName));
 }
 
+// كل روايات مؤلف معيّن (بفلتر بقاعدة البيانات بدل جلب كل الروايات وفلترتها بالكود)
+export async function getNovelsByAuthor(author: string): Promise<Novel[]> {
+  if (!supabase || !author) return [];
+  const { data, error } = await supabase
+    .from("novels")
+    .select("*")
+    .eq("author", author)
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  return data as Novel[];
+}
+
 // روايات مشابهة (بينها تصنيف مشترك واحد على الأقل) لعرضها في صفحة التفاصيل
 export async function getRelatedNovels(
   category: string | null,
@@ -284,10 +345,27 @@ export async function getRelatedNovels(
   if (!supabase || !category) return [];
   const wanted = new Set(parseCategories(category));
   if (wanted.size === 0) return [];
-  // نجيب كل الروايات ونفلتر في الكود، لأن التصنيفات نص حر مفصول بفواصل
-  // (ما ينفعش نبحث بـ eq مباشر لما يبقى فيه أكتر من تصنيف في نفس الحقل)
-  const all = await getNovels();
-  return all
+
+  // التصنيفات نص حر مفصول بفواصل، فبنقلّل المرشّحين بالقاعدة بـilike ثم نتأكد بالتطابق التام بالكود.
+  // أسماء التصنيفات اللي فيها رموز خاصة بصيغة الفلتر بنتخطاها (وبتتغطى بالاحتياطي تحت لو ما لقينا كفاية).
+  const safe = [...wanted].filter((c) => !/[,()%_*\\"]/.test(c));
+  let candidates: Novel[] | null = null;
+  if (safe.length === wanted.size) {
+    const orFilter = safe.map((c) => `category.ilike.%${c}%`).join(",");
+    const { data, error } = await supabase
+      .from("novels")
+      .select("*")
+      .or(orFilter)
+      .neq("id", Number(excludeId))
+      .order("created_at", { ascending: false })
+      .limit(60);
+    if (!error && data) candidates = data as Novel[];
+  }
+  if (!candidates) {
+    candidates = (await getNovels()).filter((n) => n.id !== Number(excludeId));
+  }
+
+  return candidates
     .filter((n) => n.id !== Number(excludeId))
     .filter((n) => parseCategories(n.category).some((c) => wanted.has(c)))
     .slice(0, limit);

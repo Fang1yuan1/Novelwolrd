@@ -284,7 +284,8 @@ export default function MobileTocPage({
                           {row.title ? `: ${row.title}` : ""}
                         </span>
                         <span className="nw-toc-row-meta">
-                          {row.words} حرف · <bdi>{row.stamp}</bdi>
+                          {row.words > 0 && `${row.words} حرف · `}
+                          <bdi>{row.stamp}</bdi>
                         </span>
                         {/* تحميل الفصل منفردًا غير متاح — الأيقونة شكلية بلون المرجع */}
                         <span className="nw-toc-row-dl" aria-hidden="true">

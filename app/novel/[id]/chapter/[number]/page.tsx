@@ -11,15 +11,13 @@ export default async function ChapterPage({
   params: Promise<{ id: string; number: string }>;
 }) {
   const { id, number } = await params;
-  const novel = await getNovelById(id);
+  // الرواية والفصل مع بعض (مو ورا بعض) — نص الطلب الزمني
+  const [novel, chapter] = await Promise.all([
+    getNovelById(id),
+    getChapterByNumber(id, number),
+  ]);
 
-  if (!novel) {
-    notFound();
-  }
-
-  const chapter = await getChapterByNumber(id, number);
-
-  if (!chapter) {
+  if (!novel || !chapter) {
     notFound();
   }
 
