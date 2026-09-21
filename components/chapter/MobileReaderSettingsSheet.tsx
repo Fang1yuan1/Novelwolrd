@@ -201,6 +201,7 @@ export default function MobileReaderSettingsSheet({
 
   // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
   const [visible, setVisible] = useState(false);
+  const [showDots, setShowDots] = useState(false); // مؤشر النقاط تحت كبسولة الخط: يظهر بعد أول تغيير للحجم
   const [sliding, setSliding] = useState(false); // لمس شريط السطوع: نخفّي التعتيم خلف اللوحة عشان ترى تأثير السطوع على الصفحة
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -244,7 +245,10 @@ export default function MobileReaderSettingsSheet({
             <div className="nw-rs-pill nw-rs-pill--font" style={{ backgroundColor: pillTint, color: ink }}>
               <button
                 type="button"
-                onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
+                onClick={() => {
+                  setShowDots(true);
+                  setFontIdx((i) => Math.max(0, i - 1));
+                }}
                 disabled={fontIdx === 0}
                 className="nw-rs-pill-btn"
               >
@@ -253,7 +257,10 @@ export default function MobileReaderSettingsSheet({
               <span className="nw-rs-pill-divider" style={{ backgroundColor: dividerTint }} />
               <button
                 type="button"
-                onClick={() => setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1))}
+                onClick={() => {
+                  setShowDots(true);
+                  setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1));
+                }}
                 disabled={fontIdx === fontSizes.length - 1}
                 className="nw-rs-pill-btn"
               >
@@ -273,6 +280,17 @@ export default function MobileReaderSettingsSheet({
             >
               <IconAppearance />
             </button>
+
+            {/* مؤشر مستويات الخط: 15 نقطة (المعبّأ = المستوى الحالي)، يظهر تحت كبسولة الخط بعد أول تغيير وما يحرّك أي شيء */}
+            <div className={`nw-rs-dots${showDots ? " is-on" : ""}`} aria-hidden="true">
+              {fontSizes.map((_, i) => (
+                <span
+                  key={i}
+                  className="nw-rs-dot"
+                  style={{ backgroundColor: i <= fontIdx ? (isDark ? "#ffffff" : "#010001") : isDark ? "#5b585d" : "#d4d1d4" }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* شريط السطوع: زي المرجع، يتضخّم ويسوّد عند اللمس */}

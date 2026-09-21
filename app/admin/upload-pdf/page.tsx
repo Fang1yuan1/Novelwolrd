@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
-import { extractChapterTitle, parseChapterNumber, titleFromFilename } from '@/lib/chapter-title';
+import { extractChapterTitle, resolveFilenames } from '@/lib/chapter-title';
 
 // يشغّل استخراج النص داخل المتصفح نفسه (مافي سيرفر معالجة) — يحتاج ملف الـ worker يترحّل مع الحزمة
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -307,12 +307,22 @@ export default function UploadPdfZipPage() {
       addLog('خطأ: الملف مو zip صحيح');
       return;
     }
-    const pdfEntries = Object.values(zip.files)
+    const listed = Object.values(zip.files)
       .filter((f) => !f.dir && f.name.toLowerCase().endsWith('.pdf'))
       .map((f) => ({ entry: f, shortName: f.name.split('/').pop() || f.name }))
       // ملفات ماك المخفية (__MACOSX/._اسم.pdf) ما هي PDF حقيقية — تفشل وتبطّئ الرفع
-      .filter((f) => !f.entry.name.startsWith('__MACOSX/') && !f.shortName.startsWith('._'))
-      .map((f) => ({ ...f, num: parseChapterNumber(f.shortName) }))
+      .filter((f) => !f.entry.name.startsWith('__MACOSX/') && !f.shortName.startsWith('._'));
+
+    // الأرقام والعناوين من أسماء الملفات تُحل لكل الملفات مع بعض (تصحيح الأرقام المخرّبة
+    // بالاعتماد على تسلسل بقية الفصول) — القواعد كلها بـ lib/chapter-title.ts
+    const resolved = resolveFilenames(listed.map((f) => f.shortName));
+    const pdfEntries = listed
+      .map((f, i) => ({
+        ...f,
+        num: resolved[i].number,
+        fileTitle: resolved[i].title,
+        notes: resolved[i].notes,
+      }))
       .sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
 
     if (pdfEntries.length === 0) {
@@ -333,6 +343,29 @@ export default function UploadPdfZipPage() {
       }
     }
 
+    // ملخص التسلسل + كل رقم صُحّح أو غير مؤكد (عشان تراجعه بدل ما تنتبه له بعد الرفع)
+    const numbers = pdfEntries.map((p) => p.num).filter((n): n is number => n !== null);
+    if (numbers.length > 0) {
+      const have = new Set(numbers);
+      const lo = Math.min(...numbers);
+      const hiN = Math.max(...numbers);
+      const missing: number[] = [];
+      for (let n = lo; n <= hiN && missing.length < 200; n++) if (!have.has(n)) missing.push(n);
+      addLog(
+        `الفصول: ${pdfEntries.length} ملف، من ${lo} إلى ${hiN}` +
+          (missing.length > 0
+            ? `، أرقام ناقصة (${missing.length}): ${missing.slice(0, 15).join('، ')}${missing.length > 15 ? ' …' : ''}`
+            : '')
+      );
+    }
+    const noted = pdfEntries.filter((p) => p.notes.length > 0);
+    if (noted.length > 0) {
+      addLog(`ملاحظات على ${noted.length} ملف:`);
+      for (const p of noted.slice(0, 15)) {
+        addLog(`  • ${p.shortName.replace(/\.pdf$/i, '').slice(-40)} ← ${p.notes.join('؛ ')}`);
+      }
+    }
+
     // ٢) استخراج + رفع كل ملف على حدة (مو كل الملفات أول ثم الرفع) —
     // عشان ما نحتفظ بمئات الفصول بالذاكرة بنفس الوقت، وهذا اللي كان يسبب توقف/انهيار الصفحة
     setStage('working');
@@ -341,7 +374,7 @@ export default function UploadPdfZipPage() {
     let pendingBatch: ParsedChapter[] = [];
 
     for (let i = 0; i < pdfEntries.length; i++) {
-      const { entry, shortName, num } = pdfEntries[i];
+      const { entry, shortName, num, fileTitle } = pdfEntries[i];
       if (num === null) {
         addLog(`تخطّي: ${shortName} — ما فيه رقم فصل بالاسم`);
         setProgress(i + 1);
@@ -356,8 +389,8 @@ export default function UploadPdfZipPage() {
           stripAfterHourglassMarker(stripLeadingLinkLines(rawText)).trim()
         );
         // العنوان من نص الـ PDF أولًا؛ وإذا النص ما فيه عنوان نقرأه من اسم الملف (بعد تنظيفه)
-        const textTitle = extractChapterTitle(content);
-        const rawTitle = textTitle ?? titleFromFilename(shortName);
+        const textTitle = extractChapterTitle(content, num);
+        const rawTitle = textTitle ?? fileTitle;
         const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
@@ -401,11 +434,12 @@ export default function UploadPdfZipPage() {
       </a>
       <h1>رفع فصول من ZIP يحتوي PDF</h1>
       <p style={{ fontSize: 13, color: '#666', lineHeight: 1.7 }}>
-        كل ملف PDF داخل الـ zip = فصل. رقم الفصل يُقرأ من الرقم الذي يلي كلمة «الفصل» في اسم
-        الملف. الصور والأيقونات تُتجاهل تلقائيًا، ويُستخرج النص فقط. أي رابط موجود بالسطر الأول
-        أو الثاني من كل ملف يُحذف تلقائيًا. عنوان الفصل يُستخرج من أول أسطر نص الـ PDF (سطر
-        «الفصل N عنوان»، أو «المجلد …» ثم المقدمة/الخاتمة …)، وإذا لم يكن في النص عنوان يُقرأ
-        من اسم الملف؛ الفصل الذي ليس له عنوان يُرفع برقمه فقط.
+        كل ملف PDF داخل الـ zip = فصل. رقم الفصل يُقرأ من اسم الملف ويُصحَّح تلقائيًا بحسب تسلسل
+        بقية الملفات (الرقم المكرر أو الملصوق بأرقام زايدة)، وكل تصحيح يظهر في السجل. الصور
+        والأيقونات تُتجاهل تلقائيًا، ويُستخرج النص فقط. أي رابط موجود بالسطر الأول أو الثاني من
+        كل ملف يُحذف تلقائيًا. عنوان الفصل يُستخرج من أول أسطر نص الـ PDF، وإذا لم يكن في النص
+        عنوان يُقرأ من اسم الملف (بعد تجاهل العناوين الوهمية)؛ الفصل الذي ليس له عنوان يُرفع
+        برقمه فقط.
       </p>
       <label>
         رقم الرواية (novel_id):{' '}

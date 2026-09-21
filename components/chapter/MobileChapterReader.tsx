@@ -7,12 +7,19 @@ import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
-const FONT_SIZES = [16, 18, 20, 22, 24];
+// مستويات الخط بالجوال: 15 خطوة (14→28) زي مؤشر النقاط بالمرجع. ننقل قيمة الخط القديمة (5 مستويات) تلقائيًا،
+// ونخزّن المستوى بمفتاح مستقل (fontLevel) عشان ما نخرّب fontIdx اللي يقرأه القارئ الغني بنفس التخزين.
+const OLD_FONT_SIZES = [16, 18, 20, 22, 24];
+const FONT_MIN = 14;
+const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
 
-function readSavedPrefs(): { theme: ReaderTheme; fontIdx: number; brightness: number } {
-  const fallback: { theme: ReaderTheme; fontIdx: number; brightness: number } = {
+type Prefs = { theme: ReaderTheme; fontIdx: number; fontLevel: number; brightness: number };
+
+function readSavedPrefs(): Prefs {
+  const fallback: Prefs = {
     theme: "original",
     fontIdx: 1,
+    fontLevel: 4,
     brightness: 100,
   };
   if (typeof window === "undefined") return fallback;
@@ -20,9 +27,15 @@ function readSavedPrefs(): { theme: ReaderTheme; fontIdx: number; brightness: nu
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return fallback;
     const saved = JSON.parse(raw);
+    const fontIdx = typeof saved.fontIdx === "number" ? saved.fontIdx : fallback.fontIdx;
+    const fromOld = (OLD_FONT_SIZES[fontIdx] ?? OLD_FONT_SIZES[1]) - FONT_MIN;
     return {
       theme: saved.theme && saved.theme in READER_PALETTES ? saved.theme : fallback.theme,
-      fontIdx: typeof saved.fontIdx === "number" ? saved.fontIdx : fallback.fontIdx,
+      fontIdx,
+      fontLevel:
+        typeof saved.fontLevel === "number"
+          ? Math.min(FONT_LEVELS.length - 1, Math.max(0, saved.fontLevel))
+          : fromOld,
       brightness: typeof saved.brightness === "number" ? saved.brightness : fallback.brightness,
     };
   } catch {
@@ -91,7 +104,9 @@ export default function MobileChapterReader({
   nextNumber: number;
 }) {
   const [prefs, setPrefs] = useState(readSavedPrefs);
-  const { theme, fontIdx, brightness } = prefs;
+  const { theme, fontLevel, brightness } = prefs;
+  // تلاشي النص وقت تغيير حجم الخط (يخفت ثم يظهر بالحجم الجديد) زي المرجع
+  const [fontFade, setFontFade] = useState(false);
   // عدّاد يعيد تشغيل حركة التلاشي الضبابي كل ما يتغير الثيم فعلًا (اسمين متناوبين بدل إعادة بناء النص)
   const [swap, setSwap] = useState(0);
   const setTheme = (t: ReaderTheme) => {
@@ -99,8 +114,13 @@ export default function MobileChapterReader({
     setSwap((n) => n + 1);
     setPrefs((prev) => ({ ...prev, theme: t }));
   };
-  const setFontIdx = (fn: (i: number) => number) =>
-    setPrefs((prev) => ({ ...prev, fontIdx: fn(prev.fontIdx) }));
+  const setFontLevel = (fn: (i: number) => number) => {
+    setFontFade(true);
+    window.setTimeout(() => {
+      setPrefs((prev) => ({ ...prev, fontLevel: fn(prev.fontLevel) }));
+      setFontFade(false);
+    }, 140);
+  };
   const setBrightness = (n: number) => setPrefs((prev) => ({ ...prev, brightness: n }));
   const [showSheet, setShowSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -159,7 +179,7 @@ export default function MobileChapterReader({
     };
   }, [p.pageBg]);
 
-  const fontSize = FONT_SIZES[fontIdx];
+  const fontSize = FONT_LEVELS[fontLevel];
   const paragraphs = chapter.content
     .split(/\n+/)
     .map((t) => t.trim())
@@ -234,6 +254,8 @@ export default function MobileChapterReader({
         style={{
           fontSize,
           fontWeight: p.boldText ? 700 : 400,
+          opacity: fontFade ? 0.12 : 1,
+          transition: fontFade ? "opacity 0.14s ease-in" : "opacity 0.3s ease-out",
         }}
         onClick={() => {
           if (window.getSelection()?.toString()) return;
@@ -288,7 +310,7 @@ export default function MobileChapterReader({
         <div
           aria-hidden="true"
           className="pointer-events-none fixed inset-0 z-30 bg-black"
-          style={{ opacity: (100 - brightness) / 100 * 0.75 }}
+          style={{ opacity: 0.55 * Math.pow((100 - brightness) / 100, 1.6) }}
         />
       )}
 
@@ -296,9 +318,9 @@ export default function MobileChapterReader({
         <MobileReaderSettingsSheet
           theme={theme}
           setTheme={setTheme}
-          fontIdx={fontIdx}
-          setFontIdx={setFontIdx}
-          fontSizes={FONT_SIZES}
+          fontIdx={fontLevel}
+          setFontIdx={setFontLevel}
+          fontSizes={FONT_LEVELS}
           brightness={brightness}
           setBrightness={setBrightness}
           onClose={() => setShowSheet(false)}

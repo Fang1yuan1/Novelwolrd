@@ -1487,12 +1487,19 @@ body {
 .nw-rs-head { display: flex; align-items: center; justify-content: space-between; height: calc(56 * var(--u)); }
 .nw-rs-title { margin: 0; font-size: calc(42 * var(--u)); font-weight: 700; }
 .nw-rs-close { display: flex; align-items: center; justify-content: center; width: calc(56 * var(--u)); height: calc(56 * var(--u)); border-radius: 50%; }
-.nw-rs-pills { display: flex; gap: calc(21 * var(--u)); margin-top: calc(24 * var(--u)); }
+.nw-rs-pills { position: relative; display: flex; gap: calc(21 * var(--u)); margin-top: calc(24 * var(--u)); }
 .nw-rs-pill { display: flex; align-items: center; justify-content: center; height: calc(76 * var(--u)); border-radius: calc(24 * var(--u)); }
 .nw-rs-pill--font { flex: 1; }
 .nw-rs-pill--icon { flex: 0 0 calc(108 * var(--u)); }
 .nw-rs-pill-btn { display: flex; flex: 1; align-items: center; justify-content: center; height: 100%; }
 .nw-rs-pill-btn:disabled { opacity: 0.3; }
+/* ضغطة الحرف A: يخفت لحظة اللمس زي المرجع */
+.nw-rs-pill-btn > span { transition: opacity 0.12s ease-out; }
+.nw-rs-pill-btn:active > span { opacity: 0.3; }
+/* مؤشر النقاط: 15 نقطة قطر 8 وتباعد 20 (المركز تحت الكبسولة)، مركزها 93.5 تحت أعلى الكبسولة */
+.nw-rs-dots { position: absolute; left: calc(102 * var(--u)); top: calc(89.5 * var(--u)); display: flex; gap: calc(12 * var(--u)); opacity: 0; transition: opacity 0.2s ease-out; pointer-events: none; }
+.nw-rs-dots.is-on { opacity: 1; }
+.nw-rs-dot { width: calc(8 * var(--u)); height: calc(8 * var(--u)); border-radius: 50%; }
 .nw-rs-pill-divider { align-self: center; width: calc(2 * var(--u)); height: calc(50 * var(--u)); }
 .nw-rs-a-small { font-size: calc(36 * var(--u)); font-weight: 700; line-height: 1; }
 .nw-rs-a-large { font-size: calc(47 * var(--u)); font-weight: 700; line-height: 1; }
