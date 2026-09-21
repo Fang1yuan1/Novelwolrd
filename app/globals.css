@@ -696,40 +696,47 @@ body {
   text-decoration: none;
 }
 
-/* ===== شريط السطوع بلوحة إعدادات القراءة (Themes & Settings) ===== */
+/* ===== شريط السطوع بلوحة إعدادات القراءة (Themes & Settings) — بدون مقبض ظاهر (زي المرجع)، الشريط 14u ومساحة اللمس أعلى ===== */
 .mobile-reader-brightness {
   -webkit-appearance: none;
   appearance: none;
-  height: 5px;
-  border-radius: 3px;
+  height: calc(56 * var(--u));
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+}
+.mobile-reader-brightness::-webkit-slider-runnable-track {
+  height: calc(14 * var(--u));
+  border-radius: calc(7 * var(--u));
   background: linear-gradient(
     90deg,
-    var(--fill, #1a1a1a) 0%,
-    var(--fill, #1a1a1a) calc(var(--val, 50) * 1%),
-    var(--empty, rgba(0,0,0,0.15)) calc(var(--val, 50) * 1%),
-    var(--empty, rgba(0,0,0,0.15)) 100%
+    var(--fill, #69696e) 0%,
+    var(--fill, #69696e) calc(var(--val, 50) * 1%),
+    var(--empty, #dedddf) calc(var(--val, 50) * 1%),
+    var(--empty, #dedddf) 100%
   );
-  outline: none;
 }
 .mobile-reader-brightness::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 29px;
-  width: 38px;
-  border-radius: 15px;
-  background: var(--thumb-bg, #fff);
-  box-shadow: 0 2px 6px rgba(0,0,0,.25), 0 0 0 .5px rgba(0,0,0,.08);
-  cursor: pointer;
-}
-.mobile-reader-brightness::-moz-range-thumb {
-  height: 29px;
-  width: 38px;
+  width: 1px;
+  height: 1px;
+  background: transparent;
   border: 0;
-  border-radius: 15px;
-  background: var(--thumb-bg, #fff);
-  box-shadow: 0 2px 6px rgba(0,0,0,.25), 0 0 0 .5px rgba(0,0,0,.08);
-  cursor: pointer;
 }
+.mobile-reader-brightness::-moz-range-track {
+  height: calc(14 * var(--u));
+  border-radius: calc(7 * var(--u));
+  background: linear-gradient(
+    90deg,
+    var(--fill, #69696e) 0%,
+    var(--fill, #69696e) calc(var(--val, 50) * 1%),
+    var(--empty, #dedddf) calc(var(--val, 50) * 1%),
+    var(--empty, #dedddf) 100%
+  );
+}
+.mobile-reader-brightness::-moz-range-thumb { width: 1px; height: 1px; background: transparent; border: 0; }
+
 .mobile-reader-pill {
   height: 46px;
   border-radius: 23px;
@@ -1452,7 +1459,7 @@ body {
 .nw-toc-empty { margin: 0; padding: calc(120 * var(--u)) calc(32 * var(--u)); text-align: center; font-size: calc(28 * var(--u)); color: #808080; }
 
 
-/* ===== لوحة الثيمات والإعدادات بصفحة القراءة — التناسب مقاس من لقطة آبل بوكس (شاشة 477 بكسل = 414 بكسل CSS، أي ×0.868) ===== */
+/* ===== لوحة الثيمات والإعدادات بصفحة القراءة — مقاسات لقطة آبل بوكس 828×1792 (1 بكسل لقطة = 1u) ===== */
 .nw-rs-overlay {
   position: fixed;
   inset: 0;
@@ -1460,59 +1467,60 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  /* هوامش اللوحة عن حواف الشاشة: 4.5 يمين ويسار وأسفل */
-  padding: 0 4.5px 4.5px;
   background: rgba(0, 0, 0, 0);
   transition: background 0.26s ease-out;
 }
 .nw-rs-overlay.is-open { background: rgba(0, 0, 0, 0.4); }
-/* بدون إطار ولا ظل حول اللوحة */
+/* لوحة مفرودة بعرض الشاشة كاملًا ومن الأسفل (زي المرجع)، زوايا علوية 40، بدون إطار ولا ظل */
 .nw-rs-panel {
   width: 100%;
-  max-width: 448px;
+  max-width: 100%;
   box-sizing: border-box;
-  /* أسفل قصير: 13 فقط (زائد منطقة الأمان لو موجودة) — المرجع كان فيه مساحة فاضية لمؤشر الهوم بأسفل الجهاز مالها لزوم بالمتصفح */
-  padding: 8px 16.5px calc(13px + env(safe-area-inset-bottom, 0px));
-  border-radius: 35px 35px 46px 46px;
-  transform: translateY(calc(100% + 24px));
+  padding: calc(17 * var(--u)) calc(40 * var(--u)) calc(24 * var(--u) + env(safe-area-inset-bottom, 0px));
+  border-radius: calc(40 * var(--u)) calc(40 * var(--u)) 0 0;
+  transform: translateY(100%);
   transition: transform 0.28s ease-out;
 }
 .nw-rs-overlay.is-open .nw-rs-panel { transform: translateY(0); }
-.nw-rs-head { display: flex; align-items: center; justify-content: space-between; height: 49.5px; }
-.nw-rs-title { margin: 0; font-size: 19px; font-weight: 700; }
-.nw-rs-close { display: flex; align-items: center; justify-content: center; width: 49.5px; height: 49.5px; border-radius: 50%; }
-.nw-rs-pills { display: flex; gap: 10.4px; margin-top: 11.7px; }
-.nw-rs-pill { display: flex; height: 49.5px; border-radius: 25px; overflow: hidden; }
-.nw-rs-pill--wide { flex: 2.07; }
-.nw-rs-pill--narrow { flex: 1; }
+.nw-rs-head { display: flex; align-items: center; justify-content: space-between; height: calc(56 * var(--u)); }
+.nw-rs-title { margin: 0; font-size: calc(42 * var(--u)); font-weight: 700; }
+.nw-rs-close { display: flex; align-items: center; justify-content: center; width: calc(56 * var(--u)); height: calc(56 * var(--u)); border-radius: 50%; }
+.nw-rs-pills { display: flex; gap: calc(21 * var(--u)); margin-top: calc(24 * var(--u)); }
+.nw-rs-pill { display: flex; align-items: center; justify-content: center; height: calc(76 * var(--u)); border-radius: calc(24 * var(--u)); }
+.nw-rs-pill--font { flex: 1; }
+.nw-rs-pill--icon { flex: 0 0 calc(108 * var(--u)); }
 .nw-rs-pill-btn { display: flex; flex: 1; align-items: center; justify-content: center; height: 100%; }
 .nw-rs-pill-btn:disabled { opacity: 0.3; }
-.nw-rs-pill-divider { align-self: center; width: 1px; height: 33px; }
-.nw-rs-a-small { font-size: 19px; font-weight: 700; line-height: 1; }
-.nw-rs-a-large { font-size: 25px; font-weight: 700; line-height: 1; }
-.nw-rs-brightness { display: flex; align-items: center; gap: 13px; margin-top: 13.9px; }
-.nw-rs-divider { margin-top: 14.8px; border-top: 1px solid; }
-.nw-rs-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 11.7px; row-gap: 16.5px; margin-top: 13px; }
+.nw-rs-pill-divider { align-self: center; width: calc(2 * var(--u)); height: calc(50 * var(--u)); }
+.nw-rs-a-small { font-size: calc(36 * var(--u)); font-weight: 700; line-height: 1; }
+.nw-rs-a-large { font-size: calc(47 * var(--u)); font-weight: 700; line-height: 1; }
+/* شريط السطوع: شمس صغيرة يسار وكبيرة يمين، الشريط سماكته 14 وبدون مقبض */
+.nw-rs-brightness { display: flex; align-items: center; gap: calc(20 * var(--u)); margin: calc(25 * var(--u)) calc(10 * var(--u)) 0; }
+.nw-rs-divider { height: calc(1 * var(--u)); margin-top: calc(24 * var(--u)); }
+.nw-rs-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: calc(20 * var(--u)); row-gap: calc(33 * var(--u)); margin-top: calc(55 * var(--u)); }
 .nw-rs-swatch {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 3px;
-  height: 99px;
-  border-radius: 20px;
+  height: calc(190 * var(--u));
+  padding-top: calc(34 * var(--u));
+  gap: calc(1.5 * var(--u));
+  border-radius: calc(28 * var(--u));
+  box-sizing: border-box;
 }
-.nw-rs-swatch-aa { font-size: 31px; line-height: 1.1; }
-.nw-rs-swatch-label { font-size: 14px; font-weight: 500; }
+.nw-rs-swatch-aa { font-size: calc(64 * var(--u)); line-height: 1; }
+.nw-rs-swatch-label { font-size: calc(35 * var(--u)); line-height: 1; }
+.nw-rs-asterisk { position: absolute; top: calc(18 * var(--u)); right: calc(19 * var(--u)); display: flex; }
 .nw-rs-customize {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9.5px;
-  width: 100%;
-  height: 49.5px;
-  margin-top: 17.4px;
-  border-radius: 25px;
-  font-size: 16.5px;
+  gap: calc(19 * var(--u));
+  width: calc(336 * var(--u));
+  height: calc(69 * var(--u));
+  margin: calc(52 * var(--u)) auto 0;
+  border-radius: calc(24 * var(--u));
+  font-size: calc(40 * var(--u));
   font-weight: 700;
 }
