@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 
 // لوحة الثيمات والإعدادات — مبنية على لقطة آبل بوكس بدقة 828×1792 (1 بكسل لقطة = 1u = 100vw/828)،
@@ -27,8 +27,6 @@ function MaskIcon({ name, w, h }: { name: string; w: number; h: number }) {
 }
 const IconLayout = () => <MaskIcon name="layout" w={49} h={48} />;
 const IconAppearance = () => <MaskIcon name="appearance" w={46} h={46} />;
-const IconSunSmall = () => <MaskIcon name="sun-small" w={37} h={37} />;
-const IconSunLarge = () => <MaskIcon name="sun-large" w={40} h={40} />;
 const IconClose = () => <MaskIcon name="close" w={30} h={30} />;
 const IconAsterisk = () => <MaskIcon name="asterisk" w={21} h={23} />;
 function IconGear() {
@@ -50,6 +48,101 @@ function IconGear() {
         maskPosition: "center",
       }}
     />
+  );
+}
+
+// شمس بطبقتين: الهادئة (رمادية) والنشطة (سوداء أكبر شوي) وبينهم تلاشي وقت اللمس — كلاهما مقصوص من المرجع
+function SunIcon({ kind, active, activeColor }: { kind: "small" | "large"; active: boolean; activeColor: string }) {
+  const size = kind === "small" ? { idle: [37, 37], on: [39, 37] } : { idle: [40, 40], on: [42, 40] };
+  return (
+    <span
+      className="nw-rs-sun"
+      style={{
+        width: `calc(${size.idle[0]} * var(--u))`,
+        height: `calc(${size.idle[1]} * var(--u))`,
+        transform: active
+          ? `translateX(calc(${kind === "small" ? -18.5 : 17.5} * var(--u)))`
+          : "none",
+      }}
+    >
+      <span className="nw-rs-sun-layer" style={{ opacity: active ? 0 : 1 }}>
+        <MaskIcon name={kind === "small" ? "sun-small" : "sun-large"} w={size.idle[0]} h={size.idle[1]} />
+      </span>
+      <span className="nw-rs-sun-layer" style={{ opacity: active ? 1 : 0, color: activeColor }}>
+        <MaskIcon name={kind === "small" ? "sun-small-active" : "sun-large-active"} w={size.on[0]} h={size.on[1]} />
+      </span>
+    </span>
+  );
+}
+
+// شريط السطوع بأسلوب المرجع (زي تحكم iOS): عند اللمس يتضخّم الشريط (14→32) ويسوّد ويطلع له ظل تحته وتبعد الشمسين،
+// والسحب نسبي (ما يقفز لمكان اللمس)، وبعد الرفع يرجع نحيفًا رماديًا.
+function BrightnessSlider({
+  value,
+  onChange,
+  onActiveChange,
+  idleFill,
+  idleEmpty,
+  activeFill,
+  activeEmpty,
+}: {
+  value: number;
+  onChange: (n: number) => void;
+  onActiveChange: (a: boolean) => void;
+  idleFill: string;
+  idleEmpty: string;
+  activeFill: string;
+  activeEmpty: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x: number; v: number; w: number } | null>(null);
+  const [active, setActive] = useState(false);
+
+  function begin(e: React.PointerEvent) {
+    const el = ref.current;
+    if (!el) return;
+    el.setPointerCapture(e.pointerId);
+    drag.current = { x: e.clientX, v: value, w: el.getBoundingClientRect().width };
+    setActive(true);
+    onActiveChange(true);
+  }
+  function move(e: React.PointerEvent) {
+    const d = drag.current;
+    if (!d) return;
+    const next = d.v + ((e.clientX - d.x) / d.w) * 100;
+    onChange(Math.round(Math.min(100, Math.max(0, next)) * 10) / 10);
+  }
+  function end() {
+    if (!drag.current) return;
+    drag.current = null;
+    setActive(false);
+    onActiveChange(false);
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`nw-rs-slider${active ? " is-active" : ""}`}
+      role="slider"
+      tabIndex={0}
+      aria-label="سطوع الشاشة"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(value)}
+      onPointerDown={begin}
+      onPointerMove={move}
+      onPointerUp={end}
+      onPointerCancel={end}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowUp") onChange(Math.min(100, value + 5));
+        if (e.key === "ArrowLeft" || e.key === "ArrowDown") onChange(Math.max(0, value - 5));
+      }}
+    >
+      <div className="nw-rs-shadow" style={{ width: `${value}%` }} />
+      <div className="nw-rs-track" style={{ backgroundColor: active ? activeEmpty : idleEmpty }}>
+        <div className="nw-rs-fill" style={{ width: `${value}%`, backgroundColor: active ? activeFill : idleFill }} />
+      </div>
+    </div>
   );
 }
 
@@ -108,6 +201,7 @@ export default function MobileReaderSettingsSheet({
 
   // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
   const [visible, setVisible] = useState(false);
+  const [sliding, setSliding] = useState(false); // لمس شريط السطوع: نخفّي التعتيم خلف اللوحة عشان ترى تأثير السطوع على الصفحة
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(raf);
@@ -120,7 +214,7 @@ export default function MobileReaderSettingsSheet({
 
   return (
     <div
-      className={`nw-rs-overlay ${visible ? "is-open" : ""}`}
+      className={`nw-rs-overlay ${visible ? "is-open" : ""} ${sliding ? "is-live" : ""}`}
       onClick={handleClose}
       role="dialog"
       aria-label="الثيمات والإعدادات"
@@ -181,26 +275,19 @@ export default function MobileReaderSettingsSheet({
             </button>
           </div>
 
-          {/* شريط السطوع: بدون مقبض ظاهر زي المرجع، يتحرك بالسحب على الشريط */}
+          {/* شريط السطوع: زي المرجع، يتضخّم ويسوّد عند اللمس */}
           <div className="nw-rs-brightness" style={{ color: sliderInk }}>
-            <IconSunSmall />
-            <input
-              type="range"
-              min={0}
-              max={100}
+            <SunIcon kind="small" active={sliding} activeColor={ink} />
+            <BrightnessSlider
               value={brightness}
-              onChange={(e) => setBrightness(Number(e.target.value))}
-              className="mobile-reader-brightness flex-1"
-              style={
-                {
-                  "--val": brightness,
-                  "--fill": sliderInk,
-                  "--empty": sliderEmpty,
-                } as React.CSSProperties
-              }
-              aria-label="سطوع الشاشة"
+              onChange={setBrightness}
+              onActiveChange={setSliding}
+              idleFill={sliderInk}
+              idleEmpty={sliderEmpty}
+              activeFill={isDark ? "#ffffff" : "#010003"}
+              activeEmpty={isDark ? "#6a676c" : "#d9d6d9"}
             />
-            <IconSunLarge />
+            <SunIcon kind="large" active={sliding} activeColor={ink} />
           </div>
           <div className="nw-rs-divider" style={{ backgroundColor: dividerTint }} />
 

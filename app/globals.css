@@ -1471,6 +1471,8 @@ body {
   transition: background 0.26s ease-out;
 }
 .nw-rs-overlay.is-open { background: rgba(0, 0, 0, 0.4); }
+/* أثناء لمس شريط السطوع يختفي التعتيم فتشوف تأثير السطوع على الصفحة، ويرجع بعد الرفع (زي المرجع) */
+.nw-rs-overlay.is-open.is-live { background: rgba(0, 0, 0, 0); }
 /* لوحة مفرودة بعرض الشاشة كاملًا ومن الأسفل (زي المرجع)، زوايا علوية 40، بدون إطار ولا ظل */
 .nw-rs-panel {
   width: 100%;
@@ -1494,8 +1496,48 @@ body {
 .nw-rs-pill-divider { align-self: center; width: calc(2 * var(--u)); height: calc(50 * var(--u)); }
 .nw-rs-a-small { font-size: calc(36 * var(--u)); font-weight: 700; line-height: 1; }
 .nw-rs-a-large { font-size: calc(47 * var(--u)); font-weight: 700; line-height: 1; }
-/* شريط السطوع: شمس صغيرة يسار وكبيرة يمين، الشريط سماكته 14 وبدون مقبض */
-.nw-rs-brightness { display: flex; align-items: center; gap: calc(20 * var(--u)); margin: calc(25 * var(--u)) calc(10 * var(--u)) 0; }
+/* شريط السطوع: شمس صغيرة يسار وكبيرة يمين. الشريط هادئ 14 ونحيف، وعند اللمس يتضخّم لـ32 ويتسع 16 من كل جهة */
+.nw-rs-brightness { display: flex; align-items: center; gap: calc(16 * var(--u)); margin: calc(25 * var(--u)) calc(10 * var(--u)) 0; }
+.nw-rs-sun { position: relative; display: block; flex: none; transition: transform 0.2s ease-out; }
+.nw-rs-sun-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transition: opacity 0.2s ease-out; }
+.nw-rs-slider {
+  position: relative;
+  flex: 1;
+  height: calc(56 * var(--u));
+  margin: 0;
+  touch-action: none;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: margin 0.2s ease-out;
+}
+.nw-rs-slider.is-active { margin: 0 calc(-16 * var(--u)); }
+.nw-rs-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: calc(14 * var(--u));
+  transform: translateY(-50%);
+  border-radius: calc(16 * var(--u));
+  overflow: hidden;
+  transition: height 0.2s ease-out, background-color 0.2s ease-out;
+}
+.nw-rs-slider.is-active .nw-rs-track { height: calc(32 * var(--u)); }
+.nw-rs-fill { height: 100%; transition: background-color 0.2s ease-out; }
+/* ظل ناعم تحت الجزء المعبّأ يظهر عند اللمس فقط */
+.nw-rs-shadow {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: calc(32 * var(--u));
+  transform: translateY(-50%);
+  border-radius: calc(16 * var(--u));
+  box-shadow: 0 calc(30 * var(--u)) calc(44 * var(--u)) calc(-12 * var(--u)) rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.nw-rs-slider.is-active .nw-rs-shadow { opacity: 1; }
 .nw-rs-divider { height: calc(1 * var(--u)); margin-top: calc(24 * var(--u)); }
 .nw-rs-grid { display: grid; grid-template-columns: repeat(3, 1fr); column-gap: calc(20 * var(--u)); row-gap: calc(33 * var(--u)); margin-top: calc(55 * var(--u)); }
 .nw-rs-swatch {
