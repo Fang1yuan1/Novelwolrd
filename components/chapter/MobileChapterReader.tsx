@@ -92,7 +92,13 @@ export default function MobileChapterReader({
 }) {
   const [prefs, setPrefs] = useState(readSavedPrefs);
   const { theme, fontIdx, brightness } = prefs;
-  const setTheme = (t: ReaderTheme) => setPrefs((prev) => ({ ...prev, theme: t }));
+  // عدّاد يعيد تشغيل حركة التلاشي الضبابي كل ما يتغير الثيم فعلًا (اسمين متناوبين بدل إعادة بناء النص)
+  const [swap, setSwap] = useState(0);
+  const setTheme = (t: ReaderTheme) => {
+    if (t === prefs.theme) return;
+    setSwap((n) => n + 1);
+    setPrefs((prev) => ({ ...prev, theme: t }));
+  };
   const setFontIdx = (fn: (i: number) => number) =>
     setPrefs((prev) => ({ ...prev, fontIdx: fn(prev.fontIdx) }));
   const setBrightness = (n: number) => setPrefs((prev) => ({ ...prev, brightness: n }));
@@ -164,7 +170,11 @@ export default function MobileChapterReader({
   return (
     <div
       className="relative min-h-screen"
-      style={{ backgroundColor: p.pageBg, color: p.text }}
+      style={{
+        backgroundColor: p.pageBg,
+        color: p.text,
+        transition: "background-color 0.4s ease, color 0.4s ease",
+      }}
     >
       {/* شريط علوي — رقم واسم الفصل */}
       <header
@@ -220,7 +230,7 @@ export default function MobileChapterReader({
       {/* النص — الضغط في أي مكان بالفصل يفتح لوحة الثيمات والإعدادات */}
       <div
         ref={contentRef}
-        className="chapter-no-copy px-4 pb-16 pt-6 text-center"
+        className={`chapter-no-copy px-4 pb-16 pt-6 text-center ${swap === 0 ? "" : `nw-swap-${swap % 2}`}`}
         style={{
           fontSize,
           fontWeight: p.boldText ? 700 : 400,

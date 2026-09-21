@@ -1508,6 +1508,9 @@ body {
   gap: calc(1.5 * var(--u));
   border-radius: calc(28 * var(--u));
   box-sizing: border-box;
+  border: calc(1 * var(--u)) solid rgba(0, 0, 0, 0.09);
+  /* لا نغيّر شيئًا بالمقاس أو الحدود وقت التحديد */
+  transition: box-shadow 0.15s ease-out;
 }
 .nw-rs-swatch-aa { font-size: calc(64 * var(--u)); line-height: 1; }
 .nw-rs-swatch-label { font-size: calc(35 * var(--u)); line-height: 1; }
@@ -1524,3 +1527,9 @@ body {
   font-size: calc(40 * var(--u));
   font-weight: 700;
 }
+
+/* ===== انتقال تغيير الثيم بصفحة القراءة: تلاشي لون الخلفية والنص + تلاشي ضبابي للنص (زي المرجع) ===== */
+@keyframes nw-swap-0 { from { opacity: 0.15; filter: blur(8px); } to { opacity: 1; filter: blur(0); } }
+@keyframes nw-swap-1 { from { opacity: 0.15; filter: blur(8px); } to { opacity: 1; filter: blur(0); } }
+.nw-swap-0 { animation: nw-swap-0 0.4s ease-out; }
+.nw-swap-1 { animation: nw-swap-1 0.4s ease-out; }

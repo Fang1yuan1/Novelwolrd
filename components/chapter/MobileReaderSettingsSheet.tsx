@@ -93,15 +93,18 @@ export default function MobileReaderSettingsSheet({
   onClose: () => void;
   onCustomize: () => void;
 }) {
-  const p = READER_PALETTES[theme];
+  // زي المرجع بالضبط (فيديو + لقطة): لون اللوحة ما يتأثر بثيم الصفحة إلا لما يكون «Quiet» فتصير داكنة كلها.
+  // ألوان الفاتح: اللوحة #f4f4f4، الكبسولات #e3e3e5، الشريط تعبئة #69696e وفراغ #dedddf، الفاصل #bebebe.
+  // ألوان الداكن (Quiet): اللوحة #343134، الكبسولات #504d52، الإغلاق #444146، الشريط تعبئة #e8e7f1 وفراغ #5b585d، الفاصل #484548.
   const isDark = theme === "quiet";
-  // ألوان اللقطة: اللوحة #f4f4f4، الكبسولات #e3e3e5، الشريط: تعبئة #69696e وفراغ #dedddf، الخط الفاصل #bebebe
-  const panelBg = theme === "original" ? "#f4f4f4" : p.pageBg;
-  const pillTint = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
-  const closeTint = isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.06)";
-  const sliderInk = isDark ? p.mutedText : "#69696e";
-  const sliderEmpty = isDark ? "rgba(255,255,255,0.14)" : "#dedddf";
-  const dividerTint = isDark ? "rgba(255,255,255,0.14)" : "#bebebe";
+  const panelBg = isDark ? "#343134" : "#f4f4f4";
+  const ink = isDark ? "#fffdff" : "#000000";
+  const pillTint = isDark ? "#504d52" : "#e3e3e5";
+  const closeTint = isDark ? "#444146" : "#e5e5e6";
+  const mutedInk = isDark ? "#b0afb5" : "#8e8e93";
+  const sliderInk = isDark ? "#e8e7f1" : "#69696e";
+  const sliderEmpty = isDark ? "#5b585d" : "#dedddf";
+  const dividerTint = isDark ? "#484548" : "#bebebe";
 
   // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
   const [visible, setVisible] = useState(false);
@@ -125,7 +128,7 @@ export default function MobileReaderSettingsSheet({
       <div
         onClick={(e) => e.stopPropagation()}
         className="nw-rs-panel"
-        style={{ backgroundColor: panelBg, color: p.text }}
+        style={{ backgroundColor: panelBg, color: ink }}
       >
         {/* العنوان وزر الإغلاق (بقيا بمكانهما) */}
         <div className="nw-rs-head">
@@ -135,7 +138,7 @@ export default function MobileReaderSettingsSheet({
             onClick={handleClose}
             aria-label="إغلاق"
             className="nw-rs-close"
-            style={{ backgroundColor: closeTint, color: p.mutedText }}
+            style={{ backgroundColor: closeTint, color: mutedInk }}
           >
             <IconClose />
           </button>
@@ -144,7 +147,7 @@ export default function MobileReaderSettingsSheet({
         {/* الأدوات بترتيب المرجع بالضبط (يسار→يمين) لذلك dir=ltr */}
         <div dir="ltr">
           <div className="nw-rs-pills">
-            <div className="nw-rs-pill nw-rs-pill--font" style={{ backgroundColor: pillTint, color: p.text }}>
+            <div className="nw-rs-pill nw-rs-pill--font" style={{ backgroundColor: pillTint, color: ink }}>
               <button
                 type="button"
                 onClick={() => setFontIdx((i) => Math.max(0, i - 1))}
@@ -164,14 +167,14 @@ export default function MobileReaderSettingsSheet({
               </button>
             </div>
 
-            <button type="button" className="nw-rs-pill nw-rs-pill--icon" style={{ backgroundColor: pillTint, color: p.text }} aria-label="التخطيط">
+            <button type="button" className="nw-rs-pill nw-rs-pill--icon" style={{ backgroundColor: pillTint, color: ink }} aria-label="التخطيط">
               <IconLayout />
             </button>
             <button
               type="button"
               onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
               className="nw-rs-pill nw-rs-pill--icon"
-              style={{ backgroundColor: pillTint, color: p.text }}
+              style={{ backgroundColor: pillTint, color: ink }}
               aria-label="المظهر"
             >
               <IconAppearance />
@@ -214,11 +217,11 @@ export default function MobileReaderSettingsSheet({
                   className="nw-rs-swatch"
                   style={{
                     backgroundColor: SWATCH_BG[t],
-                    border: selected
-                      ? "calc(6 * var(--u)) solid #000"
-                      : "calc(1 * var(--u)) solid rgba(0,0,0,0.09)",
-                    color: t === "quiet" ? "#9a9a9e" : tp.text,
+                    // التحديد حلقة داخلية (inset) فما يتغير مقاس المربع ولا يتحرك محتواه ولا باقي المربعات
+                    boxShadow: selected ? `inset 0 0 0 calc(6 * var(--u)) ${ink}` : "none",
+                    color: t === "quiet" ? "#adacb4" : tp.text,
                   }}
+                  aria-pressed={selected}
                 >
                   {t === "original" && (
                     <span className="nw-rs-asterisk" style={{ color: "#8e8e93" }}>
@@ -257,7 +260,7 @@ export default function MobileReaderSettingsSheet({
               onCustomize();
             }}
             className="nw-rs-customize"
-            style={{ backgroundColor: pillTint, color: p.text }}
+            style={{ backgroundColor: pillTint, color: ink }}
           >
             <IconGear />
             تخصيص
