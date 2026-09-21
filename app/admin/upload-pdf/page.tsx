@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
-import { extractChapterTitle, parseChapterNumber } from '@/lib/chapter-title';
+import { extractChapterTitle, parseChapterNumber, titleFromFilename } from '@/lib/chapter-title';
 
 // يشغّل استخراج النص داخل المتصفح نفسه (مافي سيرفر معالجة) — يحتاج ملف الـ worker يترحّل مع الحزمة
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -321,15 +321,16 @@ export default function UploadPdfZipPage() {
     }
 
     // نفس الرقم لأكثر من ملف = الفصول تُكتب فوق بعضها بالموقع (المفتاح: الرواية + رقم الفصل)
-    const numCounts = new Map<number, number>();
+    const byNum = new Map<number, string[]>();
     for (const p of pdfEntries) {
-      if (p.num !== null) numCounts.set(p.num, (numCounts.get(p.num) ?? 0) + 1);
+      if (p.num !== null) byNum.set(p.num, [...(byNum.get(p.num) ?? []), p.shortName]);
     }
-    const dupes = [...numCounts].filter(([, c]) => c > 1).map(([n, c]) => `${n} (×${c})`);
+    const dupes = [...byNum].filter(([, names]) => names.length > 1);
     if (dupes.length > 0) {
-      addLog(
-        `تنبيه: أرقام فصول مكررة بين الملفات، وسيُكتب بعضها فوق بعض: ${dupes.slice(0, 15).join('، ')}${dupes.length > 15 ? ' …' : ''}`
-      );
+      addLog(`تنبيه: ${dupes.length} رقم فصل مكرر — الفصلان بنفس الرقم يُكتب أحدهما فوق الآخر:`);
+      for (const [n, names] of dupes.slice(0, 12)) {
+        addLog(`  • الفصل ${n}: ${names.map((x) => x.replace(/\.pdf$/i, '').slice(-45)).join('  |  ')}`);
+      }
     }
 
     // ٢) استخراج + رفع كل ملف على حدة (مو كل الملفات أول ثم الرفع) —
@@ -354,8 +355,9 @@ export default function UploadPdfZipPage() {
         const content = sanitizeForDb(
           stripAfterHourglassMarker(stripLeadingLinkLines(rawText)).trim()
         );
-        // العنوان من أول أسطر نص الـ PDF (مو من اسم الملف الفوضوي) — النص يبقى كما هو
-        const rawTitle = extractChapterTitle(content);
+        // العنوان من نص الـ PDF أولًا؛ وإذا النص ما فيه عنوان نقرأه من اسم الملف (بعد تنظيفه)
+        const textTitle = extractChapterTitle(content);
+        const rawTitle = textTitle ?? titleFromFilename(shortName);
         const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
@@ -366,7 +368,9 @@ export default function UploadPdfZipPage() {
           title,
           content,
         });
-        addLog(`استخرجت: الفصل ${num}${title ? ` — ${title}` : ' — بدون عنوان'}`);
+        addLog(
+          `استخرجت: الفصل ${num}${title ? ` — ${title}${textTitle ? '' : ' (من اسم الملف)'}` : ' — بدون عنوان'}`
+        );
       } catch (err: any) {
         addLog(`فشل استخراج: ${shortName} — ${err?.message || 'خطأ غير معروف'}`);
       }
@@ -397,11 +401,11 @@ export default function UploadPdfZipPage() {
       </a>
       <h1>رفع فصول من ZIP يحتوي PDF</h1>
       <p style={{ fontSize: 13, color: '#666', lineHeight: 1.7 }}>
-        كل ملف PDF داخل الـ zip = فصل. رقم الفصل يُستخرج من اسم الملف (أول رقم موجود بالاسم).
-        الصور والأيقونات تُتجاهل تلقائيًا، ويُستخرج النص فقط. أي رابط موجود بالسطر الأول أو
-        الثاني من كل ملف يُحذف تلقائيًا. عنوان الفصل يُستخرج من أول أسطر نص الـ PDF (سطر
-        «الفصل N عنوان»، أو السطر القصير الذي يلي «المجلد …») ولا يُؤخذ من اسم الملف؛ الفصل
-        الذي ليس له عنوان يُرفع برقمه فقط.
+        كل ملف PDF داخل الـ zip = فصل. رقم الفصل يُقرأ من الرقم الذي يلي كلمة «الفصل» في اسم
+        الملف. الصور والأيقونات تُتجاهل تلقائيًا، ويُستخرج النص فقط. أي رابط موجود بالسطر الأول
+        أو الثاني من كل ملف يُحذف تلقائيًا. عنوان الفصل يُستخرج من أول أسطر نص الـ PDF (سطر
+        «الفصل N عنوان»، أو «المجلد …» ثم المقدمة/الخاتمة …)، وإذا لم يكن في النص عنوان يُقرأ
+        من اسم الملف؛ الفصل الذي ليس له عنوان يُرفع برقمه فقط.
       </p>
       <label>
         رقم الرواية (novel_id):{' '}
