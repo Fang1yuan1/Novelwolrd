@@ -1497,7 +1497,7 @@ body {
 .nw-rs-pill-btn > span { transition: opacity 0.12s ease-out; }
 .nw-rs-pill-btn:active > span { opacity: 0.3; }
 /* مؤشر النقاط: 15 نقطة قطر 8 وتباعد 20 (المركز تحت الكبسولة)، مركزها 93.5 تحت أعلى الكبسولة */
-.nw-rs-dots { position: absolute; left: calc(102 * var(--u)); top: calc(89.5 * var(--u)); display: flex; gap: calc(12 * var(--u)); opacity: 0; transition: opacity 0.2s ease-out; pointer-events: none; }
+.nw-rs-dots { position: absolute; left: calc(102 * var(--u)); top: calc(89.5 * var(--u)); display: flex; gap: calc(12 * var(--u)); opacity: 0; transition: opacity 0.08s linear; pointer-events: none; }
 .nw-rs-dots.is-on { opacity: 1; }
 .nw-rs-dot { width: calc(8 * var(--u)); height: calc(8 * var(--u)); border-radius: 50%; }
 .nw-rs-pill-divider { align-self: center; width: calc(2 * var(--u)); height: calc(50 * var(--u)); }

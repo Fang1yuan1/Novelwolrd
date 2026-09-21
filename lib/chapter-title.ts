@@ -13,6 +13,7 @@
 // ونتجاوز الفواصل («♦ ♦ ♦» «▬▬▬ ❃ ◈ ❃ ▬▬▬») والأغلفة («غلاف المجلد …»):
 //   «الفصل 41 جروف طوكيو XI» · «الفصل – 2 النبوة» · «الفصل الخامس: موت آينز» · «Chapter 5 – Title»
 //   «الفصل – 489 489. الاستعمار» (الرقم مكرر) · «1093. سيف سين» (رقم ونقطة بلا كلمة الفصل)
+//   «الفصل 29» لحاله ثم سطر العنوان ثم فاصل «~*~»
 //   «المجلد 5: اسم المجلد الفصل – 1 الجزء الثالث – قلب الشاب» (كله بسطر واحد)
 //   «المجلد 1: اسم المجلد» ثم «المقدمة» / «الخاتمة» / «فاصل»
 //   سطر قصير يليه سطر فواصل: «فصل الإستراحة» / «الخاتمة»
@@ -25,6 +26,7 @@ const MAX_TITLE = 120;
 const MAX_TITLE_WORDS = 14;
 const MAX_WORDS_WITH_PERIOD = 6;
 const MAX_NUMERIC_HEADING_WORDS = 9;
+const MAX_TITLE_AFTER_LABEL_WORDS = 10;
 const HAS_LETTER = /[A-Za-z\u0600-\u06FF]/;
 
 const BIDI = /[\u200e\u200f\u202a-\u202e\u2066-\u2069\u061c]/g;
@@ -120,7 +122,25 @@ export function extractChapterTitle(text: string, expectedNumber?: number | null
     const afterSeparator = i > 0 && SEPARATOR.test(lines[i - 1]);
     const isVolume = VOLUME.test(line);
     const tail = chapterTail(line, isVolume, afterSeparator);
-    if (tail !== null) return tail || null;
+    if (tail) return tail;
+    if (tail === '') {
+      // «الفصل 29» لحاله ثم العنوان بالسطر اللي بعده وبعده فاصل («~*~» / «***»):
+      // الفاصل هو اللي يثبت إنه عنوان مو أول جملة من القصة
+      const next = lines[i + 1];
+      const after = lines[i + 2];
+      if (
+        next !== undefined &&
+        after !== undefined &&
+        SEPARATOR.test(after) &&
+        !SEPARATOR.test(next) &&
+        !COVER.test(next) &&
+        next.length <= 80 &&
+        next.split(' ').length <= MAX_TITLE_AFTER_LABEL_WORDS
+      ) {
+        return clean(next) || null;
+      }
+      return null;
+    }
 
     if (isVolume) {
       const keyword = TRAILING_KEYWORD.exec(line);

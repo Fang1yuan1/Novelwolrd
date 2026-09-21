@@ -201,7 +201,17 @@ export default function MobileReaderSettingsSheet({
 
   // حركة دخول/خروج سلسة: يبدأ منزلق للأسفل وشفاف، ثم يترفع لمكانه بعد أول رسمة
   const [visible, setVisible] = useState(false);
-  const [showDots, setShowDots] = useState(false); // مؤشر النقاط تحت كبسولة الخط: يظهر بعد أول تغيير للحجم
+  // مؤشر النقاط تحت كبسولة الخط (زي المرجع): يظهر لحظيًا مع الضغط، ويختفي بعد ثانيتين من آخر ضغطة (تلاشي سريع ~0.08 ثانية)
+  const [showDots, setShowDots] = useState(false);
+  const dotsTimer = useRef<number | null>(null);
+  const pokeDots = () => {
+    setShowDots(true);
+    if (dotsTimer.current) window.clearTimeout(dotsTimer.current);
+    dotsTimer.current = window.setTimeout(() => setShowDots(false), 2000);
+  };
+  useEffect(() => () => {
+    if (dotsTimer.current) window.clearTimeout(dotsTimer.current);
+  }, []);
   const [sliding, setSliding] = useState(false); // لمس شريط السطوع: نخفّي التعتيم خلف اللوحة عشان ترى تأثير السطوع على الصفحة
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -246,7 +256,7 @@ export default function MobileReaderSettingsSheet({
               <button
                 type="button"
                 onClick={() => {
-                  setShowDots(true);
+                  pokeDots();
                   setFontIdx((i) => Math.max(0, i - 1));
                 }}
                 disabled={fontIdx === 0}
@@ -258,7 +268,7 @@ export default function MobileReaderSettingsSheet({
               <button
                 type="button"
                 onClick={() => {
-                  setShowDots(true);
+                  pokeDots();
                   setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1));
                 }}
                 disabled={fontIdx === fontSizes.length - 1}

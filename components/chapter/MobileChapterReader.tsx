@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
@@ -105,8 +105,20 @@ export default function MobileChapterReader({
 }) {
   const [prefs, setPrefs] = useState(readSavedPrefs);
   const { theme, fontLevel, brightness } = prefs;
-  // تلاشي النص وقت تغيير حجم الخط (يخفت ثم يظهر بالحجم الجديد) زي المرجع
-  const [fontFade, setFontFade] = useState(false);
+  // تغيير حجم الخط زي المرجع بالضبط (مقاس من فيديو المرجع بمعدل 60 إطار/ثانية):
+  //  ١) المؤشر (النقاط) يتحدّث لحظيًا مع الضغط.  ٢) بعد ~0.22 ثانية من آخر ضغطة يختفي النص كله «والعنوان معه» خلال 0.135 ثانية (خطي، بدون تسارع)
+  //  ٣) يتبدّل الحجم وهو مختفي تمامًا (شفافية 0) ويبقى 0.19 ثانية  ٤) يظهر بالحجم الجديد خلال 0.13 ثانية (خطي).
+  // ملاحظة من الفيديو: تلاشي شفافية فقط — بدون ضبابية ولا تكبير.
+  const [wantLevel, setWantLevel] = useState(fontLevel);
+  const [textHidden, setTextHidden] = useState(false);
+  const wantRef = useRef(fontLevel);
+  const appliedRef = useRef(fontLevel);
+  const busyRef = useRef(false);
+  const timersRef = useRef<number[]>([]);
+  useEffect(() => {
+    const timers = timersRef;
+    return () => timers.current.forEach((t) => window.clearTimeout(t));
+  }, []);
   // عدّاد يعيد تشغيل حركة التلاشي الضبابي كل ما يتغير الثيم فعلًا (اسمين متناوبين بدل إعادة بناء النص)
   const [swap, setSwap] = useState(0);
   const setTheme = (t: ReaderTheme) => {
@@ -114,13 +126,40 @@ export default function MobileChapterReader({
     setSwap((n) => n + 1);
     setPrefs((prev) => ({ ...prev, theme: t }));
   };
-  const setFontLevel = (fn: (i: number) => number) => {
-    setFontFade(true);
-    window.setTimeout(() => {
-      setPrefs((prev) => ({ ...prev, fontLevel: fn(prev.fontLevel) }));
-      setFontFade(false);
-    }, 140);
+  const later = (fn: () => void, ms: number) => {
+    const id = window.setTimeout(fn, ms);
+    timersRef.current.push(id);
+    return id;
   };
+  const runFontCycle = () => {
+    if (busyRef.current || wantRef.current === appliedRef.current) return;
+    busyRef.current = true;
+    setTextHidden(true); // يخفت للصفر
+    later(() => {
+      appliedRef.current = wantRef.current;
+      setPrefs((prev) => ({ ...prev, fontLevel: appliedRef.current })); // تبديل الحجم والنص مختفي
+      later(() => {
+        setTextHidden(false); // يظهر بالحجم الجديد
+        later(() => {
+          busyRef.current = false;
+          runFontCycle(); // لو صار ضغط أثناء الدورة نكمل للقيمة الأخيرة
+        }, 130);
+      }, 190);
+    }, 135);
+  };
+  const debounceRef = useRef<number | null>(null);
+  const setFontLevel = (fn: (i: number) => number) => {
+    const next = fn(wantRef.current);
+    if (next === wantRef.current) return;
+    wantRef.current = next;
+    setWantLevel(next); // المؤشر لحظيًا
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = later(runFontCycle, 220);
+  };
+  const textFade = {
+    opacity: textHidden ? 0 : 1,
+    transition: `opacity ${textHidden ? 135 : 130}ms linear`,
+  } as const;
   const setBrightness = (n: number) => setPrefs((prev) => ({ ...prev, brightness: n }));
   const [showSheet, setShowSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -204,7 +243,7 @@ export default function MobileChapterReader({
         <Link href={`/novel/${novel.id}`} aria-label="رجوع" className="shrink-0">
           <IconBack />
         </Link>
-        <span className="line-clamp-1 min-w-0 flex-1 text-[13px] font-bold">
+        <span className="line-clamp-1 min-w-0 flex-1 text-[13px] font-bold" style={textFade}>
           {chapterLabel}
         </span>
         <span className="shrink-0 opacity-40" title="استماع صوتي — قريبًا" aria-hidden="true">
@@ -223,6 +262,7 @@ export default function MobileChapterReader({
       {/* عنوان الفصل — خط عمودي واحد متصل يمتد على السطرين معًا (كالمرجع بدقة) */}
       <div
         className="flex items-stretch gap-3 px-4 pt-6"
+        style={textFade}
         onClick={() => {
           if (window.getSelection()?.toString()) return;
           setShowSheet(true);
@@ -254,8 +294,7 @@ export default function MobileChapterReader({
         style={{
           fontSize,
           fontWeight: p.boldText ? 700 : 400,
-          opacity: fontFade ? 0.12 : 1,
-          transition: fontFade ? "opacity 0.14s ease-in" : "opacity 0.3s ease-out",
+          ...textFade,
         }}
         onClick={() => {
           if (window.getSelection()?.toString()) return;
@@ -318,7 +357,7 @@ export default function MobileChapterReader({
         <MobileReaderSettingsSheet
           theme={theme}
           setTheme={setTheme}
-          fontIdx={fontLevel}
+          fontIdx={wantLevel}
           setFontIdx={setFontLevel}
           fontSizes={FONT_LEVELS}
           brightness={brightness}
