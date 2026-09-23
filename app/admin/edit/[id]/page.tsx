@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
+import { decodeEscapedTitle } from '@/lib/chapter-title';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,11 +23,11 @@ type Novel = {
   tags: string | null;
 };
 
+// ما نجيب نص الفصل هنا: القائمة تحتاج الرقم والعنوان بس (جلب النص لكل الفصول كان يحمّل ميغابايتات)
 type ChapterRow = {
   id: number;
   chapter_number: number;
   title: string | null;
-  content: string;
 };
 
 export default function EditNovelPage() {
@@ -69,6 +70,8 @@ export default function EditNovelPage() {
   const [rangeFrom, setRangeFrom] = useState('');
   const [rangeTo, setRangeTo] = useState('');
   const [chaptersLoadError, setChaptersLoadError] = useState('');
+  const [chapterFilter, setChapterFilter] = useState('');
+  const [repairing, setRepairing] = useState(false);
 
   // حذف الرواية
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -79,18 +82,28 @@ export default function EditNovelPage() {
     if (!id) return;
     setLoadingChapters(true);
     setChaptersLoadError('');
-    const { data, error } = await supabase
-      .from('chapters')
-      .select('id, chapter_number, title, content')
-      .eq('novel_id', id)
-      .order('chapter_number', { ascending: true });
-    if (error) {
-      setChaptersLoadError(error.message);
-      setChapters([]);
-      setLoadingChapters(false);
-      return;
+    // Supabase يرجّع حد أقصى 1000 صف بالطلب الواحد — نجيب على دفعات عشان تظهر كل فصول الرواية
+    // (قبل كذا كانت القائمة تتوقف عند 1000 فصل، وما تقدر تحذف أو تعدّل اللي بعدها)
+    const PAGE = 1000;
+    const all: ChapterRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from('chapters')
+        .select('id, chapter_number, title')
+        .eq('novel_id', id)
+        .order('chapter_number', { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (error) {
+        setChaptersLoadError(error.message);
+        setChapters([]);
+        setLoadingChapters(false);
+        return;
+      }
+      const rows = (data as ChapterRow[]) || [];
+      all.push(...rows);
+      if (rows.length < PAGE) break;
     }
-    setChapters((data as ChapterRow[]) || []);
+    setChapters(all);
     setLoadingChapters(false);
   }
 
@@ -145,6 +158,46 @@ export default function EditNovelPage() {
     }
     loadChapters();
   }
+
+  async function handleEditTitle(c: ChapterRow) {
+    const next = window.prompt(
+      `عنوان الفصل ${c.chapter_number} (اتركه فارغًا لحذف العنوان):`,
+      c.title ?? ''
+    );
+    if (next === null) return;
+    const value = decodeEscapedTitle(next).trim() || null;
+    const { error } = await supabase.from('chapters').update({ title: value }).eq('id', c.id);
+    if (error) {
+      alert(`فشل التعديل: ${error.message}`);
+      return;
+    }
+    setChapters((prev) => prev.map((x) => (x.id === c.id ? { ...x, title: value } : x)));
+  }
+
+  // عناوين مكتوبة كنص مشفّر (u062fu0639…) — تتحول لعربي
+  const brokenTitles = chapters.filter((c) => c.title && decodeEscapedTitle(c.title) !== c.title);
+
+  async function handleRepairTitles() {
+    if (brokenTitles.length === 0) return;
+    if (!confirm(`إصلاح ${brokenTitles.length} عنوان تالف (u062f… ← عربي)؟`)) return;
+    setRepairing(true);
+    let failed = 0;
+    for (const c of brokenTitles) {
+      const fixed = decodeEscapedTitle(c.title as string).trim() || null;
+      const { error } = await supabase.from('chapters').update({ title: fixed }).eq('id', c.id);
+      if (error) failed++;
+    }
+    setRepairing(false);
+    if (failed > 0) alert(`تعذّر إصلاح ${failed} عنوان`);
+    loadChapters();
+  }
+
+  const filterQuery = chapterFilter.trim();
+  const visibleChapters = filterQuery
+    ? chapters.filter(
+        (c) => String(c.chapter_number).includes(filterQuery) || (c.title ?? '').includes(filterQuery)
+      )
+    : chapters;
 
   async function handleDeleteAllChapters() {
     if (chapters.length === 0) return;
@@ -631,8 +684,30 @@ export default function EditNovelPage() {
               </button>
             </div>
 
-            <ul className="mb-4 flex max-h-80 flex-col gap-1 overflow-y-auto rounded border border-ink-300/20 p-2">
-            {chapters.map((c) => (
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <input
+                value={chapterFilter}
+                onChange={(e) => setChapterFilter(e.target.value)}
+                placeholder="ابحث برقم الفصل أو عنوانه…"
+                className="min-w-0 flex-1 rounded border border-ink-300/40 px-2 py-1 text-[12px] outline-none focus:border-brand"
+              />
+              <span className="text-[12px] text-ink-500">
+                {visibleChapters.length} من {chapters.length}
+              </span>
+              {brokenTitles.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRepairTitles}
+                  disabled={repairing}
+                  className="rounded border border-brand px-2 py-1 text-[12px] font-medium text-brand hover:bg-brand hover:text-white disabled:opacity-50"
+                >
+                  {repairing ? 'جارٍ الإصلاح…' : `إصلاح ${brokenTitles.length} عنوان تالف`}
+                </button>
+              )}
+            </div>
+
+            <ul className="mb-4 flex max-h-96 flex-col gap-1 overflow-y-auto rounded border border-ink-300/20 p-2">
+            {visibleChapters.map((c) => (
               <li
                 key={c.id}
                 className="flex items-center justify-between gap-2 rounded px-2 py-1.5 text-[13px] hover:bg-surface"
@@ -640,7 +715,6 @@ export default function EditNovelPage() {
                 <span className="min-w-0 truncate">
                   الفصل {c.chapter_number}
                   {c.title ? ` — ${c.title}` : ''}
-                  <span className="text-[11px] text-ink-300"> ({c.content.length.toLocaleString('ar-EG')} حرف)</span>
                 </span>
                 <span className="flex shrink-0 gap-2">
                   <a
@@ -649,6 +723,13 @@ export default function EditNovelPage() {
                   >
                     عرض
                   </a>
+                  <button
+                    type="button"
+                    onClick={() => handleEditTitle(c)}
+                    className="text-[12px] text-ink-500 hover:text-brand"
+                  >
+                    تعديل العنوان
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteChapter(c.id, c.chapter_number)}

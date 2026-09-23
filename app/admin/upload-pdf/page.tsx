@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import JSZip from 'jszip';
 import * as pdfjsLib from 'pdfjs-dist';
-import { extractChapterTitle, resolveFilenames } from '@/lib/chapter-title';
+import { decodeEscapedTitle, extractChapterTitle, resolveFilenames } from '@/lib/chapter-title';
 
 // يشغّل استخراج النص داخل المتصفح نفسه (مافي سيرفر معالجة) — يحتاج ملف الـ worker يترحّل مع الحزمة
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -138,6 +138,12 @@ type ParsedChapter = {
   title: string | null;
   content: string;
 };
+
+// ملفات .txt (من سكربت السحب المباشر من صفحة الفصل) — نص نظيف جاهز، لا حاجة لأي
+// إعادة بناء ترتيب حروف كما في PDF، فقط فك ترميز UTF-8
+function extractTxtText(buf: ArrayBuffer): string {
+  return new TextDecoder('utf-8').decode(buf);
+}
 
 async function extractPdfText(buf: ArrayBuffer): Promise<string> {
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -308,9 +314,9 @@ export default function UploadPdfZipPage() {
       return;
     }
     const listed = Object.values(zip.files)
-      .filter((f) => !f.dir && f.name.toLowerCase().endsWith('.pdf'))
+      .filter((f) => !f.dir && (f.name.toLowerCase().endsWith('.pdf') || f.name.toLowerCase().endsWith('.txt')))
       .map((f) => ({ entry: f, shortName: f.name.split('/').pop() || f.name }))
-      // ملفات ماك المخفية (__MACOSX/._اسم.pdf) ما هي PDF حقيقية — تفشل وتبطّئ الرفع
+      // ملفات ماك المخفية (__MACOSX/._اسم) مو ملفات حقيقية — تفشل وتبطّئ الرفع
       .filter((f) => !f.entry.name.startsWith('__MACOSX/') && !f.shortName.startsWith('._'));
 
     // الأرقام والعناوين من أسماء الملفات تُحل لكل الملفات مع بعض (تصحيح الأرقام المخرّبة
@@ -326,7 +332,7 @@ export default function UploadPdfZipPage() {
       .sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
 
     if (pdfEntries.length === 0) {
-      addLog('ما لقيت أي ملف PDF داخل الـ zip');
+      addLog('ما لقيت أي ملف PDF أو TXT داخل الـ zip');
       return;
     }
 
@@ -382,16 +388,18 @@ export default function UploadPdfZipPage() {
       }
       try {
         const buf = await entry.async('arraybuffer');
-        const rawText = await extractPdfText(buf);
+        const isTxt = shortName.toLowerCase().endsWith('.txt');
+        const rawText = isTxt ? extractTxtText(buf) : await extractPdfText(buf);
         // تنظيف نهائي احتياطي على المحتوى والعنوان الاثنين — يضمن عدم وصول أي NUL
-        // لقاعدة البيانات حتى لو مصدره اسم الملف نفسه مو نص الـ PDF
+        // لقاعدة البيانات. سطر الرابط وذيل التبرع خاصان بملفات الـ PDF القديمة فقط؛
+        // تطبيقهما على .txt بلا ضرر (بلا تطابق = بلا تأثير)، فنسيب المنطق موحّدًا
         const content = sanitizeForDb(
           stripAfterHourglassMarker(stripLeadingLinkLines(rawText)).trim()
         );
         // العنوان من نص الـ PDF أولًا؛ وإذا النص ما فيه عنوان نقرأه من اسم الملف (بعد تنظيفه)
         const textTitle = extractChapterTitle(content, num);
         const rawTitle = textTitle ?? fileTitle;
-        const title = rawTitle ? sanitizeForDb(rawTitle) || null : null;
+        const title = rawTitle ? sanitizeForDb(decodeEscapedTitle(rawTitle)) || null : null;
         if (!content) {
           addLog(`تحذير: الفصل ${num} (${shortName}) طلع بدون نص`);
         }
@@ -432,14 +440,13 @@ export default function UploadPdfZipPage() {
       <a href="/admin/upload" style={{ display: 'inline-block', marginBottom: 16, fontSize: 13 }}>
         رفع فصول JSON (الطريقة القديمة) →
       </a>
-      <h1>رفع فصول من ZIP يحتوي PDF</h1>
+      <h1>رفع فصول من ZIP (PDF أو TXT)</h1>
       <p style={{ fontSize: 13, color: '#666', lineHeight: 1.7 }}>
-        كل ملف PDF داخل الـ zip = فصل. رقم الفصل يُقرأ من اسم الملف ويُصحَّح تلقائيًا بحسب تسلسل
-        بقية الملفات (الرقم المكرر أو الملصوق بأرقام زايدة)، وكل تصحيح يظهر في السجل. الصور
-        والأيقونات تُتجاهل تلقائيًا، ويُستخرج النص فقط. أي رابط موجود بالسطر الأول أو الثاني من
-        كل ملف يُحذف تلقائيًا. عنوان الفصل يُستخرج من أول أسطر نص الـ PDF، وإذا لم يكن في النص
-        عنوان يُقرأ من اسم الملف (بعد تجاهل العناوين الوهمية)؛ الفصل الذي ليس له عنوان يُرفع
-        برقمه فقط.
+        كل ملف PDF أو TXT داخل الـ zip = فصل. رقم الفصل يُقرأ من اسم الملف ويُصحَّح تلقائيًا
+        بحسب تسلسل بقية الملفات، وكل تصحيح يظهر في السجل. ملفات PDF: الصور والأيقونات
+        تُتجاهل ويُستخرج النص فقط، وأي رابط بالسطر الأول أو الثاني من كل ملف يُحذف تلقائيًا.
+        ملفات TXT: تُقرأ كما هي مباشرة بلا أي معالجة إضافية. عنوان الفصل يُستخرج من أول أسطر
+        النص، وإذا لم يكن فيه عنوان يُقرأ من اسم الملف؛ الفصل الذي ليس له عنوان يُرفع برقمه فقط.
       </p>
       <label>
         رقم الرواية (novel_id):{' '}

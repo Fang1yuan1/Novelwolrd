@@ -169,6 +169,42 @@ export function extractChapterTitle(text: string, expectedNumber?: number | null
   return null;
 }
 
+// ════════════════════════ عناوين مشفّرة ════════════════════════
+// بعض الملفات يجي عنوانها كنص مشفّر بدل الحروف: «u062fu0639u0646u064a» (وهو \\u062f\\u0639… بعد ما
+// انشالت الشرطة المائلة)، أو «%D8%AF…» (ترميز الروابط)، أو «&#1583;». نحوّلها لحروف عربية.
+// نفك بس اللي يطلع حرفًا عربيًا، عشان ما نخرّب كلمة إنجليزية عادية.
+function isArabicCode(c: number): boolean {
+  return (
+    (c >= 0x0600 && c <= 0x06ff) ||
+    (c >= 0x0750 && c <= 0x077f) ||
+    (c >= 0xfb50 && c <= 0xfdff) ||
+    (c >= 0xfe70 && c <= 0xfeff) ||
+    c === 0x200c ||
+    c === 0x200d
+  );
+}
+
+export function decodeEscapedTitle(s: string): string {
+  let out = s.replace(/\\?u([0-9a-fA-F]{4})/g, (m, hex: string) => {
+    const c = parseInt(hex, 16);
+    return isArabicCode(c) ? String.fromCharCode(c) : m;
+  });
+  out = out.replace(/&#(?:x([0-9a-fA-F]+)|(\d+));/g, (m, hex: string | undefined, dec: string | undefined) => {
+    const c = hex ? parseInt(hex, 16) : parseInt(dec ?? '', 10);
+    return isArabicCode(c) ? String.fromCodePoint(c) : m;
+  });
+  if (/(?:%[0-9a-fA-F]{2}){2,}/.test(out)) {
+    out = out.replace(/(?:%[0-9a-fA-F]{2})+/g, (m) => {
+      try {
+        return decodeURIComponent(m);
+      } catch {
+        return m;
+      }
+    });
+  }
+  return out;
+}
+
 // ════════════════════════ اسم الملف: الرقم + العنوان ════════════════════════
 //
 // الموقع يسمّي الملف: «[أخر فصل]المجلد 4 اسم المجلد الفصل 228 العنوان يوليو 24, 2026.pdf»
@@ -225,7 +261,7 @@ function volumeOf(clean: string): number | null {
 }
 
 function cleanName(filename: string): { clean: string; last: boolean } {
-  let s = filename
+  let s = decodeEscapedTitle(filename)
     .replace(BIDI, '')
     .normalize('NFC')
     .replace(/\.pdf$/i, '')
