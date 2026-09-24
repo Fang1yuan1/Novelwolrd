@@ -31,6 +31,12 @@ export default function AdminDashboard() {
       icon: '📦',
     },
     {
+      href: '/admin/upload-txt',
+      title: 'رفع فصول TXT (ZIP)',
+      desc: 'رفع آلاف فصول .txt دفعة وحدة داخل ملف zip، برقم وعنوان تلقائي لكل فصل',
+      icon: '📄',
+    },
+    {
       href: '/admin/characters',
       title: 'الشخصيات',
       desc: 'إضافة/تعديل/حذف شخصيات كل رواية (تظهر بصفحة تفاصيل الرواية)',

@@ -169,6 +169,18 @@ export function extractChapterTitle(text: string, expectedNumber?: number | null
   return null;
 }
 
+// ════════════════════════ رقم الفصل من داخل النص ════════════════════════
+// بعض المواقع (زي kolnovel) تحط سطر «الفصل N: العنوان» بأول النص. رقمه أدق أحيانًا من
+// اسم الملف (تصحيح لغلط ترقيم بالموقع نفسه)، لكن أحيانًا هو الغلط (خطأ كتابي بالموقع) —
+// لذلك يُستخدم بس لحل تعارض (نفس رقم اسم الملف بأكثر من ملف)، مو كبديل دائم لاسم الملف.
+const EMBEDDED_NUMBER_RE = new RegExp(`${LABEL_WORD}\\s*[:：\\-–—]?\\s*(\\d+)\\s*[:：]`, 'i');
+
+export function extractEmbeddedChapterNumber(text: string): number | null {
+  const head = text.slice(0, HEAD_CHARS);
+  const m = EMBEDDED_NUMBER_RE.exec(head);
+  return m ? parseInt(m[1], 10) : null;
+}
+
 // ════════════════════════ عناوين مشفّرة ════════════════════════
 // بعض الملفات يجي عنوانها كنص مشفّر بدل الحروف: «u062fu0639u0646u064a» (وهو \\u062f\\u0639… بعد ما
 // انشالت الشرطة المائلة)، أو «%D8%AF…» (ترميز الروابط)، أو «&#1583;». نحوّلها لحروف عربية.
@@ -315,10 +327,16 @@ function parseName(filename: string): ParsedName {
     break;
   }
   if (!digits) {
-    const m = /(\d+)/.exec(name); // ما فيه كلمة «الفصل» — أول رقم بالاسم
+    // كلمة «الفصل» موجودة لكن الرقم مو ملصوق فيها مباشرة (عنوان فرعي إنجليزي بينهم،
+    // زي «... الفصل Library of Heaven's Path 399»): ناخذ آخر رقم بعد كلمة الفصل،
+    // مو أول رقم بكل الاسم (اللي ممكن يكون رقم المجلد قبلها بالغلط)
+    const labelIdx = name.search(new RegExp(LABEL_WORD, 'i'));
+    const searchIn = labelIdx >= 0 ? name.slice(labelIdx) : name;
+    const allNums = [...searchIn.matchAll(/\d+/g)];
+    const m = allNums.length > 0 ? allNums[allNums.length - 1] : null; // ما فيه كلمة «الفصل» أصلًا — أول (ووحيد غالبًا) رقم بالاسم
     if (m) {
-      digits = m[1];
-      rest = name.slice((m.index ?? 0) + m[0].length);
+      digits = m[0];
+      rest = searchIn.slice((m.index ?? 0) + m[0].length);
     }
   }
   if (/^\.\d/.test(rest)) decimal = true;
