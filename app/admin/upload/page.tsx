@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { extractChapterTitle } from '@/lib/chapter-title';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,6 +11,11 @@ const supabase = createClient(
 
 const BATCH_SIZE = 5;
 const DELAY_MS = 400;
+
+// يشيل NUL وبقية رموز التحكم غير المرئية اللي يرفضها Postgres/Supabase
+function sanitizeForDb(text: string): string {
+  return typeof text === 'string' ? text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '') : text;
+}
 
 export default function UploadChaptersPage() {
   const [novelId, setNovelId] = useState('1');
@@ -40,12 +46,17 @@ export default function UploadChaptersPage() {
 
     let failedCount = 0;
     for (let i = 0; i < chapters.length; i += BATCH_SIZE) {
-      const batch = chapters.slice(i, i + BATCH_SIZE).map((c: any) => ({
-        novel_id: Number(novelId),
-        chapter_number: c.chapter_number,
-        title: c.title,
-        content: c.content,
-      }));
+      const batch = chapters.slice(i, i + BATCH_SIZE).map((c: any) => {
+        const content = sanitizeForDb((c.content || '').trim());
+        // العنوان من داخل نص الفصل نفسه أولًا (أدق)، وإلا اللي جاي بالـJSON، وإلا بلا عنوان
+        const title = extractChapterTitle(content, c.chapter_number) ?? c.title ?? null;
+        return {
+          novel_id: Number(novelId),
+          chapter_number: c.chapter_number,
+          title,
+          content,
+        };
+      });
       const { error } = await supabase.from('chapters').insert(batch);
       const nums = batch.map((b: any) => b.chapter_number).join('، ');
       if (error) {
