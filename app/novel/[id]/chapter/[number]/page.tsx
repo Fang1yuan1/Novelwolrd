@@ -1,4 +1,4 @@
-import { getNovelById, getChapterByNumber } from "@/lib/novels";
+import { getNovelById, getChapterByNumber, getAdjacentChapterNumbers } from "@/lib/novels";
 import { notFound } from "next/navigation";
 import ChapterPageClient from "@/components/chapter/ChapterPageClient";
 import MobileChapterReader from "@/components/chapter/MobileChapterReader";
@@ -22,6 +22,9 @@ export default async function ChapterPage({
   }
 
   const currentNumber = Number(number);
+  // أقرب رقم فصل موجود فعلاً قبل/بعد الحالي (مو current±1) — عشان الفصول المرقّمة
+  // بكسر (644.5) ما تنتقّى بالتنقّل بين الفصول
+  const { prev: prevNumber, next: nextNumber } = await getAdjacentChapterNumbers(id, currentNumber);
 
   return (
     <>
@@ -30,8 +33,8 @@ export default async function ChapterPage({
         <MobileChapterReader
           novel={novel}
           chapter={chapter}
-          prevNumber={currentNumber - 1}
-          nextNumber={currentNumber + 1}
+          prevNumber={prevNumber}
+          nextNumber={nextNumber}
         />
       </div>
 
@@ -40,8 +43,8 @@ export default async function ChapterPage({
         <ChapterPageClient
           novel={novel}
           chapter={chapter}
-          prevNumber={currentNumber - 1}
-          nextNumber={currentNumber + 1}
+          prevNumber={prevNumber}
+          nextNumber={nextNumber}
         />
       </div>
     </>

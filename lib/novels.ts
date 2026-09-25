@@ -286,6 +286,35 @@ export async function getChapterByNumber(
   return data as Chapter;
 }
 
+// رقم الفصل السابق/التالي الفعليين (أقرب رقم موجود فعلاً بقاعدة البيانات، مو current±1) —
+// ضروري لما تكون بعض الفصول مرقّمة بكسر (644.5) بسبب تعارض ترقيم أثناء الاستيراد؛
+// current±1 كان يتخطّاها لأنها مش تطابق حسابيًا.
+export async function getAdjacentChapterNumbers(
+  novelId: number | string,
+  currentNumber: number
+): Promise<{ prev: number | null; next: number | null }> {
+  if (!supabase) return { prev: null, next: null };
+  const [prevRes, nextRes] = await Promise.all([
+    supabase
+      .from("chapters")
+      .select("chapter_number")
+      .eq("novel_id", novelId)
+      .lt("chapter_number", currentNumber)
+      .order("chapter_number", { ascending: false })
+      .limit(1),
+    supabase
+      .from("chapters")
+      .select("chapter_number")
+      .eq("novel_id", novelId)
+      .gt("chapter_number", currentNumber)
+      .order("chapter_number", { ascending: true })
+      .limit(1),
+  ]);
+  const prev = (prevRes.data?.[0] as { chapter_number?: number } | undefined)?.chapter_number ?? null;
+  const next = (nextRes.data?.[0] as { chapter_number?: number } | undefined)?.chapter_number ?? null;
+  return { prev, next };
+}
+
 // تجميع الفصول حسب الجزء/المجلد (volume)
 export function groupChaptersByVolume<T extends { volume: string | null }>(
   chapters: T[]

@@ -228,8 +228,8 @@ export default function ChapterPageClient({
 }: {
   novel: NovelData;
   chapter: ChapterData;
-  prevNumber: number;
-  nextNumber: number;
+  prevNumber: number | null;
+  nextNumber: number | null;
 }) {
   const [theme, setTheme] = useState<ReaderTheme>("original");
   const [fontSizeIdx, setFontSizeIdx] = useState(1);
@@ -466,7 +466,7 @@ export default function ChapterPageClient({
               className="flex items-center justify-between rounded-2xl border p-2"
               style={{ borderColor: p.cardBorder }}
             >
-              {prevNumber >= 1 ? (
+              {prevNumber !== null ? (
                 <a
                   href={`/novel/${novel.id}/chapter/${prevNumber}`}
                   className="rounded-lg px-3 py-2 text-sm font-medium"
@@ -486,13 +486,17 @@ export default function ChapterPageClient({
                 الفهرس
               </a>
 
-              <a
-                href={`/novel/${novel.id}/chapter/${nextNumber}`}
-                className="rounded-lg px-4 py-2 text-sm font-bold text-white"
-                style={{ backgroundColor: p.chipActiveText }}
-              >
-                الفصل التالي ←
-              </a>
+              {nextNumber !== null ? (
+                <a
+                  href={`/novel/${novel.id}/chapter/${nextNumber}`}
+                  className="rounded-lg px-4 py-2 text-sm font-bold text-white"
+                  style={{ backgroundColor: p.chipActiveText }}
+                >
+                  الفصل التالي ←
+                </a>
+              ) : (
+                <span className="rounded-lg px-4 py-2 text-sm font-bold opacity-40">الفصل التالي ←</span>
+              )}
             </div>
           </div>
         </div>

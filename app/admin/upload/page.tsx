@@ -49,7 +49,10 @@ export default function UploadChaptersPage() {
       const batch = chapters.slice(i, i + BATCH_SIZE).map((c: any) => {
         const content = sanitizeForDb((c.content || '').trim());
         // العنوان من داخل نص الفصل نفسه أولًا (أدق)، وإلا اللي جاي بالـJSON، وإلا بلا عنوان
-        const title = extractChapterTitle(content, c.chapter_number) ?? c.title ?? null;
+        // عنوان الـJSON هو الأدق (استخرج بقواعد بايثون المطوّرة بالسكربت) — نثق فيه أول،
+        // ونستخرج من النص بس لو الـJSON نفسه ما فيه عنوان أصلًا
+        const jsonTitle = typeof c.title === 'string' ? c.title.trim() : '';
+        const title = jsonTitle ? jsonTitle : extractChapterTitle(content, c.chapter_number);
         return {
           novel_id: Number(novelId),
           chapter_number: c.chapter_number,
@@ -57,7 +60,9 @@ export default function UploadChaptersPage() {
           content,
         };
       });
-      const { error } = await supabase.from('chapters').insert(batch);
+      const { error } = await supabase
+        .from('chapters')
+        .upsert(batch, { onConflict: 'novel_id,chapter_number' });
       const nums = batch.map((b: any) => b.chapter_number).join('، ');
       if (error) {
         addLog(`فشل: ${nums} — ${error.message}`);

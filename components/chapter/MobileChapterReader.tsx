@@ -100,8 +100,8 @@ export default function MobileChapterReader({
 }: {
   novel: NovelData;
   chapter: ChapterData;
-  prevNumber: number;
-  nextNumber: number;
+  prevNumber: number | null;
+  nextNumber: number | null;
 }) {
   const [prefs, setPrefs] = useState(readSavedPrefs);
   const { theme, fontLevel, brightness } = prefs;
@@ -310,7 +310,7 @@ export default function MobileChapterReader({
 
       {/* تنقل بسيط أسفل النص — سهمين وعدّاد الفصل الحالي/الإجمالي (بترتيب LTR ثابت زي المرجع بالضبط) */}
       <div className="flex items-center gap-3 px-5 py-5" dir="ltr">
-        {prevNumber >= 1 ? (
+        {prevNumber !== null ? (
           <Link
             href={`/novel/${novel.id}/chapter/${prevNumber}`}
             aria-label="السابق"
@@ -327,21 +327,27 @@ export default function MobileChapterReader({
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-2.5">
           <span className="text-[15px] font-semibold" dir="ltr" style={{ color: p.mutedText }}>
-            {chapter.chapter_number} / {novel.chapter_count ?? nextNumber}
+            {chapter.chapter_number} / {novel.chapter_count ?? "?"}
           </span>
           <span className="h-px w-full" style={{ backgroundColor: p.divider }} />
         </div>
 
-        <Link
-          href={`/novel/${novel.id}/chapter/${nextNumber}`}
-          // تحميل مسبق كامل للفصل التالي أول ما يقرب الزر — فيفتح فورًا (ما نعمل ذلك لو ما فيه فصل تالي)
-          prefetch={novel.chapter_count == null || nextNumber <= novel.chapter_count}
-          aria-label="التالي"
-          className="shrink-0"
-          style={{ color: p.mutedText }}
-        >
-          <IconArrowRight />
-        </Link>
+        {nextNumber !== null ? (
+          <Link
+            href={`/novel/${novel.id}/chapter/${nextNumber}`}
+            // تحميل مسبق كامل للفصل التالي أول ما يقرب الزر — فيفتح فورًا
+            prefetch
+            aria-label="التالي"
+            className="shrink-0"
+            style={{ color: p.mutedText }}
+          >
+            <IconArrowRight />
+          </Link>
+        ) : (
+          <span aria-hidden="true" className="shrink-0" style={{ color: p.mutedText, opacity: 0.35 }}>
+            <IconArrowRight />
+          </span>
+        )}
       </div>
 
       {/* ستارة السطوع — تعتيم حقيقي فوق الشاشة حسب قيمة الشريط */}
