@@ -7,9 +7,9 @@ type RankedNovel = Novel & { wordCount: number; chapterCount: number };
 
 const tabs = [
   { key: "bestseller", label: "روايات مميزة" },
-  { key: "trending", label: "الأكثر تفاعلاً" },
-  { key: "newest", label: "الأحدث توقيعاً" },
-  { key: "picks", label: "توصياتنا" },
+  { key: "trending", label: "الترند" },
+  { key: "newest", label: "الأحدث" },
+  { key: "picks", label: "قد يعجبك" },
 ] as const;
 
 type TabKey = (typeof tabs)[number]["key"];
@@ -47,7 +47,7 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
             <button
               type="button"
               onClick={() => setActive(t.key)}
-              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${
+              className={`rounded-full px-4 py-2 text-[14px] font-semibold ${
                 active === t.key
                   ? "bg-[#fce9ea] text-[#e5353e]"
                   : "bg-[#f2f2f3] text-[#5b5b60]"
