@@ -37,7 +37,7 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
 
   return (
     <section className="mobile-reference-card px-3 py-3">
-      <div className="mobile-reference-section-heading">
+      <div className="mobile-reference-section-heading" style={{ marginBottom: 8 }}>
         <h2>لوحة الترتيب</h2>
         <a href="/rankings" className="mobile-reference-more-link">المزيد ‹</a>
       </div>
@@ -47,7 +47,7 @@ export default function MobileRankTabs({ novels }: { novels: RankedNovel[] }) {
             <button
               type="button"
               onClick={() => setActive(t.key)}
-              className={`rounded-full px-4 py-2 text-[14px] font-semibold ${
+              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${
                 active === t.key
                   ? "bg-[#fce9ea] text-[#e5353e]"
                   : "bg-[#f2f2f3] text-[#5b5b60]"
