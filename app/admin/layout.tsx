@@ -1,25 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
-/**
- * حماية صفحات Admin بكلمة سر
- * في الوقت الحالي: كلمة السر فارغة (اختياري)
- * لتغيير كلمة السر، عدّل قيمة ADMIN_PASSWORD
- */
-
-const ADMIN_PASSWORD = 'عدمي فارغ'; // ✏️ كلمة السر: عدمي فارغ
+const ADMIN_PASSWORD = 'عدمي فارغ';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // تحقق من كلمة السر المحفوظة في session
     const isAuth = sessionStorage.getItem('admin_authenticated') === 'true';
     setAuthenticated(isAuth);
     setLoading(false);
@@ -29,7 +20,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     e.preventDefault();
     setError('');
 
-    // إذا كانت كلمة السر فارغة، يمكن ترك الحقل فارغًا
     if (password !== ADMIN_PASSWORD) {
       setError('كلمة السر خاطئة.');
       return;
@@ -90,7 +80,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div>
-      {/* شريط الخروج */}
       <div className="border-b border-ink-300/20 bg-surface px-4 py-3 flex justify-end">
         <button
           onClick={() => {
@@ -103,7 +92,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
       </div>
 
-      {/* محتوى لوحة التحكم */}
       <div>
         {children}
       </div>
