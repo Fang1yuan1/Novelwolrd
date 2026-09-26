@@ -209,13 +209,24 @@ export default function EditNovelPage() {
       return;
     }
     setBulkDeleting(true);
-    const { error } = await supabase.from('chapters').delete().eq('novel_id', id);
-    setBulkDeleting(false);
-    if (error) {
-      alert(`فشل الحذف: ${error.message}`);
-      return;
+    try {
+      const response = await fetch('/api/delete-chapters-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ novelId: id })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        alert(`فشل الحذف: ${data.error || 'خطأ غير معروف'}`);
+        return;
+      }
+      alert(`✅ ${data.message}`);
+      loadChapters();
+    } catch (err) {
+      alert(`خطأ: ${String(err)}`);
+    } finally {
+      setBulkDeleting(false);
     }
-    loadChapters();
   }
 
   async function handleDeleteRange(e: React.FormEvent) {
@@ -232,20 +243,36 @@ export default function EditNovelPage() {
       return;
     }
     setBulkDeleting(true);
-    const { error } = await supabase
-      .from('chapters')
-      .delete()
-      .eq('novel_id', id)
-      .gte('chapter_number', from)
-      .lte('chapter_number', to);
-    setBulkDeleting(false);
-    if (error) {
-      alert(`فشل الحذف: ${error.message}`);
-      return;
+    try {
+      // حذف على دفعات (500 فصل في كل دفعة)
+      const BATCH_SIZE = 500;
+      let totalDeleted = 0;
+
+      for (let i = from; i <= to; i += BATCH_SIZE) {
+        const batchTo = Math.min(i + BATCH_SIZE - 1, to);
+        const { error } = await supabase
+          .from('chapters')
+          .delete()
+          .eq('novel_id', id)
+          .gte('chapter_number', i)
+          .lte('chapter_number', batchTo);
+        
+        if (error) {
+          alert(`فشل الحذف عند الفصول من ${i} إلى ${batchTo}: ${error.message}`);
+          return;
+        }
+        totalDeleted += (batchTo - i + 1);
+      }
+      
+      alert(`✅ تم حذف ${totalDeleted} فصل بنجاح`);
+      setRangeFrom('');
+      setRangeTo('');
+      loadChapters();
+    } catch (err) {
+      alert(`خطأ: ${String(err)}`);
+    } finally {
+      setBulkDeleting(false);
     }
-    setRangeFrom('');
-    setRangeTo('');
-    loadChapters();
   }
 
   async function handleDeleteNovel() {
