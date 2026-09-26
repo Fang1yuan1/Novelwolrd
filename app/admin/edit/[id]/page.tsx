@@ -210,26 +210,90 @@ export default function EditNovelPage() {
     }
     setBulkDeleting(true);
     try {
-      console.log(`🗑️ بدء حذف ${chapters.length} فصل من الرواية ${id}`);
-      
-      const { data, error } = await supabase
-        .from('chapters')
-        .delete()
-        .eq('novel_id', id)
-        .select(); // select لنعرف كم فصل اتحذف
-      
-      if (error) {
-        console.error('❌ خطأ من Supabase:', error);
-        alert(`❌ فشل الحذف!\n\nالسبب: ${error.message}\n\nالخطأ: ${error.code || 'غير معروف'}`);
-        return;
+      const BATCH_SIZE = 10; // 10 فصول فقط
+      const DELAY = 500;
+      let totalDeleted = 0;
+      let batchCount = 0;
+
+      console.log('='.repeat(60));
+      console.log(`🗑️ بدء حذف ${chapters.length} فصل`);
+      console.log(`📌 Novel ID: ${id}`);
+      console.log(`⚙️ حجم الدفعة: ${BATCH_SIZE} فصل`);
+      console.log(`⏱️ التأخير: ${DELAY}ms`);
+      console.log('='.repeat(60));
+
+      while (true) {
+        batchCount++;
+        const startTime = Date.now();
+        
+        console.log(`\n[الدفعة ${batchCount}] جاري البحث عن ${BATCH_SIZE} فصول...`);
+        
+        const { data: chapterIds, error: fetchError } = await supabase
+          .from('chapters')
+          .select('id')
+          .eq('novel_id', id)
+          .limit(BATCH_SIZE);
+
+        const fetchTime = Date.now() - startTime;
+        
+        if (fetchError) {
+          console.error(`❌ خطأ في البحث (${fetchTime}ms):`, fetchError);
+          throw new Error(`فشل البحث: ${fetchError.message}`);
+        }
+
+        if (!chapterIds || chapterIds.length === 0) {
+          console.log('✅ لا توجد فصول إضافية للحذف');
+          break;
+        }
+
+        console.log(`✅ وجدت ${chapterIds.length} فصل (وقت البحث: ${fetchTime}ms)`);
+        
+        const ids = chapterIds.map((c: any) => c.id);
+        
+        console.log(`🗑️ حذف الفصول: ${ids.join(', ')}`);
+        const deleteStartTime = Date.now();
+        
+        const { error: deleteError } = await supabase
+          .from('chapters')
+          .delete()
+          .in('id', ids);
+
+        const deleteTime = Date.now() - deleteStartTime;
+        
+        if (deleteError) {
+          console.error(`❌ خطأ الحذف (${deleteTime}ms):`, deleteError);
+          console.error('🔍 تفاصيل الخطأ:', {
+            message: deleteError.message,
+            code: deleteError.code,
+            details: deleteError.details
+          });
+          throw new Error(`فشل الحذف: ${deleteError.message} (${deleteError.code})`);
+        }
+        
+        totalDeleted += ids.length;
+        console.log(`✅ تم حذف ${totalDeleted} / ${chapters.length} فصل (وقت الحذف: ${deleteTime}ms)`);
+
+        if (chapterIds.length < BATCH_SIZE) {
+          console.log('\n🎉 انتهى الحذف بنجاح!');
+          break;
+        }
+
+        console.log(`⏱️ انتظار ${DELAY}ms قبل الدفعة التالية...`);
+        await new Promise(resolve => setTimeout(resolve, DELAY));
       }
-      
-      console.log(`✅ تم حذف ${data?.length || 0} فصل بنجاح`);
-      alert(`✅ تم حذف ${data?.length || chapters.length} فصل بنجاح`);
+
+      console.log('='.repeat(60));
+      console.log(`✅ النتيجة النهائية: تم حذف ${totalDeleted} فصل من أصل ${chapters.length}`);
+      console.log('='.repeat(60));
+      alert(`✅ تم حذف ${totalDeleted} فصل بنجاح!`);
       loadChapters();
     } catch (err: any) {
-      console.error('❌ خطأ عام:', err);
-      alert(`❌ خطأ: ${err?.message || String(err)}`);
+      console.log('='.repeat(60));
+      console.error('❌ حدث خطأ!');
+      console.error('📌 رسالة الخطأ:', err?.message);
+      console.error('🔍 تفاصيل كاملة:', err);
+      console.log('='.repeat(60));
+      alert(`❌ فشل الحذف!\n\n${err?.message || String(err)}\n\nاضغط F12 لرؤية التفاصيل الكاملة`);
     } finally {
       setBulkDeleting(false);
     }
@@ -250,31 +314,69 @@ export default function EditNovelPage() {
     }
     setBulkDeleting(true);
     try {
-      const count = to - from + 1;
-      console.log(`🗑️ بدء حذف ${count} فصل (من ${from} إلى ${to})`);
-      
-      const { data, error } = await supabase
-        .from('chapters')
-        .delete()
-        .eq('novel_id', id)
-        .gte('chapter_number', from)
-        .lte('chapter_number', to)
-        .select();
-      
-      if (error) {
-        console.error('❌ خطأ من Supabase:', error);
-        alert(`❌ فشل الحذف!\n\nالسبب: ${error.message}\n\nالخطأ: ${error.code || 'غير معروف'}`);
-        return;
+      const BATCH_SIZE = 10;
+      const DELAY = 500;
+      const totalCount = to - from + 1;
+      let totalDeleted = 0;
+      let batchCount = 0;
+
+      console.log('='.repeat(60));
+      console.log(`🗑️ بدء حذف نطاق من الفصول`);
+      console.log(`📌 Novel ID: ${id}`);
+      console.log(`📊 النطاق: من ${from} إلى ${to}`);
+      console.log(`📈 العدد الكلي: ${totalCount} فصل`);
+      console.log(`⚙️ حجم الدفعة: ${BATCH_SIZE} فصل`);
+      console.log('='.repeat(60));
+
+      for (let i = from; i <= to; i += BATCH_SIZE) {
+        batchCount++;
+        const batchTo = Math.min(i + BATCH_SIZE - 1, to);
+        const startTime = Date.now();
+        
+        console.log(`\n[الدفعة ${batchCount}] حذف الفصول من ${i} إلى ${batchTo}...`);
+        
+        const { error } = await supabase
+          .from('chapters')
+          .delete()
+          .eq('novel_id', id)
+          .gte('chapter_number', i)
+          .lte('chapter_number', batchTo);
+        
+        const deleteTime = Date.now() - startTime;
+        
+        if (error) {
+          console.error(`❌ خطأ الحذف (${deleteTime}ms):`, error);
+          console.error('🔍 تفاصيل الخطأ:', {
+            message: error.message,
+            code: error.code,
+            details: error.details
+          });
+          throw new Error(`فشل الحذف: ${error.message} (${error.code})`);
+        }
+        
+        totalDeleted += (batchTo - i + 1);
+        console.log(`✅ تم حذف ${totalDeleted} / ${totalCount} فصل (الوقت: ${deleteTime}ms)`);
+
+        if (i + BATCH_SIZE <= to) {
+          console.log(`⏱️ انتظار ${DELAY}ms...`);
+          await new Promise(resolve => setTimeout(resolve, DELAY));
+        }
       }
       
-      console.log(`✅ تم حذف ${data?.length || count} فصل بنجاح`);
-      alert(`✅ تم حذف ${data?.length || count} فصل بنجاح`);
+      console.log('='.repeat(60));
+      console.log(`✅ النتيجة النهائية: تم حذف ${totalDeleted} فصل`);
+      console.log('='.repeat(60));
+      alert(`✅ تم حذف ${totalDeleted} فصل بنجاح!`);
       setRangeFrom('');
       setRangeTo('');
       loadChapters();
     } catch (err: any) {
-      console.error('❌ خطأ عام:', err);
-      alert(`❌ خطأ: ${err?.message || String(err)}`);
+      console.log('='.repeat(60));
+      console.error('❌ حدث خطأ!');
+      console.error('📌 رسالة الخطأ:', err?.message);
+      console.error('🔍 تفاصيل كاملة:', err);
+      console.log('='.repeat(60));
+      alert(`❌ فشل الحذف!\n\n${err?.message || String(err)}\n\nاضغط F12 لرؤية التفاصيل الكاملة`);
     } finally {
       setBulkDeleting(false);
     }
