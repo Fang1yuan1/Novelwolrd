@@ -100,47 +100,16 @@ function checkRateLimit(
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const ip = getClientIp(req);
   const ua = req.headers.get("user-agent") || "";
 
-  // 1) امنع أدوات السحب المعروفة فورًا (curl, python-requests...الخ)
+  // فقط: منع أدوات السحب المعروفة فورًا (curl, python-requests...الخ)
   if (isKnownScraperUA(ua)) {
     return new NextResponse("Forbidden", { status: 403 });
   }
 
-  // 2) Honeypot: أي زيارة لمسار الفخ تعني إنه بوت 100% — حظر فوري
-  if (pathname === "/api/internal/sitemap-trap") {
-    buckets.set(`ip:${ip}`, {
-      count: RATE_LIMIT_MAX_REQUESTS + 1,
-      windowStart: Date.now(),
-      blockedUntil: Date.now() + BLOCK_DURATION_MS * 4, // حظر أطول للي وقع في الفخ
-    });
-    return new NextResponse("Forbidden", { status: 403 });
-  }
-
-  // 3) Rate limiting عام على كل حاجة
-  const generalCheck = checkRateLimit(`ip:${ip}`, RATE_LIMIT_MAX_REQUESTS);
-  if (!generalCheck.allowed) {
-    return new NextResponse("عدد الطلبات كتير أوي، حاول تاني بعد شوية", {
-      status: 429,
-      headers: { "Retry-After": "900" },
-    });
-  }
-
-  // 4) Rate limiting أشد على صفحات الفصول تحديدًا (أعلى قيمة محتوى)
-  const isChapterPage = /^\/novel\/[^/]+\/chapter\/[^/]+$/.test(pathname);
-  if (isChapterPage) {
-    const chapterCheck = checkRateLimit(
-      `chapter:${ip}`,
-      CHAPTER_RATE_LIMIT_MAX
-    );
-    if (!chapterCheck.allowed) {
-      return new NextResponse(
-        "بطّئ شوية في قراءة الفصول 🙂 حاول تاني بعد دقايق",
-        { status: 429, headers: { "Retry-After": "900" } }
-      );
-    }
-  }
+  // ✅ تم تعطيل Rate Limiting (الحد من عدد الطلبات)
+  // السبب: لتسهيل عمليات الحذف والتعديل في لوحة التحكم
+  // إذا احتجت تفعيله لاحقًا، انسخ الكود القديم
 
   return NextResponse.next();
 }
