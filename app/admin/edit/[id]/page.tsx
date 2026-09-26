@@ -209,13 +209,30 @@ export default function EditNovelPage() {
       return;
     }
     setBulkDeleting(true);
-    const { error } = await supabase.from('chapters').delete().eq('novel_id', id);
-    setBulkDeleting(false);
-    if (error) {
-      alert(`فشل الحذف: ${error.message}`);
-      return;
+    try {
+      console.log(`🗑️ بدء حذف ${chapters.length} فصل من الرواية ${id}`);
+      
+      const { data, error } = await supabase
+        .from('chapters')
+        .delete()
+        .eq('novel_id', id)
+        .select(); // select لنعرف كم فصل اتحذف
+      
+      if (error) {
+        console.error('❌ خطأ من Supabase:', error);
+        alert(`❌ فشل الحذف!\n\nالسبب: ${error.message}\n\nالخطأ: ${error.code || 'غير معروف'}`);
+        return;
+      }
+      
+      console.log(`✅ تم حذف ${data?.length || 0} فصل بنجاح`);
+      alert(`✅ تم حذف ${data?.length || chapters.length} فصل بنجاح`);
+      loadChapters();
+    } catch (err: any) {
+      console.error('❌ خطأ عام:', err);
+      alert(`❌ خطأ: ${err?.message || String(err)}`);
+    } finally {
+      setBulkDeleting(false);
     }
-    loadChapters();
   }
 
   async function handleDeleteRange(e: React.FormEvent) {
@@ -232,20 +249,35 @@ export default function EditNovelPage() {
       return;
     }
     setBulkDeleting(true);
-    const { error } = await supabase
-      .from('chapters')
-      .delete()
-      .eq('novel_id', id)
-      .gte('chapter_number', from)
-      .lte('chapter_number', to);
-    setBulkDeleting(false);
-    if (error) {
-      alert(`فشل الحذف: ${error.message}`);
-      return;
+    try {
+      const count = to - from + 1;
+      console.log(`🗑️ بدء حذف ${count} فصل (من ${from} إلى ${to})`);
+      
+      const { data, error } = await supabase
+        .from('chapters')
+        .delete()
+        .eq('novel_id', id)
+        .gte('chapter_number', from)
+        .lte('chapter_number', to)
+        .select();
+      
+      if (error) {
+        console.error('❌ خطأ من Supabase:', error);
+        alert(`❌ فشل الحذف!\n\nالسبب: ${error.message}\n\nالخطأ: ${error.code || 'غير معروف'}`);
+        return;
+      }
+      
+      console.log(`✅ تم حذف ${data?.length || count} فصل بنجاح`);
+      alert(`✅ تم حذف ${data?.length || count} فصل بنجاح`);
+      setRangeFrom('');
+      setRangeTo('');
+      loadChapters();
+    } catch (err: any) {
+      console.error('❌ خطأ عام:', err);
+      alert(`❌ خطأ: ${err?.message || String(err)}`);
+    } finally {
+      setBulkDeleting(false);
     }
-    setRangeFrom('');
-    setRangeTo('');
-    loadChapters();
   }
 
   async function handleDeleteNovel() {
