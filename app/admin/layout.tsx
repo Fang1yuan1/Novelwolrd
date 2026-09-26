@@ -83,14 +83,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               دخول
             </button>
           </form>
-
-          {ADMIN_PASSWORD === '' && (
-            <p className="mt-4 text-[11px] text-ink-400 border-t border-ink-300/20 pt-3">
-              ⚠️ الوضع الحالي: كلمة السر فارغة (للاختبار فقط)
-              <br />
-              غيّر كلمة السر في الملف قبل النشر على الإنتاج!
-            </p>
-          )}
         </div>
       </div>
     );
