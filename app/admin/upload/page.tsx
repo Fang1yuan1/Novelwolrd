@@ -9,8 +9,8 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const BATCH_SIZE = 5;
-const DELAY_MS = 400;
+const BATCH_SIZE = 500;
+const DELAY_MS = 150;
 
 // يشيل NUL وبقية رموز التحكم غير المرئية اللي يرفضها Postgres/Supabase
 function sanitizeForDb(text: string): string {
