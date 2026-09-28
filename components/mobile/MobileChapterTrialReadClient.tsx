@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
+import type { TrialReadSettings } from "@/lib/trial-read-settings";
 
 // نفس مفتاح التخزين ونفس شكل الإعدادات المستخدمة بصفحة القراءة (MobileChapterReader.tsx) —
 // عشان معاينة الفصل هنا تطابق فعليًا ثيم/حجم خط/سطوع القارئ الحقيقيين، مش نسخة منفصلة.
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_MIN = 14;
 const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
-
-// كم بكسل نصغّر نص المعاينة عن حجم خط صفحة القراءة (غيّر الرقم لو تبي أصغر/أكبر)
-const PREVIEW_FONT_OFFSET = 4;
 
 type Prefs = { theme: ReaderTheme; fontLevel: number; brightness: number };
 
@@ -39,11 +37,13 @@ export default function MobileChapterTrialReadClient({
   chapterNumber,
   chapterTitle,
   paragraphs,
+  settings,
 }: {
   novelId: number | string;
   chapterNumber: number;
   chapterTitle: string | null;
   paragraphs: string[];
+  settings: TrialReadSettings;
 }) {
   const [prefs, setPrefs] = useState<Prefs>({ theme: "original", fontLevel: 4, brightness: 100 });
   const [mounted, setMounted] = useState(false);
@@ -58,7 +58,8 @@ export default function MobileChapterTrialReadClient({
   // حجم النص هنا أصغر شوي من حجم القراءة الفعلي بصفحة الفصل (زي المرجع)، لكن لسه بيكبر/يصغر
   // مع تغيير المستخدم لحجم الخط بصفحة القراءة، بدل ما يكون رقم ثابت منفصل عنه تمامًا.
   const readerFontSize = FONT_LEVELS[prefs.fontLevel];
-  const fontSize = Math.max(13, readerFontSize - PREVIEW_FONT_OFFSET);
+  // الفرق (bodyOffset) يتعدّل من /admin/trial-read
+  const fontSize = Math.max(11, readerFontSize - settings.bodyOffset);
   // المسافة بين سطرين بالمرجع = 32px (مقاسة من الصورة)، ونكبّرها لو الخط كبر
   const lineHeightPx = Math.max(32, fontSize * 2);
   const fadeColor = mounted ? p.pageBg : "#ffffff";
@@ -66,32 +67,48 @@ export default function MobileChapterTrialReadClient({
   return (
     <section style={{ backgroundColor: mounted ? p.pageBg : "#ffffff" }} className="relative mt-2 px-3 py-3">
       {/* شريط التبويبات الثلاثة */}
-      <div className="mb-[25.5px] flex items-center gap-4">
-        <span className="relative text-[15px] font-bold" style={{ color: mounted ? p.text : "#191919" }}>
-          فصل تجريبي
-          <span
-            aria-hidden
-            className="absolute -left-2 -top-0.5 h-[6px] w-[2.5px] -rotate-[20deg] rounded-full bg-brand"
-          />
-        </span>
-        <span className="text-[15px]" style={{ color: mounted ? p.mutedText : "#999999" }}>
-          مزيد من المحتوى ذي الصلة
-        </span>
-        <span className="text-[15px]" style={{ color: mounted ? p.mutedText : "#999999" }}>
-          توصيات ويب تون
-        </span>
-      </div>
+      {(settings.tab1 || settings.tab2 || settings.tab3) && (
+        <div className="mb-[25.5px] flex items-center gap-4">
+          {settings.tab1 && (
+            <span
+              className="relative font-bold"
+              style={{ fontSize: settings.tabsSize, color: mounted ? p.text : "#191919" }}
+            >
+              {settings.tab1}
+              <span
+                aria-hidden
+                className="absolute -left-2 -top-0.5 h-[6px] w-[2.5px] -rotate-[20deg] rounded-full bg-brand"
+              />
+            </span>
+          )}
+          {settings.tab2 && (
+            <span style={{ fontSize: settings.tabsSize, color: mounted ? p.mutedText : "#999999" }}>
+              {settings.tab2}
+            </span>
+          )}
+          {settings.tab3 && (
+            <span style={{ fontSize: settings.tabsSize, color: mounted ? p.mutedText : "#999999" }}>
+              {settings.tab3}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* سطر النقاش */}
-      <div className="mb-[22.5px] flex items-center gap-1.5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/flame.png" alt="" aria-hidden className="h-[15px] w-auto shrink-0 opacity-70" />
-        <span className="text-[12px]" style={{ color: mounted ? p.mutedText : "#999999" }}>
-          نقاش نشط حول هذا الفصل
-        </span>
-      </div>
+      {settings.discussion && (
+        <div className="mb-[22.5px] flex items-center gap-1.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/flame.png" alt="" aria-hidden className="h-[15px] w-auto shrink-0 opacity-70" />
+          <span style={{ fontSize: settings.discussionSize, color: mounted ? p.mutedText : "#999999" }}>
+            {settings.discussion}
+          </span>
+        </div>
+      )}
 
-      <h3 className="mb-[27.5px] text-[19px] font-bold" style={{ color: mounted ? p.text : "#191919" }}>
+      <h3
+        className="mb-[27.5px] font-bold"
+        style={{ fontSize: settings.titleSize, color: mounted ? p.text : "#191919" }}
+      >
         الفصل {chapterNumber}
         {chapterTitle ? ` — ${chapterTitle}` : ""}
       </h3>

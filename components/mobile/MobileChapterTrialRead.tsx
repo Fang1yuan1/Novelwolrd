@@ -1,12 +1,16 @@
 import type { Novel } from "@/lib/novels";
 import { getChapterByNumber } from "@/lib/novels";
+import { getTrialReadSettings } from "@/lib/trial-read-settings";
 import MobileChapterTrialReadClient from "./MobileChapterTrialReadClient";
 
 // قسم «معاينة الفصل الأول» بأسفل صفحة تفاصيل الرواية (نسخة الهاتف). يجلب بيانات الفصل
-// هنا (سيرفر)، ويسلّمها لمكوّن العميل اللي يطبّق ثيم/خط/سطوع صفحة القراءة الفعليين
-// ويتحكم بتوسيع النص كامل بنفس الصفحة عند الضغط على «متابعة القراءة».
+// والإعدادات القابلة للتعديل من /admin/trial-read (كلمات وأحجام خطوط) هنا (سيرفر)،
+// ويسلّمها لمكوّن العميل اللي يطبّق ثيم/خط/سطوع صفحة القراءة ويوسّع النص بنفس الصفحة.
 export default async function MobileChapterTrialRead({ novel }: { novel: Novel }) {
-  const chapter = await getChapterByNumber(novel.id, 1);
+  const [chapter, settings] = await Promise.all([
+    getChapterByNumber(novel.id, 1),
+    getTrialReadSettings(),
+  ]);
   if (!chapter || !chapter.content) return null;
 
   const paragraphs = chapter.content
@@ -20,6 +24,7 @@ export default async function MobileChapterTrialRead({ novel }: { novel: Novel }
       chapterNumber={chapter.chapter_number}
       chapterTitle={chapter.title}
       paragraphs={paragraphs}
+      settings={settings}
     />
   );
 }
