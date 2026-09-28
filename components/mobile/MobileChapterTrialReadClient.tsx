@@ -9,6 +9,9 @@ const STORAGE_KEY = "novelwolrd-reader-prefs";
 const FONT_MIN = 14;
 const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
 
+// كم بكسل نصغّر نص المعاينة عن حجم خط صفحة القراءة (غيّر الرقم لو تبي أصغر/أكبر)
+const PREVIEW_FONT_OFFSET = 4;
+
 type Prefs = { theme: ReaderTheme; fontLevel: number; brightness: number };
 
 function readSavedPrefs(): Prefs {
@@ -52,17 +55,23 @@ export default function MobileChapterTrialReadClient({
   }, []);
 
   const p = READER_PALETTES[prefs.theme];
-  const fontSize = FONT_LEVELS[prefs.fontLevel];
+  // حجم النص هنا أصغر شوي من حجم القراءة الفعلي بصفحة الفصل (زي المرجع)، لكن لسه بيكبر/يصغر
+  // مع تغيير المستخدم لحجم الخط بصفحة القراءة، بدل ما يكون رقم ثابت منفصل عنه تمامًا.
+  const readerFontSize = FONT_LEVELS[prefs.fontLevel];
+  const fontSize = Math.max(13, readerFontSize - PREVIEW_FONT_OFFSET);
+  // المسافة بين سطرين بالمرجع = 32px (مقاسة من الصورة)، ونكبّرها لو الخط كبر
+  const lineHeightPx = Math.max(32, fontSize * 2);
+  const fadeColor = mounted ? p.pageBg : "#ffffff";
 
   return (
     <section style={{ backgroundColor: mounted ? p.pageBg : "#ffffff" }} className="relative mt-2 px-3 py-3">
       {/* شريط التبويبات الثلاثة */}
-      <div className="mb-2 flex items-center gap-4">
+      <div className="mb-[25.5px] flex items-center gap-4">
         <span className="relative text-[15px] font-bold" style={{ color: mounted ? p.text : "#191919" }}>
           فصل تجريبي
           <span
             aria-hidden
-            className="absolute -left-1.5 -top-0.5 h-[7px] w-[3px] -rotate-[25deg] rounded-full bg-brand"
+            className="absolute -left-2 -top-0.5 h-[6px] w-[2.5px] -rotate-[20deg] rounded-full bg-brand"
           />
         </span>
         <span className="text-[15px]" style={{ color: mounted ? p.mutedText : "#999999" }}>
@@ -74,7 +83,7 @@ export default function MobileChapterTrialReadClient({
       </div>
 
       {/* سطر النقاش */}
-      <div className="mb-3 flex items-center gap-1.5">
+      <div className="mb-[22.5px] flex items-center gap-1.5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icons/flame.png" alt="" aria-hidden className="h-[15px] w-auto shrink-0 opacity-70" />
         <span className="text-[12px]" style={{ color: mounted ? p.mutedText : "#999999" }}>
@@ -82,19 +91,19 @@ export default function MobileChapterTrialReadClient({
         </span>
       </div>
 
-      <h3 className="mb-3 text-[19px] font-bold" style={{ color: mounted ? p.text : "#191919" }}>
+      <h3 className="mb-[27.5px] text-[19px] font-bold" style={{ color: mounted ? p.text : "#191919" }}>
         الفصل {chapterNumber}
         {chapterTitle ? ` — ${chapterTitle}` : ""}
       </h3>
 
       <div className={`relative ${expanded ? "" : "max-h-64 overflow-hidden"}`}>
         <div
-          className="flex flex-col gap-3 text-center"
+          className="flex flex-col gap-[14px] text-center"
           style={{
             fontSize,
             fontWeight: p.boldText ? 700 : 400,
             color: mounted ? p.text : "#191919",
-            lineHeight: 2,
+            lineHeight: `${lineHeightPx}px`,
           }}
         >
           {paragraphs.map((para, i) => (
@@ -103,8 +112,11 @@ export default function MobileChapterTrialReadClient({
         </div>
         {!expanded && (
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t to-transparent"
-            style={{ ["--tw-gradient-from" as string]: mounted ? p.pageBg : "#ffffff" }}
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+            style={{
+              // linear-gradient مباشر (مش كلاسات تيلويند) عشان نضمن التعتيم يشتغل فعليًا
+              backgroundImage: `linear-gradient(to top, ${fadeColor} 15%, transparent 100%)`,
+            }}
           />
         )}
       </div>
@@ -113,9 +125,10 @@ export default function MobileChapterTrialReadClient({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="mx-auto mt-2 flex w-40 items-center justify-center gap-1 rounded-full border py-2 text-[13px]"
+          className="mx-auto mt-3 flex items-center justify-center gap-1.5 rounded-full border px-10 py-2.5 text-[13px]"
           style={{
-            borderColor: mounted ? p.cardBorder : "rgba(153,153,153,0.3)",
+            backgroundColor: mounted ? p.chipBg : "#eeeeec",
+            borderColor: "rgba(0,0,0,0.3)",
             color: mounted ? p.mutedText : "#666666",
           }}
         >
