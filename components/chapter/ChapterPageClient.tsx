@@ -9,6 +9,7 @@ import {
   type ReaderFontId,
   type ReaderWidthId,
 } from "@/lib/reader-theme";
+import { splitChapterParagraphs } from "@/lib/chapter-text";
 import SettingsModal from "./SettingsModal";
 import { useCopyProtection } from "@/lib/useCopyProtection";
 
@@ -415,10 +416,7 @@ export default function ChapterPageClient({
                 )}
               </div>
               <div ref={contentRef} className="chapter-no-copy text-justify" style={{ fontSize }}>
-                {chapter.content
-                  .split(/\n+/)
-                  .map((p) => p.trim())
-                  .filter(Boolean)
+                {splitChapterParagraphs(chapter.content)
                   .map((para, i) => (
                     <p key={i} className="mb-4 indent-8 leading-loose">
                       {para}

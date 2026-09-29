@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
+import { splitChapterParagraphs } from "@/lib/chapter-text";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
 
@@ -219,10 +220,7 @@ export default function MobileChapterReader({
   }, [p.pageBg]);
 
   const fontSize = FONT_LEVELS[fontLevel];
-  const paragraphs = chapter.content
-    .split(/\n+/)
-    .map((t) => t.trim())
-    .filter(Boolean);
+  const paragraphs = splitChapterParagraphs(chapter.content);
 
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
 
