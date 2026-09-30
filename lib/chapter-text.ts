@@ -3,13 +3,14 @@
 // القانون الأساسي (زي ما هو الحين): نقسّم على أي سطر جديد \n+ — فصل طبيعي فيه أسطر
 // جديدة حقيقية يبقى زي ما هو تمامًا، ما يتغيّر فيه شي.
 //
-// شبكة الأمان: لو فقرة وحدة (بعد التقسيم العادي) طولها 40% أو أكثر من طول الفصل كامل
-// (يعني تشابك حقيقي، جزئي أو كلي)، نعيد تقطيع تلك الفقرة بس (الباقي يبقى كما هو) حسب
-// نفس أسلوب الفصل الطبيعي المؤكد: فقرة قصيرة تنتهي عادة بنقطة "." أو تعجب "!" أو
-// استفهام "؟" أو نقاط حذف "…" أو علامة تنصيص ختامية.
+// شبكة الأمان: نفحص كل فقرة لحالها (مو نسبة من كامل الفصل) — أي فقرة وحدة يتجاوز
+// طولها 255 حرف، وفيها أكثر من جملة فعليًا (تتقطع حسب قانون نهاية الجملة)، تنقطّع
+// لأسطرها المنفصلة. فقرة قصيرة، أو فقرة طويلة بس جملة وحدة بلا نقطة تقطيع داخلها،
+// تبقى زي ما هي — بهذا ننكشف حتى الفصول اللي فيها عدة كتل متشابكة متوسطة (مو بس
+// كتلة وحدة عملاقة تهيمن على الفصل كله).
 
 const SENTENCE_END_RE = /([.!؟…"”])\s+(?=\S)/;
-const TANGLE_RATIO_THRESHOLD = 0.4;
+const TANGLE_MIN_CHARS = 255;
 
 function resplitBySentence(text: string): string[] {
   const parts = text.split(SENTENCE_END_RE);
@@ -37,22 +38,16 @@ export function splitChapterParagraphs(content: string): string[] {
 
   if (paras.length === 0) return [];
 
-  const totalLen = paras.reduce((sum, p) => sum + p.length, 0);
-  if (totalLen === 0) return paras;
-
-  let maxIdx = 0;
-  for (let i = 1; i < paras.length; i++) {
-    if (paras[i].length > paras[maxIdx].length) maxIdx = i;
+  const result: string[] = [];
+  for (const para of paras) {
+    if (para.length >= TANGLE_MIN_CHARS) {
+      const rebuilt = resplitBySentence(para);
+      if (rebuilt.length > 1) {
+        result.push(...rebuilt);
+        continue;
+      }
+    }
+    result.push(para); // قصيرة، أو طويلة بس بلا نقطة تقطيع فعلية — تبقى زي ما هي
   }
-
-  if (paras[maxIdx].length / totalLen < TANGLE_RATIO_THRESHOLD) {
-    return paras; // مو متشابك بما يكفي (أقل من 40%) — يرجع زي ما هو، بدون أي تدخل
-  }
-
-  const rebuilt = resplitBySentence(paras[maxIdx]);
-  if (rebuilt.length <= 1) return paras; // ما قدرنا نقطّعها لأي سبب — نسيبها زي ما هي، أسلم من تقطيع عشوائي
-
-  const result = [...paras];
-  result.splice(maxIdx, 1, ...rebuilt);
   return result;
 }
