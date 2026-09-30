@@ -1,6 +1,7 @@
 import type { Novel } from "@/lib/novels";
 import { getChapterByNumber } from "@/lib/novels";
 import { getTrialReadSettings } from "@/lib/trial-read-settings";
+import { splitChapterParagraphs } from "@/lib/chapter-text";
 import MobileChapterTrialReadClient from "./MobileChapterTrialReadClient";
 
 // قسم «معاينة الفصل الأول» بأسفل صفحة تفاصيل الرواية (نسخة الهاتف). يجلب بيانات الفصل
@@ -13,10 +14,7 @@ export default async function MobileChapterTrialRead({ novel }: { novel: Novel }
   ]);
   if (!chapter || !chapter.content) return null;
 
-  const paragraphs = chapter.content
-    .split("\n")
-    .map((p) => p.trim())
-    .filter(Boolean);
+  const paragraphs = splitChapterParagraphs(chapter.content);
 
   return (
     <MobileChapterTrialReadClient

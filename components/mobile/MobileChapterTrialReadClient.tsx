@@ -142,17 +142,23 @@ export default function MobileChapterTrialReadClient({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="mx-auto mt-3 flex items-center justify-center gap-1.5 rounded-full border px-10 py-2.5 text-[13px]"
-          style={{
-            backgroundColor: mounted ? p.chipBg : "#eeeeec",
-            borderColor: "rgba(0,0,0,0.3)",
-            color: mounted ? p.mutedText : "#666666",
-          }}
+          className="mx-auto mt-3 flex items-center justify-center gap-1.5 text-[13px]"
+          style={{ color: mounted ? p.mutedText : "#666666" }}
         >
           متابعة القراءة
-          <span aria-hidden className="text-[10px]">
-            ⌄
-          </span>
+          <svg
+            aria-hidden
+            width="12"
+            height="18"
+            viewBox="0 0 12 18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2 6l4 4 4-4" />
+          </svg>
         </button>
       )}
 
