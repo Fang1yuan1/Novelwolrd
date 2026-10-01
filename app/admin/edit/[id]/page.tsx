@@ -15,6 +15,7 @@ const COVER_BUCKET = 'covers';
 type Novel = {
   id: number;
   title: string;
+  title_en: string | null;
   description: string | null;
   cover_url: string | null;
   category: string | null;

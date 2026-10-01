@@ -15,7 +15,6 @@ export default function ExportTitlesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -52,11 +51,16 @@ export default function ExportTitlesPage() {
     [rows]
   );
 
-  function copyAll() {
-    navigator.clipboard.writeText(exportText).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+  function downloadFile() {
+    const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'novels-export.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -66,9 +70,8 @@ export default function ExportTitlesPage() {
       </a>
       <h1 className="mb-1 text-xl font-bold">تصدير بيانات كل الروايات</h1>
       <p className="mb-6 text-[13px] text-ink-500">
-        هذي كل بيانات رواياتك النصية (العنوان، الاسم الإنجليزي المحفوظ لو فيه، المؤلف، الوصف) في مكان
-        واحد — عشان تقدر تشوف بنفسك وين بالضبط مكتوب الاسم الإنجليزي لكل رواية، وتنسخها كلها دفعة
-        وحدة بدل ما تفتح كل رواية لحالها.
+        كل بيانات رواياتك النصية (العنوان، الاسم الإنجليزي المحفوظ لو فيه، المؤلف، الوصف) بملف نصي
+        واحد تقدر تنزّله وتفتحه وترفعه كامل لأي أداة ذكاء اصطناعي — بدون ما تفتح أي رواية لحالها.
       </p>
 
       {error && (
@@ -78,17 +81,17 @@ export default function ExportTitlesPage() {
       )}
 
       {loading ? (
-        <p className="text-sm text-ink-500">جارٍ التحميل… ({rows.length > 0 ? rows.length : '...'})</p>
+        <p className="text-sm text-ink-500">جارٍ التحميل…</p>
       ) : (
         <>
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[13px] text-ink-500">{rows.length} رواية</span>
             <button
               type="button"
-              onClick={copyAll}
+              onClick={downloadFile}
               className="rounded bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
             >
-              {copied ? 'تم النسخ ✅' : 'نسخ الكل'}
+              تحميل ملف واحد (novels-export.txt)
             </button>
           </div>
           <textarea
