@@ -5,6 +5,7 @@ import {
   getRelatedNovels,
 } from "@/lib/novels";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import TabNav from "@/components/novel/TabNav";
 import InfoCard from "@/components/novel/InfoCard";
 import AuthorCard from "@/components/novel/AuthorCard";
@@ -20,6 +21,40 @@ import AdSlot from "@/components/AdSlot";
 import MobileNovelDetail from "@/components/mobile/MobileNovelDetail";
 
 export const dynamic = "force-dynamic";
+
+// عنوان ووصف صفحة كل رواية بمحركات البحث. لو فيه اسم إنجليزي (title_en) بيتحط جنب
+// العربي بنفس العنوان عشان الرواية تظهر في نتائج البحث العربي والإنجليزي مع بعض.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const novel = await getNovelById(id);
+  if (!novel) return {};
+
+  const titleEn = novel.title_en?.trim();
+  const pageTitle = titleEn
+    ? `${novel.title} (${titleEn}) — عالم الروايات`
+    : `${novel.title} — عالم الروايات`;
+
+  const rawDescription = novel.description?.trim().replace(/\s+/g, " ") || "";
+  const description = rawDescription
+    ? rawDescription.length > 155
+      ? `${rawDescription.slice(0, 155)}…`
+      : rawDescription
+    : `اقرأ رواية ${novel.title}${titleEn ? ` (${titleEn})` : ""} مترجمة بالعربي على عالم الروايات.`;
+
+  return {
+    title: pageTitle,
+    description,
+    openGraph: {
+      title: pageTitle,
+      description,
+      images: novel.cover_url ? [novel.cover_url] : undefined,
+    },
+  };
+}
 
 export default async function NovelPage({
   params,

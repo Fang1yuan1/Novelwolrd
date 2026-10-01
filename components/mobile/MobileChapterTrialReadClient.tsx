@@ -50,7 +50,10 @@ export default function MobileChapterTrialReadClient({
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    setPrefs(readSavedPrefs());
+    // نقرأ حجم الخط والسطوع من إعدادات القارئ الحقيقية، لكن الثيم (فاتح/ليلي) نثبته دايمًا
+    // على "original" هنا — معاينة صفحة تفاصيل الرواية ما تتبع الوضع الليلي لصفحة القراءة
+    const saved = readSavedPrefs();
+    setPrefs({ ...saved, theme: "original" });
     setMounted(true);
   }, []);
 
@@ -145,20 +148,34 @@ export default function MobileChapterTrialReadClient({
           className="mx-auto mt-3 flex items-center justify-center gap-1.5 text-[13px]"
           style={{ color: mounted ? p.mutedText : "#666666" }}
         >
-          متابعة القراءة
-          <svg
+          <span
             aria-hidden
-            width="12"
-            height="18"
-            viewBox="0 0 12 18"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            className="flex items-center justify-center rounded-md"
+            style={{
+              width: 24,
+              height: 20,
+              backgroundColor: mounted ? p.chipBg : "#eeeeec",
+              border: `1px solid ${mounted ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0.12)"}`,
+            }}
           >
-            <path d="M2 6l4 4 4-4" />
-          </svg>
+            <span
+              style={{
+                display: "inline-block",
+                width: 18,
+                height: 10,
+                backgroundColor: mounted ? p.mutedText : "#666666",
+                WebkitMaskImage: "url(/icons/trial-chevron.png)",
+                maskImage: "url(/icons/trial-chevron.png)",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+              }}
+            />
+          </span>
+          متابعة القراءة
         </button>
       )}
 

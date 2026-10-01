@@ -16,6 +16,7 @@ export default function AddNovelPage() {
   const [newCategory, setNewCategory] = useState('');
 
   const [title, setTitle] = useState('');
+  const [titleEn, setTitleEn] = useState('');
   const [author, setAuthor] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'ongoing' | 'completed'>('ongoing');
@@ -113,6 +114,7 @@ export default function AddNovelPage() {
       .from('novels')
       .insert({
         title: title.trim(),
+        title_en: titleEn.trim() || null,
         description: description.trim() || null,
         cover_url: finalCoverUrl || null,
         category: finalCategory || null,
@@ -133,6 +135,7 @@ export default function AddNovelPage() {
     setResult({ ok: true, id: data.id });
     // تصفير الفورم بعد النجاح
     setTitle('');
+    setTitleEn('');
     setAuthor('');
     setDescription('');
     setStatus('ongoing');
@@ -172,6 +175,16 @@ export default function AddNovelPage() {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
             placeholder="اسم الرواية"
+          />
+        </Field>
+
+        <Field label="الاسم الإنجليزي (اختياري)">
+          <input
+            value={titleEn}
+            onChange={(e) => setTitleEn(e.target.value)}
+            dir="ltr"
+            className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+            placeholder="English name — يظهر بعنوان صفحة البحث بجوجل بجانب الاسم العربي"
           />
         </Field>
 

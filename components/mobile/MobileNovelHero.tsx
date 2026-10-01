@@ -11,12 +11,16 @@ export default async function MobileNovelHero({
   novel,
   chapters,
   chapterTotal,
+  displayTitle,
 }: {
   novel: Novel;
   chapters: ChapterSummary[];
   /** العدد الكلي للفصول (لأن chapters هنا معاينة فقط: أول فصل + آخر فصول) */
   chapterTotal?: number;
+  /** الاسم المعروض فعليًا (عربي أو إنجليزي حسب إعداد الموقع). افتراضيًا novel.title */
+  displayTitle?: string;
 }) {
+  const titleText = displayTitle ?? novel.title;
   const lastChapter = chapters[chapters.length - 1];
   const wordCount = novel.word_count ?? 0;
   const chapterCount = chapterTotal ?? novel.chapter_count ?? chapters.length;
@@ -42,7 +46,7 @@ export default async function MobileNovelHero({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={novel.cover_url}
-            alt={novel.title}
+            alt={titleText}
             className="aspect-[3/4] w-24 shrink-0 rounded object-cover shadow-lg"
           />
         ) : (
@@ -52,7 +56,7 @@ export default async function MobileNovelHero({
         )}
         <div className="min-w-0 flex-1 pt-1 text-white">
           <h1 className="line-clamp-2 text-lg font-bold leading-snug">
-            {novel.title}
+            {titleText}
           </h1>
           {novel.author && (
             <p className="mt-1.5 flex items-center gap-1.5 text-[14px]">

@@ -13,6 +13,7 @@ export type Novel = {
   id: number;
   created_at: string;
   title: string;
+  title_en?: string | null; // الاسم الإنجليزي (اختياري) — يُستخدم بعنوان صفحة البحث بجوجل
   description: string | null;
   cover_url: string | null;
   category: string | null;
