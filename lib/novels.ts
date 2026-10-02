@@ -77,6 +77,21 @@ export async function getNovels(limit?: number): Promise<Novel[]> {
   return [...(await fetchNovels(limit))];
 }
 
+// بحث عن روايات بالعنوان العربي أو الإنجليزي أو اسم المؤلف
+export async function searchNovels(query: string): Promise<Novel[]> {
+  const q = query.trim();
+  if (!supabase || !q) return [];
+  const safe = q.replace(/[%_]/g, (c) => `\\${c}`); // منع % و _ من كسر الفلتر
+  const { data, error } = await supabase
+    .from("novels")
+    .select("*")
+    .or(`title.ilike.%${safe}%,title_en.ilike.%${safe}%,author.ilike.%${safe}%`)
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (error || !data) return [];
+  return data as Novel[];
+}
+
 // رواية واحدة بالتفصيل
 export const getNovelById = requestCache(
   async (id: number | string): Promise<Novel | null> => {
