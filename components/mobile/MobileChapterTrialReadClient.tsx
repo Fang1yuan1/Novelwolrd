@@ -134,8 +134,9 @@ export default function MobileChapterTrialReadClient({
           <div
             className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
             style={{
-              // linear-gradient مباشر (مش كلاسات تيلويند) عشان نضمن التعتيم يشتغل فعليًا
-              backgroundImage: `linear-gradient(to top, ${fadeColor} 15%, transparent 100%)`,
+              // تدرّج متصل بدون "وقفة" عند البداية (بدون stop عند 15%) — عشان ما تظهر طبقة بيضاء
+              // صلبة فجأة فوق الزر، زي ما كان يحصل، وبدل كده يكون تلاشي تدريجي ناعم من تحت لفوق.
+              backgroundImage: `linear-gradient(to top, ${fadeColor} 0%, transparent 100%)`,
             }}
           />
         )}
@@ -145,37 +146,31 @@ export default function MobileChapterTrialReadClient({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="mx-auto mt-3 flex items-center justify-center gap-1.5 text-[13px]"
-          style={{ color: mounted ? p.mutedText : "#666666" }}
+          className="mx-auto mt-3 flex items-center justify-center gap-2 rounded-full px-9 py-2 text-[13px]"
+          style={{
+            color: mounted ? p.mutedText : "#666666",
+            backgroundColor: mounted ? p.pageBg : "#ffffff",
+            border: `1px solid ${mounted ? p.cardBorder : "rgba(25,25,25,0.14)"}`,
+          }}
         >
+          متابعة القراءة
           <span
             aria-hidden
-            className="flex items-center justify-center rounded-md"
             style={{
-              width: 24,
-              height: 20,
-              backgroundColor: mounted ? p.chipBg : "#eeeeec",
-              border: `1px solid ${mounted ? "rgba(0,0,0,0.12)" : "rgba(0,0,0,0.12)"}`,
+              display: "inline-block",
+              width: 13,
+              height: 8,
+              backgroundColor: mounted ? p.mutedText : "#666666",
+              WebkitMaskImage: "url(/icons/trial-chevron.png)",
+              maskImage: "url(/icons/trial-chevron.png)",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
             }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                width: 18,
-                height: 10,
-                backgroundColor: mounted ? p.mutedText : "#666666",
-                WebkitMaskImage: "url(/icons/trial-chevron.png)",
-                maskImage: "url(/icons/trial-chevron.png)",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-              }}
-            />
-          </span>
-          متابعة القراءة
+          />
         </button>
       )}
 

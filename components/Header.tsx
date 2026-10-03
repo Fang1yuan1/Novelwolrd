@@ -53,17 +53,12 @@ export default function Header() {
           </div>
         </div>
 
-        <form
-          action="/search"
-          method="GET"
-          className="flex w-full max-w-xl items-stretch overflow-hidden rounded border border-ink-300/50 sm:mx-6"
-        >
+        <form className="flex w-full max-w-xl items-stretch overflow-hidden rounded border border-ink-300/50 sm:mx-6">
           <label htmlFor="site-search" className="sr-only">
             ابحث في الفهرس
           </label>
           <input
             id="site-search"
-            name="q"
             type="search"
             placeholder="ابحث عن عناوين، مؤلفين، وسوم…"
             className="w-full px-3 py-2 text-sm text-ink-900 outline-none placeholder:text-ink-300"

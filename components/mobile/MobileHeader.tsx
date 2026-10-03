@@ -12,28 +12,24 @@ export default function MobileHeader() {
 
       <button className="mobile-app-button" type="button">تسجيل الدخول</button>
 
-      <a className="mobile-search-icon" href="/search" aria-label="بحث">
+      <button className="mobile-search-icon" type="button" aria-label="بحث">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
           <path d="m16.5 16.5 4 4" />
         </svg>
-      </a>
+      </button>
 
-      {/* display:contents عشان الفورم ما يكسر الـ grid-column: 1/-1 اللي على .mobile-reference-search */}
-      <form action="/search" method="GET" style={{ display: "contents" }}>
-        <label className="mobile-reference-search" htmlFor="mobile-site-search">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" />
-            <path d="m16.5 16.5 4 4" />
-          </svg>
-          <input
-            id="mobile-site-search"
-            name="q"
-            type="search"
-            placeholder="ابحث عن عنوان أو مؤلف"
-          />
-        </label>
-      </form>
+      <label className="mobile-reference-search" htmlFor="mobile-site-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m16.5 16.5 4 4" />
+        </svg>
+        <input
+          id="mobile-site-search"
+          type="search"
+          placeholder="ابحث عن عنوان أو مؤلف"
+        />
+      </label>
     </header>
   );
 }

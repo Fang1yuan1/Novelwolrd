@@ -25,7 +25,7 @@ export default async function MobileCategoriesPage() {
       <MobileCategoriesHeader
         rightSlot={
           <>
-            <a href="/search" aria-label="بحث" className="mobile-gender-icon-btn">
+            <a href="/" aria-label="بحث" className="mobile-gender-icon-btn">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/icons/header/search.png" alt="" className="h-[19px] w-[19px] object-contain" aria-hidden="true" />
             </a>

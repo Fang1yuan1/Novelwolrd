@@ -1,8 +1,7 @@
 import type { Novel } from "@/lib/novels";
 import { parseCategories } from "@/lib/novels";
-import { displayTitle, getDisplayLanguage } from "@/lib/display-language";
 
-export default async function MobileNovelGrid({
+export default function MobileNovelGrid({
   title,
   badge,
   novels,
@@ -17,7 +16,6 @@ export default async function MobileNovelGrid({
   moreHref?: string;
 }) {
   if (novels.length === 0) return null;
-  const lang = await getDisplayLanguage();
 
   // نكمّل صفوف الشبكة بالكامل (4 لكل صف) — لو العدد المتاح مايسمحش بصف كامل تاني
   // بنقص العرض لأقرب صف مكتمل بدل ما نسيب فراغ كبير في نص الصفحة زي المرجع بالظبط
@@ -42,16 +40,15 @@ export default async function MobileNovelGrid({
       <div className="nw-books-grid">
         {shown.map((n) => {
           const categories = parseCategories(n.category);
-          const title = displayTitle(n, lang);
           return (
             <a key={n.id} href={`/novel/${n.id}`} className="nw-book">
               {n.cover_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="nw-book-cover" src={n.cover_url} alt={title} />
+                <img className="nw-book-cover" src={n.cover_url} alt={n.title} />
               ) : (
                 <span className="nw-book-cover" />
               )}
-              <strong className="nw-book-title">{title}</strong>
+              <strong className="nw-book-title">{n.title}</strong>
               <span className="nw-book-cat">
                 {categories.length > 0
                   ? categories.slice(0, 2).join(" · ")

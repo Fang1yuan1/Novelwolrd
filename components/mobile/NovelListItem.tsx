@@ -1,8 +1,7 @@
 import type { Novel } from "@/lib/novels";
 import { parseCategories, formatCount } from "@/lib/novels";
-import { displayTitle, getDisplayLanguage } from "@/lib/display-language";
 
-export default async function NovelListItem({
+export default function NovelListItem({
   novel,
   wordCount,
   countPlacement = "chips",
@@ -17,7 +16,6 @@ export default async function NovelListItem({
    */
   countPlacement?: "chips" | "chips-start" | "author";
 }) {
-  const title = displayTitle(novel, await getDisplayLanguage());
   const cats = parseCategories(novel.category);
   const tags = parseCategories(novel.tags).slice(0, 2);
   const statusLabel = novel.status === "completed" ? "مكتملة" : "مستمرة";
@@ -29,7 +27,7 @@ export default async function NovelListItem({
     <a href={`/novel/${novel.id}`} className="flex items-start gap-3 text-right">
       <span className="min-w-0 flex-1">
         <span className="line-clamp-1 block text-[16px] font-bold text-ink-900">
-          {title}
+          {novel.title}
         </span>
         {novel.description && (
           <span className="line-clamp-2 mt-1.5 block text-[13px] leading-relaxed text-ink-500">
@@ -67,7 +65,7 @@ export default async function NovelListItem({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={novel.cover_url}
-          alt={title}
+          alt={novel.title}
           className="nw-list-cover"
         />
       ) : (

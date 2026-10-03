@@ -15,7 +15,6 @@ const COVER_BUCKET = 'covers';
 type Novel = {
   id: number;
   title: string;
-  title_en: string | null;
   description: string | null;
   cover_url: string | null;
   category: string | null;
@@ -43,7 +42,6 @@ export default function EditNovelPage() {
   const [newCategory, setNewCategory] = useState('');
 
   const [title, setTitle] = useState('');
-  const [titleEn, setTitleEn] = useState('');
   const [author, setAuthor] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'ongoing' | 'completed'>('ongoing');
@@ -330,7 +328,6 @@ export default function EditNovelPage() {
 
       const n = novel as Novel;
       setTitle(n.title || '');
-      setTitleEn(n.title_en || '');
       setAuthor(n.author || '');
       setDescription(n.description || '');
       setStatus((n.status as 'ongoing' | 'completed') || 'ongoing');
@@ -425,7 +422,6 @@ export default function EditNovelPage() {
       .from('novels')
       .update({
         title: title.trim(),
-        title_en: titleEn.trim() || null,
         description: description.trim() || null,
         cover_url: finalCoverUrl || null,
         category: selectedCategories.join(',') || null,
@@ -492,16 +488,6 @@ export default function EditNovelPage() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
-          />
-        </Field>
-
-        <Field label="الاسم الإنجليزي (اختياري)">
-          <input
-            value={titleEn}
-            onChange={(e) => setTitleEn(e.target.value)}
-            dir="ltr"
-            className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
-            placeholder="English name — يظهر بعنوان صفحة البحث بجوجل بجانب الاسم العربي"
           />
         </Field>
 
