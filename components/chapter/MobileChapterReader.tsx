@@ -44,6 +44,31 @@ function readSavedPrefs(): Prefs {
   }
 }
 
+// نوع الجهاز الفعلي (مو عرض النافذة) — جوال حقيقي (باللمس وشاشة ضيقة) / آيباد (لمس وشاشة
+// واسعة) / لابتوب-ديسكتوب (بدون لمس، فأرة). نحددها مرة واحدة بس أول ما تفتح الصفحة، وما
+// نعيد حسابها أبدًا لو المستخدم كبّر أو صغّر نافذة المتصفح — عكس استخدام sm:/md: اللي يتغيّر
+// لحظيًا مع تغيّر الأبعاد. هذا يطابق سلوك المرجع (Apple Books): نفس عرض عمود النص مهما غيّرت
+// حجم النافذة على نفس الجهاز.
+type DeviceKind = "mobile" | "tablet" | "desktop";
+
+function detectDeviceKind(): DeviceKind {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return "mobile";
+  const hasTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+  if (!hasTouch) return "desktop"; // بدون لمس = لابتوب/حاسوب مكتبي أكيد
+  // جهاز فيه لمس: آيباد شاشته الفعلية أعرض بكثير من الآيفون، نفرّق بالعرض الحقيقي للجهاز
+  // (screen.width مو window.innerWidth) عشان ما يتأثر بتصغير نافذة المتصفح نفسها لاحقًا
+  const deviceWidth = Math.max(window.screen?.width || 0, window.screen?.height || 0) || window.innerWidth;
+  return deviceWidth >= 900 ? "tablet" : "mobile";
+}
+
+// أقصى عرض لعمود النص حسب الجهاز — قياسًا على المرجع (تجربة قراءة مريحة بدل نص يتمدد
+// على كامل عرض الشاشة)
+const READER_COLUMN_WIDTH: Record<DeviceKind, number> = {
+  mobile: 480,
+  tablet: 680,
+  desktop: 720,
+};
+
 type NovelData = { id: number; title: string; chapter_count?: number };
 type ChapterData = {
   chapter_number: number;
@@ -164,10 +189,12 @@ export default function MobileChapterReader({
   const setBrightness = (n: number) => setPrefs((prev) => ({ ...prev, brightness: n }));
   const [showSheet, setShowSheet] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [deviceKind, setDeviceKind] = useState<DeviceKind>("mobile");
   const contentRef = useCopyProtection<HTMLDivElement>();
 
   useEffect(() => {
     setMounted(true);
+    setDeviceKind(detectDeviceKind()); // مرة وحدة بس عند أول تحميل — بدون أي مستمع لـ resize
   }, []);
 
   // مزامنة الثيم مع الإعدادات المحفوظة عند رجوع الصفحة من ذاكرة المتصفح (سجل التصفح/زرار رجوع)،
@@ -223,16 +250,24 @@ export default function MobileChapterReader({
   const paragraphs = splitChapterParagraphs(chapter.content);
 
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
+  const columnWidth = READER_COLUMN_WIDTH[deviceKind];
 
   return (
+    // يكسر عرض الـ 480px الموحّد لباقي الموقع (قالب الهاتف) خصيصًا بصفحة القراءة —
+    // لازم نطلع برّا أي حاوية أب عندها max-width عشان نقدر نطبّق عرض عمود مختلف لكل جهاز
     <div
-      className="relative min-h-screen"
-      style={{
-        backgroundColor: p.pageBg,
-        color: p.text,
-        transition: "background-color 0.4s ease, color 0.4s ease",
-      }}
+      className="relative min-h-screen w-screen"
+      style={{ left: "50%", right: "50%", marginLeft: "-50vw", marginRight: "-50vw", backgroundColor: "#e5e5e5" }}
     >
+      <div
+        className="relative mx-auto min-h-screen"
+        style={{
+          maxWidth: columnWidth,
+          backgroundColor: p.pageBg,
+          color: p.text,
+          transition: "background-color 0.4s ease, color 0.4s ease",
+        }}
+      >
       {/* شريط علوي — رقم واسم الفصل */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 border-b px-3 py-2.5"
@@ -370,6 +405,7 @@ export default function MobileChapterReader({
           onCustomize={() => setShowSheet(false)}
         />
       )}
+      </div>
     </div>
   );
 }
