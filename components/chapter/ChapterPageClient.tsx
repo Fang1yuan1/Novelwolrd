@@ -11,6 +11,7 @@ import {
 } from "@/lib/reader-theme";
 import { splitChapterParagraphs } from "@/lib/chapter-text";
 import SettingsModal from "./SettingsModal";
+import DesktopReaderSettingsSheet from "./DesktopReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
 
 const FONT_SIZES = [15, 17, 19, 21, 23];
@@ -237,6 +238,8 @@ export default function ChapterPageClient({
   const [fontFamilyId, setFontFamilyId] = useState<ReaderFontId>("sans");
   const [widthId, setWidthId] = useState<ReaderWidthId>("auto");
   const [showAuthorNote, setShowAuthorNote] = useState(true);
+  const [brightness, setBrightness] = useState(100);
+  const [quickSheetOpen, setQuickSheetOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const contentRef = useCopyProtection<HTMLDivElement>();
@@ -252,6 +255,8 @@ export default function ChapterPageClient({
         if (saved.fontFamilyId) setFontFamilyId(saved.fontFamilyId);
         if (saved.widthId) setWidthId(saved.widthId);
         if (typeof saved.showAuthorNote === "boolean") setShowAuthorNote(saved.showAuthorNote);
+        // brightness مشترك مع صفحة القراءة بنسخة الموبايل (نفس المفتاح novelwolrd-reader-prefs)
+        if (typeof saved.brightness === "number") setBrightness(saved.brightness);
       }
     } catch {
       // ignore — defaults are fine
@@ -263,12 +268,12 @@ export default function ChapterPageClient({
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ theme, fontSizeIdx, fontFamilyId, widthId, showAuthorNote })
+        JSON.stringify({ theme, fontSizeIdx, fontFamilyId, widthId, showAuthorNote, brightness })
       );
     } catch {
       // ignore persistence failures
     }
-  }, [theme, fontSizeIdx, fontFamilyId, widthId, showAuthorNote, mounted]);
+  }, [theme, fontSizeIdx, fontFamilyId, widthId, showAuthorNote, brightness, mounted]);
 
   const p = READER_PALETTES[theme];
   const fontSize = FONT_SIZES[fontSizeIdx];
@@ -537,12 +542,21 @@ export default function ChapterPageClient({
         <RailChip
           icon={<img src={theme === "quiet" ? "/icons/sliders.png" : "/icons/sliders-light.png"} alt="" className="h-11 w-11 object-contain" />}
           label="الإعدادات"
-          onClick={() => setSettingsOpen(true)}
+          onClick={() => setQuickSheetOpen(true)}
           title="إعدادات القراءة"
           imageIcon
           {...chipProps}
         />
       </div>
+
+      {/* تعتيم السطوع — نفس تقنية صفحة القراءة بالموبايل (brightness) */}
+      {mounted && brightness < 100 && (
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 z-10"
+          style={{ backgroundColor: "#000", opacity: 0.55 * Math.pow((100 - brightness) / 100, 1.6) }}
+        />
+      )}
 
       {/* Left feedback rail — fixed, desktop only, matches qidian's left strip */}
       <div
@@ -568,6 +582,20 @@ export default function ChapterPageClient({
           ملاحظات
         </a>
       </div>
+
+      {quickSheetOpen && (
+        <DesktopReaderSettingsSheet
+          theme={theme}
+          setTheme={setTheme}
+          fontIdx={fontSizeIdx}
+          setFontIdx={setFontSizeIdx}
+          fontSizes={FONT_SIZES}
+          brightness={brightness}
+          setBrightness={setBrightness}
+          onClose={() => setQuickSheetOpen(false)}
+          onCustomize={() => setSettingsOpen(true)}
+        />
+      )}
 
       {settingsOpen && (
         <SettingsModal
