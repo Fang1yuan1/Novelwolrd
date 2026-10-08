@@ -370,9 +370,7 @@ body {
 .mobile-reference-bottom-nav a:last-child { border-inline-start: 1px solid #e5e5e5; }
 .mobile-bottom-icon { width: 21px; height: 21px; fill: none; stroke: #1c1c1e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-@media (min-width: 640px) {
-  .mobile-reference-page { display: none; }
-}
+/* (أُزيلت قاعدة إخفاء صفحة الجوال على الشاشات العريضة — صفحة الجوال هي الأساسية لكل الأجهزة) */
 
 @media (max-width: 390px) {
   .mobile-reference-header { grid-template-columns: 1fr auto 32px; padding-inline: 11px; gap: 12px 6px; }
@@ -1261,9 +1259,6 @@ body {
   color: #191919;
   font-family: "Tajawal", "Segoe UI", sans-serif;
 }
-@media (min-width: 640px) {
-  .nw-toc { display: none; }
-}
 /* :where() يخلّي هذه القواعد بأقل أولوية فما تطغى على ألوان/مسافات كلاسات الصفحة */
 :where(.nw-toc) button {
   margin: 0;
@@ -1614,4 +1609,9 @@ body {
 @media (min-width: 700px) {
   .nw-rs-overlay { --u: calc(560px / 828); }
   .nw-rs-panel { max-width: 560px; border-radius: calc(40 * var(--u)); margin-bottom: 24px; }
+}
+
+/* الشريط السفلي الثابت لصفحات الجوال: على الشاشات العريضة يتوسّط بنفس عرض العمود (640px) */
+@media (min-width: 700px) {
+  .mobile-reference-bottom-nav { max-width: 640px; margin-inline: auto; }
 }
