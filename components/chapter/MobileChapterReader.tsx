@@ -11,16 +11,22 @@ import type { DeviceKind } from "@/lib/device";
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 // مستويات الخط بالجوال: 15 خطوة (14→28) زي مؤشر النقاط بالمرجع. ننقل قيمة الخط القديمة (5 مستويات) تلقائيًا،
 // ونخزّن المستوى بمفتاح مستقل (fontLevel) عشان ما نخرّب fontIdx اللي يقرأه القارئ الغني بنفس التخزين.
+const OLD_FONT_SIZES = [16, 18, 20, 22, 24];
 const FONT_MIN = 14;
 const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
 
-type Prefs = { theme: ReaderTheme; fontIdx: number; fontLevel: number; brightness: number };
+type Prefs = { theme: ReaderTheme; fontIdx: number; fontLevel: number; brightness: number; fontTouched?: boolean };
 
-function readSavedPrefs(): Prefs {
+// الجوال: الافتراضي القديم كما هو (مستوى 4 = خط 18) ولا نغيّره.
+// أي جهاز غير الجوال (آيباد/لابتوب/ديسكتوب): يبدأ من أول نقطة = خط 14.
+const PHONE_DEFAULT_LEVEL = 4;
+const OTHER_DEFAULT_LEVEL = 0;
+
+function readSavedPrefs(defaultLevel: number, isPhone: boolean): Prefs {
   const fallback: Prefs = {
     theme: "original",
     fontIdx: 1,
-    fontLevel: 0, // يبدأ من خط 14 (أول نقطة تحت A الصغيرة)
+    fontLevel: defaultLevel,
     brightness: 100,
   };
   if (typeof window === "undefined") return fallback;
@@ -29,13 +35,20 @@ function readSavedPrefs(): Prefs {
     if (!raw) return fallback;
     const saved = JSON.parse(raw);
     const fontIdx = typeof saved.fontIdx === "number" ? saved.fontIdx : fallback.fontIdx;
+    // الجوال: لو ما فيه fontLevel محفوظ ننقل القيمة القديمة (5 مستويات) كما كان سابقًا
+    const fromOld = (OLD_FONT_SIZES[fontIdx] ?? OLD_FONT_SIZES[1]) - FONT_MIN;
     return {
       theme: saved.theme && saved.theme in READER_PALETTES ? saved.theme : fallback.theme,
       fontIdx,
+      // الجوال: يحترم المحفوظ كما كان. غير الجوال: يحترم المحفوظ فقط لو القارئ غيّر الخط بنفسه (fontTouched)،
+      // وإلا يبدأ من الافتراضي (14) حتى لو كان محفوظ مستوى قديم من فتح الصفحة سابقًا
       fontLevel:
-        typeof saved.fontLevel === "number"
+        typeof saved.fontLevel === "number" && (isPhone || saved.fontTouched === true)
           ? Math.min(FONT_LEVELS.length - 1, Math.max(0, saved.fontLevel))
-          : fallback.fontLevel,
+          : isPhone
+            ? fromOld
+            : fallback.fontLevel,
+      fontTouched: saved.fontTouched === true,
       brightness: typeof saved.brightness === "number" ? saved.brightness : fallback.brightness,
     };
   } catch {
@@ -105,7 +118,9 @@ export default function MobileChapterReader({
   nextNumber: number | null;
   deviceKind?: DeviceKind;
 }) {
-  const [prefs, setPrefs] = useState(readSavedPrefs);
+  const isPhone = deviceKind === "phone";
+  const defaultLevel = isPhone ? PHONE_DEFAULT_LEVEL : OTHER_DEFAULT_LEVEL;
+  const [prefs, setPrefs] = useState(() => readSavedPrefs(defaultLevel, isPhone));
   const { theme, fontLevel, brightness } = prefs;
   // تغيير حجم الخط زي المرجع بالضبط (مقاس من فيديو المرجع بمعدل 60 إطار/ثانية):
   //  ١) المؤشر (النقاط) يتحدّث لحظيًا مع الضغط.  ٢) بعد ~0.22 ثانية من آخر ضغطة يختفي النص كله «والعنوان معه» خلال 0.135 ثانية (خطي، بدون تسارع)
@@ -139,7 +154,7 @@ export default function MobileChapterReader({
     setTextHidden(true); // يخفت للصفر
     later(() => {
       appliedRef.current = wantRef.current;
-      setPrefs((prev) => ({ ...prev, fontLevel: appliedRef.current })); // تبديل الحجم والنص مختفي
+      setPrefs((prev) => ({ ...prev, fontLevel: appliedRef.current, fontTouched: true })); // تبديل الحجم والنص مختفي
       later(() => {
         setTextHidden(false); // يظهر بالحجم الجديد
         later(() => {
@@ -174,7 +189,7 @@ export default function MobileChapterReader({
   // مزامنة الثيم مع الإعدادات المحفوظة عند رجوع الصفحة من ذاكرة المتصفح (سجل التصفح/زرار رجوع)،
   // عشان مايحصلش تعارض: خلفية الصفحة تفضل بيضاء بينما لوحة الثيمات لسه فاتحة على إنها داكنة
   useEffect(() => {
-    const syncFromStorage = () => setPrefs(readSavedPrefs());
+    const syncFromStorage = () => setPrefs(readSavedPrefs(defaultLevel, isPhone));
     window.addEventListener("pageshow", syncFromStorage);
     document.addEventListener("visibilitychange", syncFromStorage);
     return () => {
