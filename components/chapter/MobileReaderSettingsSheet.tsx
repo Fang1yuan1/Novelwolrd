@@ -236,7 +236,7 @@ export default function MobileReaderSettingsSheet({
 
   if (variant === "tablet") {
     // ألوان ومقاسات من لقطة آبل بوكس على الآيباد (1640×2360، 1 بكسل لقطة = 1u)
-    const glass = isDark ? "rgba(52,49,52,0.86)" : "rgba(245,245,245,0.82)";
+    const glass = isDark ? "rgba(52,49,52,0.8)" : "rgba(245,245,245,0.78)";
     const solid = isDark ? "#343134" : "#f6f6f6";
     const tPill = isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.1)";
     const tBtn = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.075)";

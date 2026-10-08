@@ -1582,16 +1582,17 @@ body {
   max-width: none;
   padding: 0;
   overflow: hidden;
-  margin-bottom: calc(22 * var(--u) + env(safe-area-inset-bottom, 0px));
+  margin-bottom: calc(22 * var(--u));
+  isolation: isolate;
   border-radius: calc(38 * var(--u));
   background: transparent;
   box-shadow: 0 calc(10 * var(--u)) calc(60 * var(--u)) rgba(0, 0, 0, 0.22);
   transform: translateY(calc(100% + 80 * var(--u)));
 }
-.nw-rs-overlay.is-open .nw-rs-panel.nw-rs-panel--tablet { transform: translateY(0); }
-.nw-rs-t-glass { -webkit-backdrop-filter: blur(calc(40 * var(--u))) saturate(1.4); backdrop-filter: blur(calc(40 * var(--u))) saturate(1.4); }
+.nw-rs-overlay.is-open .nw-rs-panel.nw-rs-panel--tablet { transform: none; }
+.nw-rs-t-glass { -webkit-backdrop-filter: blur(calc(14 * var(--u))) saturate(1.6); backdrop-filter: blur(calc(14 * var(--u))) saturate(1.6); }
 .nw-rs-t-top { padding: calc(131 * var(--u)) calc(38 * var(--u)) calc(27 * var(--u)); }
-.nw-rs-t-solid { padding: calc(32 * var(--u)) calc(38 * var(--u)) calc(39 * var(--u)); }
+.nw-rs-t-solid { position: relative; z-index: 1; margin: -1px 0; padding: calc(33 * var(--u)) calc(38 * var(--u)) calc(40 * var(--u)); }
 .nw-rs-t-bottom { height: calc(109 * var(--u)); }
 .nw-rs-panel--tablet .nw-rs-head { height: calc(96 * var(--u)); }
 .nw-rs-panel--tablet .nw-rs-title { font-size: calc(44 * var(--u)); }
@@ -1623,8 +1624,8 @@ body {
 /* لوحة إعدادات القراءة على الشاشات العريضة (آيباد/لابتوب): --u مربوط بعرض الشاشة فكانت تتضخّم،
    نثبّت مقياسها على عرض 560px ونوسّطها */
 @media (min-width: 700px) {
-  .nw-rs-overlay { --u: calc(560px / 828); }
-  .nw-rs-panel { max-width: 560px; border-radius: calc(40 * var(--u)); margin-bottom: 24px; }
+  .nw-rs-overlay:not(.nw-rs-overlay--tablet) { --u: calc(560px / 828); }
+  .nw-rs-panel:not(.nw-rs-panel--tablet) { max-width: 560px; border-radius: calc(40 * var(--u)); margin-bottom: 24px; }
 }
 
 /* الشريط السفلي الثابت لصفحات الجوال: على الشاشات العريضة يتوسّط بنفس عرض العمود (640px) */
