@@ -7,8 +7,7 @@ import type { TrialReadSettings } from "@/lib/trial-read-settings";
 // نفس مفتاح التخزين ونفس شكل الإعدادات المستخدمة بصفحة القراءة (MobileChapterReader.tsx) —
 // عشان معاينة الفصل هنا تطابق فعليًا ثيم/حجم خط/سطوع القارئ الحقيقيين، مش نسخة منفصلة.
 const STORAGE_KEY = "novelwolrd-reader-prefs";
-// نفس تعديل MobileChapterReader.tsx: الحد الأدنى صار يبدأ من النقطة الثانية سابقًا (كانت 14)
-const FONT_MIN = 15;
+const FONT_MIN = 14;
 const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
 
 type Prefs = { theme: ReaderTheme; fontLevel: number; brightness: number };

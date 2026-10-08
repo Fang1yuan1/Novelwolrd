@@ -1461,10 +1461,6 @@ body {
 
 /* ===== لوحة الثيمات والإعدادات بصفحة القراءة — مقاسات لقطة آبل بوكس 828×1792 (1 بكسل لقطة = 1u) ===== */
 .nw-rs-overlay {
-  /* --u هنا محدودة بحد أقصى (مش 100vw/828 بدون سقف زي باقي الموقع) عشان على آيباد/لابتوب
-     ما تكبر اللوحة بشكل غير طبيعي — توقف نموها عند عرض مرجعي 480px (زي إطار جوال)
-     وتفضل بنفس تناسب التصميم بالضبط. تحت 480px ما تتغير — نفس سلوك الموبايل الحالي بالضبط. */
-  --u: min(calc(100vw / 828), calc(480px / 828));
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -1477,11 +1473,10 @@ body {
 .nw-rs-overlay.is-open { background: rgba(0, 0, 0, 0.4); }
 /* أثناء لمس شريط السطوع يختفي التعتيم فتشوف تأثير السطوع على الصفحة، ويرجع بعد الرفع (زي المرجع) */
 .nw-rs-overlay.is-open.is-live { background: rgba(0, 0, 0, 0); }
-/* لوحة مفرودة بعرض الشاشة كاملًا ومن الأسفل على الجوال (زي المرجع)، وتتحول لبطاقة بعرض محدود
-   ومتمركزة فوق آيباد/لابتوب (بما إن --u توقفت عن الكبر، 828*u تساوي 480px بالضبط هناك) */
+/* لوحة مفرودة بعرض الشاشة كاملًا ومن الأسفل (زي المرجع)، زوايا علوية 40، بدون إطار ولا ظل */
 .nw-rs-panel {
   width: 100%;
-  max-width: calc(828 * var(--u));
+  max-width: 100%;
   box-sizing: border-box;
   padding: calc(17 * var(--u)) calc(40 * var(--u)) calc(24 * var(--u) + env(safe-area-inset-bottom, 0px));
   border-radius: calc(40 * var(--u)) calc(40 * var(--u)) 0 0;
@@ -1613,3 +1608,10 @@ body {
 @keyframes nw-swap-1 { from { opacity: 0.15; filter: blur(8px); } to { opacity: 1; filter: blur(0); } }
 .nw-swap-0 { animation: nw-swap-0 0.4s ease-out; }
 .nw-swap-1 { animation: nw-swap-1 0.4s ease-out; }
+
+/* لوحة إعدادات القراءة على الشاشات العريضة (آيباد/لابتوب): --u مربوط بعرض الشاشة فكانت تتضخّم،
+   نثبّت مقياسها على عرض 560px ونوسّطها */
+@media (min-width: 700px) {
+  .nw-rs-overlay { --u: calc(560px / 828); }
+  .nw-rs-panel { max-width: 560px; border-radius: calc(40 * var(--u)); margin-bottom: 24px; }
+}

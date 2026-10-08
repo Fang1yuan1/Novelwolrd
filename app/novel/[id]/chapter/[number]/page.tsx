@@ -26,35 +26,17 @@ export default async function ChapterPage({
   // بكسر (644.5) ما تنتقّى بالتنقّل بين الفصول
   const { prev: prevNumber, next: nextNumber } = await getAdjacentChapterNumbers(id, currentNumber);
 
-  // تحديد الجهاز دقيق من الـUser-Agent الحقيقي بالسيرفر (مش عرض الشاشة) — آيباد ولابتوب
-  // ديسكتوب يُعاملوا نفس معاملة بعض: نفس تصميم الجوال، بس بإطار بعرض ثابت متمركز
-  // بدل ما يتمدد بكل عرض الشاشة. التفاصيل بـ lib/device-server.ts و lib/device.ts.
+  // نوع الجهاز الحقيقي من الـUser-Agent (مو من عرض الشاشة) — ثابت حتى لو تغيّر حجم النافذة
   const deviceKind = await getServerDeviceKind();
-  const isPhone = deviceKind === "phone";
 
-  const reader = (
+  // صفحة القراءة واحدة لكل الأجهزة (جوال/آيباد/لابتوب) — نسخة الجوال
+  return (
     <MobileChapterReader
       novel={novel}
       chapter={chapter}
       prevNumber={prevNumber}
       nextNumber={nextNumber}
+      deviceKind={deviceKind}
     />
-  );
-
-  if (isPhone) return reader;
-
-  // آيباد/لابتوب: نفس الصفحة بالضبط، داخل إطار بعرض جوال ثابت ومتمركز بالنص.
-  // مهم: --u (وحدة القياس المستخدمة بكل مقاسات الصفحة والشيتات) مبنية أصلاً على
-  // 100vw الفعلي (عرض الشاشة الحقيقي)، فلازم نحددها هنا صراحة بعرض الإطار (480)
-  // وإلا كل شيء جوّه الإطار يتحسب على عرض الشاشة الكبير مش عرض الإطار الصغير.
-  return (
-    <div className="min-h-screen bg-[#e5e5e5]">
-      <div
-        className="mx-auto min-h-screen w-full max-w-[480px] bg-surface shadow-[0_0_40px_rgba(0,0,0,0.12)]"
-        style={{ ["--u" as string]: "calc(480px / 828)" }}
-      >
-        {reader}
-      </div>
-    </div>
   );
 }

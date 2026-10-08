@@ -6,13 +6,12 @@ import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 import { splitChapterParagraphs } from "@/lib/chapter-text";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
+import type { DeviceKind } from "@/lib/device";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 // مستويات الخط بالجوال: 15 خطوة (14→28) زي مؤشر النقاط بالمرجع. ننقل قيمة الخط القديمة (5 مستويات) تلقائيًا،
 // ونخزّن المستوى بمفتاح مستقل (fontLevel) عشان ما نخرّب fontIdx اللي يقرأه القارئ الغني بنفس التخزين.
-const OLD_FONT_SIZES = [16, 18, 20, 22, 24];
-// الحد الأدنى صار يبدأ من النقطة الثانية سابقًا (كانت 14) — أصغر حجم ممكن الآن هو القديم رقم 2
-const FONT_MIN = 15;
+const FONT_MIN = 14;
 const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
 
 type Prefs = { theme: ReaderTheme; fontIdx: number; fontLevel: number; brightness: number };
@@ -21,7 +20,7 @@ function readSavedPrefs(): Prefs {
   const fallback: Prefs = {
     theme: "original",
     fontIdx: 1,
-    fontLevel: 4,
+    fontLevel: 0, // يبدأ من خط 14 (أول نقطة تحت A الصغيرة)
     brightness: 100,
   };
   if (typeof window === "undefined") return fallback;
@@ -30,14 +29,13 @@ function readSavedPrefs(): Prefs {
     if (!raw) return fallback;
     const saved = JSON.parse(raw);
     const fontIdx = typeof saved.fontIdx === "number" ? saved.fontIdx : fallback.fontIdx;
-    const fromOld = (OLD_FONT_SIZES[fontIdx] ?? OLD_FONT_SIZES[1]) - FONT_MIN;
     return {
       theme: saved.theme && saved.theme in READER_PALETTES ? saved.theme : fallback.theme,
       fontIdx,
       fontLevel:
         typeof saved.fontLevel === "number"
           ? Math.min(FONT_LEVELS.length - 1, Math.max(0, saved.fontLevel))
-          : fromOld,
+          : fallback.fontLevel,
       brightness: typeof saved.brightness === "number" ? saved.brightness : fallback.brightness,
     };
   } catch {
@@ -99,11 +97,13 @@ export default function MobileChapterReader({
   chapter,
   prevNumber,
   nextNumber,
+  deviceKind = "phone",
 }: {
   novel: NovelData;
   chapter: ChapterData;
   prevNumber: number | null;
   nextNumber: number | null;
+  deviceKind?: DeviceKind;
 }) {
   const [prefs, setPrefs] = useState(readSavedPrefs);
   const { theme, fontLevel, brightness } = prefs;
@@ -234,6 +234,8 @@ export default function MobileChapterReader({
         transition: "background-color 0.4s ease, color 0.4s ease",
       }}
     >
+      {/* على الآيباد/اللابتوب: نفس صفحة الجوال لكن بعمود مركزي بعرض ثابت بدل التمدد على كل الشاشة */}
+      <div className={deviceKind === "phone" ? "" : "mx-auto w-full max-w-[640px]"}>
       {/* شريط علوي — رقم واسم الفصل */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 border-b px-3 py-2.5"
@@ -347,6 +349,7 @@ export default function MobileChapterReader({
             <IconArrowRight />
           </span>
         )}
+      </div>
       </div>
 
       {/* ستارة السطوع — تعتيم حقيقي فوق الشاشة حسب قيمة الشريط */}
