@@ -13,12 +13,14 @@ const STORAGE_KEY = "novelwolrd-reader-prefs";
 // ونخزّن المستوى بمفتاح مستقل (fontLevel) عشان ما نخرّب fontIdx اللي يقرأه القارئ الغني بنفس التخزين.
 const OLD_FONT_SIZES = [16, 18, 20, 22, 24];
 const FONT_MIN = 14;
-const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
+const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i); // الجوال: 14→28
+// أي جهاز غير الجوال (آيباد/لابتوب): يبدأ من 13 (13→27)
+const OTHER_FONT_LEVELS = Array.from({ length: 15 }, (_, i) => 13 + i);
 
 type Prefs = { theme: ReaderTheme; fontIdx: number; fontLevel: number; brightness: number; fontTouched?: boolean };
 
 // الجوال: الافتراضي القديم كما هو (مستوى 4 = خط 18) ولا نغيّره.
-// أي جهاز غير الجوال (آيباد/لابتوب/ديسكتوب): يبدأ من أول نقطة = خط 14.
+// أي جهاز غير الجوال (آيباد/لابتوب/ديسكتوب): يبدأ من أول نقطة = خط 13.
 const PHONE_DEFAULT_LEVEL = 4;
 const OTHER_DEFAULT_LEVEL = 0;
 
@@ -235,7 +237,8 @@ export default function MobileChapterReader({
     };
   }, [p.pageBg]);
 
-  const fontSize = FONT_LEVELS[fontLevel];
+  const levels = isPhone ? FONT_LEVELS : OTHER_FONT_LEVELS;
+  const fontSize = levels[fontLevel];
   const paragraphs = splitChapterParagraphs(chapter.content);
 
   const chapterLabel = `الفصل ${chapter.chapter_number}${chapter.title ? ` ${chapter.title}` : ""}`;
@@ -382,7 +385,8 @@ export default function MobileChapterReader({
           setTheme={setTheme}
           fontIdx={wantLevel}
           setFontIdx={setFontLevel}
-          fontSizes={FONT_LEVELS}
+          fontSizes={levels}
+          variant={isPhone ? "phone" : "tablet"}
           brightness={brightness}
           setBrightness={setBrightness}
           onClose={() => setShowSheet(false)}

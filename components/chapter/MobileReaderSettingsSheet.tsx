@@ -5,8 +5,8 @@ import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 
 // لوحة الثيمات والإعدادات — مبنية على لقطة آبل بوكس بدقة 828×1792 (1 بكسل لقطة = 1u = 100vw/828)،
 // وكل الأيقونات مقصوصة من اللقطة نفسها (public/icons/reader/*.png) وتاخد لون النص الحالي (mask).
-function MaskIcon({ name, w, h }: { name: string; w: number; h: number }) {
-  const url = `url(/icons/reader/${name}.png)`;
+function MaskIcon({ name, w, h, dir = "reader" }: { name: string; w: number; h: number; dir?: string }) {
+  const url = `url(/icons/${dir}/${name}.png)`;
   return (
     <span
       aria-hidden="true"
@@ -85,6 +85,7 @@ function BrightnessSlider({
   idleEmpty,
   activeFill,
   activeEmpty,
+  thumbColor,
 }: {
   value: number;
   onChange: (n: number) => void;
@@ -93,7 +94,11 @@ function BrightnessSlider({
   idleEmpty: string;
   activeFill: string;
   activeEmpty: string;
+  thumbColor?: string; // لو موجود: شريط بإبهام (نسخة الآيباد/اللابتوب)
 }) {
+  // الإبهام يشغل 6% من عرض الشريط (78/1301 بلقطة الآيباد)، والتعبئة تنتهي عند طرفه الأيسر
+  const tf = thumbColor ? 0.06 : 0;
+  const fillPct = value * (1 - tf);
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; v: number; w: number } | null>(null);
   const [active, setActive] = useState(false);
@@ -109,7 +114,7 @@ function BrightnessSlider({
   function move(e: React.PointerEvent) {
     const d = drag.current;
     if (!d) return;
-    const next = d.v + ((e.clientX - d.x) / d.w) * 100;
+    const next = d.v + (((e.clientX - d.x) / d.w) * 100) / (1 - tf);
     onChange(Math.round(Math.min(100, Math.max(0, next)) * 10) / 10);
   }
   function end() {
@@ -122,7 +127,7 @@ function BrightnessSlider({
   return (
     <div
       ref={ref}
-      className={`nw-rs-slider${active ? " is-active" : ""}`}
+      className={`nw-rs-slider${active ? " is-active" : ""}${thumbColor ? " nw-rs-slider--tablet" : ""}`}
       role="slider"
       tabIndex={0}
       aria-label="سطوع الشاشة"
@@ -138,10 +143,13 @@ function BrightnessSlider({
         if (e.key === "ArrowLeft" || e.key === "ArrowDown") onChange(Math.max(0, value - 5));
       }}
     >
-      <div className="nw-rs-shadow" style={{ width: `${value}%` }} />
+      <div className="nw-rs-shadow" style={{ width: `${fillPct}%` }} />
       <div className="nw-rs-track" style={{ backgroundColor: active ? activeEmpty : idleEmpty }}>
-        <div className="nw-rs-fill" style={{ width: `${value}%`, backgroundColor: active ? activeFill : idleFill }} />
+        <div className="nw-rs-fill" style={{ width: `${fillPct}%`, backgroundColor: active ? activeFill : idleFill }} />
       </div>
+      {thumbColor && (
+        <div className="nw-rs-thumb" style={{ left: `${fillPct}%`, width: `${tf * 100}%`, backgroundColor: thumbColor }} />
+      )}
     </div>
   );
 }
@@ -175,6 +183,7 @@ export default function MobileReaderSettingsSheet({
   setBrightness,
   onClose,
   onCustomize,
+  variant = "phone",
 }: {
   theme: ReaderTheme;
   setTheme: (t: ReaderTheme) => void;
@@ -185,6 +194,8 @@ export default function MobileReaderSettingsSheet({
   setBrightness: (n: number) => void;
   onClose: () => void;
   onCustomize: () => void;
+  // phone = لوحة الجوال (كما هي). tablet = لوحة الآيباد/اللابتوب (بطاقة عائمة، ستة ثيمات بصف واحد، من لقطة الآيباد)
+  variant?: "phone" | "tablet";
 }) {
   // زي المرجع بالضبط (فيديو + لقطة): لون اللوحة ما يتأثر بثيم الصفحة إلا لما يكون «Quiet» فتصير داكنة كلها.
   // ألوان الفاتح: اللوحة #f4f4f4، الكبسولات #e3e3e5، الشريط تعبئة #69696e وفراغ #dedddf، الفاصل #bebebe.
@@ -221,6 +232,173 @@ export default function MobileReaderSettingsSheet({
   function handleClose() {
     setVisible(false);
     window.setTimeout(onClose, 260);
+  }
+
+  if (variant === "tablet") {
+    // ألوان ومقاسات من لقطة آبل بوكس على الآيباد (1640×2360، 1 بكسل لقطة = 1u)
+    const glass = isDark ? "rgba(52,49,52,0.86)" : "rgba(245,245,245,0.82)";
+    const solid = isDark ? "#343134" : "#f6f6f6";
+    const tPill = isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.1)";
+    const tBtn = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.075)";
+    const tDivider = isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.17)";
+    const tClose = isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.08)";
+    const TSWATCH_BG: Record<ReaderTheme, string> = {
+      original: "#ffffff",
+      quiet: "#49494c",
+      paper: "#ecebec",
+      bold: "#fdfdfd",
+      calm: "#ede1ca",
+      focus: "#fdfaf3",
+    };
+    const T = (name: string, w: number, h: number) => <MaskIcon dir="reader-tablet" name={name} w={w} h={h} />;
+    return (
+      <div
+        className={`nw-rs-overlay nw-rs-overlay--tablet ${visible ? "is-open" : ""} ${sliding ? "is-live" : ""}`}
+        onClick={handleClose}
+        role="dialog"
+        aria-label="الثيمات والإعدادات"
+      >
+        <div onClick={(e) => e.stopPropagation()} className="nw-rs-panel nw-rs-panel--tablet" style={{ color: ink }}>
+          <div className="nw-rs-t-glass nw-rs-t-top" style={{ background: glass }}>
+            <div className="nw-rs-head">
+              <h2 className="nw-rs-title">الثيمات والإعدادات</h2>
+              <button type="button" onClick={handleClose} aria-label="إغلاق" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
+                {T("close", 34, 33)}
+              </button>
+            </div>
+
+            <div dir="ltr">
+              <div className="nw-rs-pills">
+                <div className="nw-rs-pill nw-rs-pill--font" style={{ backgroundColor: tPill, color: ink }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      pokeDots();
+                      setFontIdx((i) => Math.max(0, i - 1));
+                    }}
+                    disabled={fontIdx === 0}
+                    className="nw-rs-pill-btn"
+                  >
+                    <span className="nw-rs-a-small">A</span>
+                  </button>
+                  <span className="nw-rs-pill-divider" style={{ backgroundColor: tDivider }} />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      pokeDots();
+                      setFontIdx((i) => Math.min(fontSizes.length - 1, i + 1));
+                    }}
+                    disabled={fontIdx === fontSizes.length - 1}
+                    className="nw-rs-pill-btn"
+                  >
+                    <span className="nw-rs-a-large">A</span>
+                  </button>
+                </div>
+
+                {/* بالمرجع: أيقونتا التخطيط والمظهر داخل كبسولة واحدة */}
+                <div className="nw-rs-pill nw-rs-pill--icons2" style={{ backgroundColor: tPill, color: ink }}>
+                  <button type="button" className="nw-rs-icon-btn" aria-label="التخطيط">
+                    {T("layout", 47, 48)}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
+                    className="nw-rs-icon-btn"
+                    aria-label="المظهر"
+                  >
+                    {T("appearance", 57, 37)}
+                  </button>
+                </div>
+
+                <div className={`nw-rs-dots nw-rs-dots--tablet${showDots ? " is-on" : ""}`} aria-hidden="true">
+                  {fontSizes.map((_, i) => (
+                    <span
+                      key={i}
+                      className="nw-rs-dot"
+                      style={{ backgroundColor: i <= fontIdx ? (isDark ? "#ffffff" : "#010001") : isDark ? "#5b585d" : "#d4d1d4" }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="nw-rs-brightness nw-rs-brightness--tablet" style={{ color: ink }}>
+                {T("sun-small", 35, 34)}
+                <BrightnessSlider
+                  value={brightness}
+                  onChange={setBrightness}
+                  onActiveChange={setSliding}
+                  idleFill={isDark ? "#e8e7f1" : "#050505"}
+                  idleEmpty={isDark ? "#5b585d" : "rgba(0,0,0,0.16)"}
+                  activeFill={isDark ? "#ffffff" : "#000000"}
+                  activeEmpty={isDark ? "#5b585d" : "rgba(0,0,0,0.16)"}
+                  thumbColor={isDark ? "#6a676c" : "#e6e6e6"}
+                />
+                {T("sun-large", 38, 35)}
+              </div>
+            </div>
+          </div>
+
+          <div className="nw-rs-t-solid" style={{ background: solid }}>
+            <div dir="ltr">
+              <div className="nw-rs-grid nw-rs-grid--tablet">
+                {THEME_ORDER.map((t) => {
+                  const tp = READER_PALETTES[t];
+                  const selected = t === theme;
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTheme(t)}
+                      className="nw-rs-swatch nw-rs-swatch--tablet"
+                      style={{
+                        backgroundColor: TSWATCH_BG[t],
+                        boxShadow: selected ? `inset 0 0 0 calc(6 * var(--u)) ${ink}` : "none",
+                        color: t === "quiet" ? "#adacb4" : tp.text,
+                      }}
+                      aria-pressed={selected}
+                    >
+                      <span
+                        className="nw-rs-swatch-aa"
+                        style={{
+                          fontWeight: tp.boldText ? 700 : 500,
+                          fontFamily: tp.swatchFontFamily || "Georgia, 'Times New Roman', serif",
+                        }}
+                      >
+                        Aa
+                      </span>
+                      <span
+                        className="nw-rs-swatch-label"
+                        style={{
+                          fontWeight: tp.boldText ? 700 : 400,
+                          fontFamily: tp.swatchFontFamily || "Georgia, 'Times New Roman', serif",
+                        }}
+                      >
+                        {THEME_LABEL_EN[t]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleClose();
+                  onCustomize();
+                }}
+                className="nw-rs-customize nw-rs-customize--tablet"
+                style={{ backgroundColor: tBtn, color: ink }}
+              >
+                {T("gear", 40, 39)}
+                تخصيص
+              </button>
+            </div>
+          </div>
+
+          <div className="nw-rs-t-glass nw-rs-t-bottom" style={{ background: glass }} />
+        </div>
+      </div>
+    );
   }
 
   return (

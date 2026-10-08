@@ -1572,31 +1572,47 @@ body {
   font-weight: 700;
 }
 
-/* ===== نسخة الآيباد/اللابتوب من نفس لوحة الثيمات والإعدادات (نفس المرجع، لقطة الآيباد) =====
-   نفس القواعد بالضبط (nw-rs-*)، فقط محاذاة مختلفة لأن الشاشة أعرض: تتفعّل بإضافة الكلاسات
-   "--desktop" فوق نفس العناصر. --u هنا ثابتة (مش 100vw) لأن اللوحة بطاقة متمركزة بعرض معروف،
-   مش شيت ملاصق لحافة الشاشة زي الموبايل — فالتناسب بين كل المقاسات يفضل كما هو تمامًا. */
-.nw-rs-overlay--desktop { align-items: center; padding: calc(24 * var(--u)); }
-.nw-rs-panel--desktop {
-  width: calc(828 * var(--u));
-  max-width: calc(828 * var(--u));
-  border-radius: calc(40 * var(--u));
-  box-shadow: 0 calc(24 * var(--u)) calc(70 * var(--u)) rgba(0, 0, 0, 0.35);
-  transform: translateY(calc(16 * var(--u))) scale(0.98);
-  opacity: 0;
-  transition: transform 0.22s ease-out, opacity 0.22s ease-out;
+/* ===== لوحة الثيمات والإعدادات — نسخة الآيباد/اللابتوب (من لقطة آبل بوكس على الآيباد 1640×2360، 1 بكسل لقطة = 1u) =====
+   بطاقة عائمة: يمين/يسار 74، أسفل 22، عرضها 1492u (= 90.98% من عرض الشاشة، بحد أقصى 746px)،
+   جزء علوي زجاجي (blur) فيه العنوان والأدوات والسطوع، جزء أوسط صلب فيه الثيمات الستة بصف واحد وزر التخصيص، وشريط زجاجي سفلي. */
+.nw-rs-overlay--tablet { --u: calc(min(90.98vw, 746px) / 1492); }
+.nw-rs-panel.nw-rs-panel--tablet {
+  position: relative;
+  width: calc(1492 * var(--u));
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: calc(22 * var(--u) + env(safe-area-inset-bottom, 0px));
+  border-radius: calc(38 * var(--u));
+  background: transparent;
+  box-shadow: 0 calc(10 * var(--u)) calc(60 * var(--u)) rgba(0, 0, 0, 0.22);
+  transform: translateY(calc(100% + 80 * var(--u)));
 }
-.nw-rs-overlay--desktop.is-open .nw-rs-panel--desktop { transform: translateY(0) scale(1); opacity: 1; }
-
-/* بالمرجع: أيقونتا التخطيط/المظهر تتجمعان بكبسولة وحدة (مش كبسولتين منفصلتين زي الموبايل) */
-.nw-rs-pill--icons2 { flex: 0 0 calc(196 * var(--u)); gap: calc(4 * var(--u)); padding: 0 calc(6 * var(--u)); }
-.nw-rs-pill--icons2 .nw-rs-pill-btn { flex: 1; }
-
-/* صف واحد لكل الثيمات الستة (بدل شبكة 3×2) — لأن العرض يتسع لها كلها جنب بعض زي جدار واحد متلاصق */
-.nw-rs-grid--desktop { grid-template-columns: repeat(6, 1fr); column-gap: calc(14 * var(--u)); row-gap: 0; }
-
-/* زر التخصيص ياخد عرض اللوحة كامل بدل عرض ضيق متمركز */
-.nw-rs-customize--desktop { width: 100%; }
+.nw-rs-overlay.is-open .nw-rs-panel.nw-rs-panel--tablet { transform: translateY(0); }
+.nw-rs-t-glass { -webkit-backdrop-filter: blur(calc(40 * var(--u))) saturate(1.4); backdrop-filter: blur(calc(40 * var(--u))) saturate(1.4); }
+.nw-rs-t-top { padding: calc(131 * var(--u)) calc(38 * var(--u)) calc(27 * var(--u)); }
+.nw-rs-t-solid { padding: calc(32 * var(--u)) calc(38 * var(--u)) calc(39 * var(--u)); }
+.nw-rs-t-bottom { height: calc(109 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-head { height: calc(96 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-title { font-size: calc(44 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-close { width: calc(96 * var(--u)); height: calc(96 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-pills { gap: calc(21 * var(--u)); margin-top: calc(24 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-pill { height: calc(96 * var(--u)); border-radius: calc(48 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-pill-divider { width: calc(2 * var(--u)); height: calc(52 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-a-small { font-size: calc(34 * var(--u)); }
+.nw-rs-panel--tablet .nw-rs-a-large { font-size: calc(45 * var(--u)); }
+.nw-rs-pill--icons2 { flex: 0 0 calc(259 * var(--u)); gap: calc(57 * var(--u)); }
+.nw-rs-icon-btn { display: flex; align-items: center; justify-content: center; }
+.nw-rs-dots--tablet { left: calc(424 * var(--u)); top: calc(114 * var(--u)); }
+.nw-rs-brightness--tablet { gap: calc(20 * var(--u)); margin: calc(27.5 * var(--u)) calc(3 * var(--u)) 0; height: calc(56 * var(--u)); }
+.nw-rs-slider--tablet.is-active { margin: 0; }
+.nw-rs-slider--tablet .nw-rs-track,
+.nw-rs-slider--tablet.is-active .nw-rs-track { height: calc(12 * var(--u)); }
+.nw-rs-thumb { position: absolute; top: 50%; height: calc(46 * var(--u)); transform: translateY(-50%); border-radius: 999px; box-shadow: 0 calc(2 * var(--u)) calc(10 * var(--u)) rgba(0, 0, 0, 0.18), 0 0 0 calc(1 * var(--u)) rgba(0, 0, 0, 0.05); pointer-events: none; }
+.nw-rs-grid--tablet { grid-template-columns: repeat(6, 1fr); column-gap: calc(28 * var(--u)); row-gap: 0; margin-top: 0; }
+.nw-rs-swatch--tablet { height: calc(190 * var(--u)); padding-top: calc(40 * var(--u)); gap: calc(3 * var(--u)); border-radius: calc(40 * var(--u)); }
+.nw-rs-swatch--tablet .nw-rs-swatch-label { font-size: calc(32 * var(--u)); }
+.nw-rs-customize--tablet { width: calc(840 * var(--u)); height: calc(96 * var(--u)); margin: calc(33 * var(--u)) auto 0; border-radius: calc(48 * var(--u)); gap: calc(20 * var(--u)); }
 
 /* ===== انتقال تغيير الثيم بصفحة القراءة: تلاشي لون الخلفية والنص + تلاشي ضبابي للنص (زي المرجع) ===== */
 @keyframes nw-swap-0 { from { opacity: 0.15; filter: blur(8px); } to { opacity: 1; filter: blur(0); } }
