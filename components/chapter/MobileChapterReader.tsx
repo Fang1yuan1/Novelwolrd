@@ -11,7 +11,8 @@ const STORAGE_KEY = "novelwolrd-reader-prefs";
 // مستويات الخط بالجوال: 15 خطوة (14→28) زي مؤشر النقاط بالمرجع. ننقل قيمة الخط القديمة (5 مستويات) تلقائيًا،
 // ونخزّن المستوى بمفتاح مستقل (fontLevel) عشان ما نخرّب fontIdx اللي يقرأه القارئ الغني بنفس التخزين.
 const OLD_FONT_SIZES = [16, 18, 20, 22, 24];
-const FONT_MIN = 14;
+// الحد الأدنى صار يبدأ من النقطة الثانية سابقًا (كانت 14) — أصغر حجم ممكن الآن هو القديم رقم 2
+const FONT_MIN = 15;
 const FONT_LEVELS = Array.from({ length: 15 }, (_, i) => FONT_MIN + i);
 
 type Prefs = { theme: ReaderTheme; fontIdx: number; fontLevel: number; brightness: number };

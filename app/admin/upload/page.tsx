@@ -9,33 +9,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 500;
 const DELAY_MS = 150;
 
 // يشيل NUL وبقية رموز التحكم غير المرئية اللي يرفضها Postgres/Supabase
 function sanitizeForDb(text: string): string {
   return typeof text === 'string' ? text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '') : text;
-}
-
-async function upsertOnce(rows: any[]) {
-  return supabase.from('chapters').upsert(rows, { onConflict: 'novel_id,chapter_number' });
-}
-
-async function upsertWithRetry(rows: any[], attempt = 1): Promise<{ error: { message: string } | null; split?: boolean }> {
-  const { error } = await upsertOnce(rows);
-  if (!error) return { error: null };
-  const isTimeout = /timeout/i.test(error.message);
-  if (isTimeout && rows.length > 1) {
-    const mid = Math.ceil(rows.length / 2);
-    const a = await upsertWithRetry(rows.slice(0, mid), 1);
-    const b = await upsertWithRetry(rows.slice(mid), 1);
-    return { error: a.error || b.error, split: true };
-  }
-  if (attempt < 3) {
-    await new Promise(r => setTimeout(r, 1000 * attempt));
-    return upsertWithRetry(rows, attempt + 1);
-  }
-  return { error };
 }
 
 export default function UploadChaptersPage() {
@@ -66,10 +45,8 @@ export default function UploadChaptersPage() {
     setLog([]);
 
     let failedCount = 0;
-    let size = BATCH_SIZE;
-    let i = 0;
-    while (i < chapters.length) {
-      const batch = chapters.slice(i, i + size).map((c: any) => {
+    for (let i = 0; i < chapters.length; i += BATCH_SIZE) {
+      const batch = chapters.slice(i, i + BATCH_SIZE).map((c: any) => {
         const content = sanitizeForDb((c.content || '').trim());
         // العنوان من داخل نص الفصل نفسه أولًا (أدق)، وإلا اللي جاي بالـJSON، وإلا بلا عنوان
         // عنوان الـJSON هو الأدق (استخرج بقواعد بايثون المطوّرة بالسكربت) — نثق فيه أول،
@@ -83,10 +60,9 @@ export default function UploadChaptersPage() {
           content,
         };
       });
-      // محاولة حتى 3 مرات، ولو فشلت الدفعة نقسمها لنصفين بدل ما نخسرها كلها
-      const { error, split } = await upsertWithRetry(batch);
-      // لو حصل timeout نصغّر حجم الدفعة تلقائيًا، ولو مرّت بسلام نكبّرها تدريجيًا
-      size = split ? Math.max(1, Math.floor(size / 2)) : Math.min(BATCH_SIZE, size + 10);
+      const { error } = await supabase
+        .from('chapters')
+        .upsert(batch, { onConflict: 'novel_id,chapter_number' });
       const nums = batch.map((b: any) => b.chapter_number).join('، ');
       if (error) {
         addLog(`فشل: ${nums} — ${error.message}`);
@@ -94,8 +70,7 @@ export default function UploadChaptersPage() {
       } else {
         addLog(`تم: ${nums}`);
       }
-      i += batch.length;
-      setProgress(i);
+      setProgress(i + batch.length);
       await new Promise(r => setTimeout(r, DELAY_MS));
     }
     setRunning(false);
