@@ -24,7 +24,7 @@ export default function MobileNovelDetail({
       <MobileDescriptionCard novel={novel} />
       <MobileChapterPreview novel={novel} chapters={chapters} />
       <MobileCharactersSection novelId={novel.id} />
-      <MobileReadersKingdom />
+      <MobileReadersKingdom novelId={novel.id} />
       <MobileChapterTrialRead novel={novel} />
     </div>
   );

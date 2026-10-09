@@ -8,12 +8,10 @@ export default function MobileFooter() {
         </svg>
         <span>حسابي</span>
       </a>
-      <a href="/">
-        <svg className="mobile-bottom-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="4" y="4.5" width="16" height="6" rx="3" />
-          <rect x="4" y="13.5" width="16" height="6" rx="3" />
-        </svg>
-        <span>مكتبتي</span>
+      <a href="/community">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="mobile-bottom-img" src="/icons/community/compass.png" alt="" aria-hidden="true" />
+        <span>مجتمع</span>
       </a>
     </nav>
   );
