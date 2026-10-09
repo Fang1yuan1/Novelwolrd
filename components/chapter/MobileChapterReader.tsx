@@ -6,7 +6,7 @@ import { READER_PALETTES, type ReaderTheme } from "@/lib/reader-theme";
 import { splitChapterParagraphs } from "@/lib/chapter-text";
 import MobileReaderSettingsSheet from "./MobileReaderSettingsSheet";
 import { useCopyProtection } from "@/lib/useCopyProtection";
-import type { DeviceKind } from "@/lib/device";
+import { detectDeviceKindClient, type DeviceKind } from "@/lib/device";
 
 const STORAGE_KEY = "novelwolrd-reader-prefs";
 // مستويات الخط بالجوال: 15 خطوة (14→28) زي مؤشر النقاط بالمرجع. ننقل قيمة الخط القديمة (5 مستويات) تلقائيًا،
@@ -112,7 +112,7 @@ export default function MobileChapterReader({
   chapter,
   prevNumber,
   nextNumber,
-  deviceKind = "phone",
+  deviceKind: initialDeviceKind = "phone",
 }: {
   novel: NovelData;
   chapter: ChapterData;
@@ -120,9 +120,19 @@ export default function MobileChapterReader({
   nextNumber: number | null;
   deviceKind?: DeviceKind;
 }) {
+  // الصفحة صارت مخزّنة (ISR) فما عاد السيرفر يقرأ الـUser-Agent لكل زيارة؛ نحدد الجهاز من المتصفح بعد التحميل.
+  const [deviceKind, setDeviceKind] = useState<DeviceKind>(initialDeviceKind);
   const isPhone = deviceKind === "phone";
   const defaultLevel = isPhone ? PHONE_DEFAULT_LEVEL : OTHER_DEFAULT_LEVEL;
   const [prefs, setPrefs] = useState(() => readSavedPrefs(defaultLevel, isPhone));
+  useEffect(() => {
+    const k = detectDeviceKindClient();
+    if (k !== deviceKind) setDeviceKind(k);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    setPrefs(readSavedPrefs(defaultLevel, isPhone));
+  }, [defaultLevel, isPhone]);
   const { theme, fontLevel, brightness } = prefs;
   // تغيير حجم الخط زي المرجع بالضبط (مقاس من فيديو المرجع بمعدل 60 إطار/ثانية):
   //  ١) المؤشر (النقاط) يتحدّث لحظيًا مع الضغط.  ٢) بعد ~0.22 ثانية من آخر ضغطة يختفي النص كله «والعنوان معه» خلال 0.135 ثانية (خطي، بدون تسارع)

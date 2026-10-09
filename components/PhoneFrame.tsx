@@ -1,16 +1,17 @@
 import type { DeviceKind } from "@/lib/device";
 
 /**
- * صفحة الجوال هي الصفحة الأساسية لكل الأجهزة. على الجوال تظهر كما هي،
- * وعلى الآيباد/اللابتوب تظهر بعمود مركزي بعرض ثابت (بدل التمدد على كل الشاشة).
+ * صفحة الجوال هي الصفحة الأساسية لكل الأجهزة. على الجوال (أقل من 640px) تظهر كما هي،
+ * وعلى الشاشات الأكبر تظهر بعمود مركزي بعرض ثابت. صارت بالـCSS فقط (بدون قراءة User-Agent
+ * بالسيرفر) عشان تقدر الصفحات تكون مخزّنة (ISR) وتُخدم بدون تشغيل دالة لكل زيارة.
  */
 export default function PhoneFrame({
-  deviceKind,
   children,
 }: {
-  deviceKind: DeviceKind;
+  deviceKind?: DeviceKind;
   children: React.ReactNode;
 }) {
-  if (deviceKind === "phone") return <>{children}</>;
-  return <div className="mx-auto w-full max-w-[640px] bg-white">{children}</div>;
+  return (
+    <div className="mx-auto w-full max-w-[640px] min-[641px]:bg-white">{children}</div>
+  );
 }

@@ -6,7 +6,7 @@ import { getCategories } from "@/lib/categories";
 import { getCategoriesWithCounts } from "@/lib/novels";
 import MobileCategoriesPage from "@/components/mobile/MobileCategoriesPage";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function CategoriesIndexPage() {
   const [categories, counts] = await Promise.all([

@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getChapterCount, getNovels } from "@/lib/novels";
 import MobileRankingsPage from "@/components/mobile/MobileRankingsPage";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function RankingsPage() {
   const novels = await getNovels();

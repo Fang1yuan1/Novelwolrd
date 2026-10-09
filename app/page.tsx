@@ -1,14 +1,11 @@
 import MobileHome from "@/components/mobile/MobileHome";
 import PhoneFrame from "@/components/PhoneFrame";
-import { getServerDeviceKind } from "@/lib/device-server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function Home() {
-  // صفحة الجوال لكل الأجهزة — والتعرف على الجهاز من الـUser-Agent (مو من عرض الشاشة)
-  const deviceKind = await getServerDeviceKind();
   return (
-    <PhoneFrame deviceKind={deviceKind}>
+    <PhoneFrame>
       <MobileHome />
     </PhoneFrame>
   );

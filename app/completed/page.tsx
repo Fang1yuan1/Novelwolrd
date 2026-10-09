@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getNovels } from "@/lib/novels";
 import MobileCompletedPage from "@/components/mobile/MobileCompletedPage";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function CompletedPage() {
   const novels = (await getNovels()).filter((n) => n.status === "completed");

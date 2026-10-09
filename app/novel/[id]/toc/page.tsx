@@ -13,7 +13,7 @@ import {
   groupChaptersByVolume,
 } from "@/lib/novels";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function NovelTocPage({
   params,

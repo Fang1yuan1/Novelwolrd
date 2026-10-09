@@ -1,9 +1,8 @@
 import { getNovelById, getChapterByNumber, getAdjacentChapterNumbers } from "@/lib/novels";
 import { notFound } from "next/navigation";
 import MobileChapterReader from "@/components/chapter/MobileChapterReader";
-import { getServerDeviceKind } from "@/lib/device-server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function ChapterPage({
   params,
@@ -26,8 +25,6 @@ export default async function ChapterPage({
   // بكسر (644.5) ما تنتقّى بالتنقّل بين الفصول
   const { prev: prevNumber, next: nextNumber } = await getAdjacentChapterNumbers(id, currentNumber);
 
-  // نوع الجهاز الحقيقي من الـUser-Agent (مو من عرض الشاشة) — ثابت حتى لو تغيّر حجم النافذة
-  const deviceKind = await getServerDeviceKind();
 
   // صفحة القراءة واحدة لكل الأجهزة (جوال/آيباد/لابتوب) — نسخة الجوال
   return (
@@ -36,7 +33,6 @@ export default async function ChapterPage({
       chapter={chapter}
       prevNumber={prevNumber}
       nextNumber={nextNumber}
-      deviceKind={deviceKind}
     />
   );
 }

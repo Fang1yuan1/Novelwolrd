@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getNovels } from "@/lib/novels";
 import MobileMostReadPage from "@/components/mobile/MobileMostReadPage";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function MostReadPage() {
   const novels = [...(await getNovels())]

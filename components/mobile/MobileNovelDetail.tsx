@@ -5,6 +5,7 @@ import MobileDescriptionCard from "./MobileDescriptionCard";
 import MobileChapterPreview from "./MobileChapterPreview";
 import MobileCharactersSection from "./MobileCharactersSection";
 import MobileChapterTrialRead from "./MobileChapterTrialRead";
+import MobileReadersKingdom from "./MobileReadersKingdom";
 
 export default function MobileNovelDetail({
   novel,
@@ -23,6 +24,7 @@ export default function MobileNovelDetail({
       <MobileDescriptionCard novel={novel} />
       <MobileChapterPreview novel={novel} chapters={chapters} />
       <MobileCharactersSection novelId={novel.id} />
+      <MobileReadersKingdom />
       <MobileChapterTrialRead novel={novel} />
     </div>
   );

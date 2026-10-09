@@ -6,9 +6,8 @@ import {
 import { notFound } from "next/navigation";
 import MobileNovelDetail from "@/components/mobile/MobileNovelDetail";
 import PhoneFrame from "@/components/PhoneFrame";
-import { getServerDeviceKind } from "@/lib/device-server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
 
 export default async function NovelPage({
   params,
@@ -35,11 +34,9 @@ export default async function NovelPage({
       : preview.recent;
   const chapterTotal = preview.total;
 
-  const deviceKind = await getServerDeviceKind();
-
   // صفحة الجوال لكل الأجهزة (آيباد/لابتوب أيضًا) — بدون تغيّر عند تصغير الشاشة
   return (
-    <PhoneFrame deviceKind={deviceKind}>
+    <PhoneFrame>
       <MobileNovelDetail
         novel={novel}
         chapters={chapters}
