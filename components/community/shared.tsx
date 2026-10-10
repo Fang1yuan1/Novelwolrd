@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import type { CSSProperties } from "react";
-import { COPY } from "@/lib/community-copy";
-import { rankIndex, rankName, registerIdentity, type Identity } from "@/lib/community";
+import { rankIndex, rankName } from "@/lib/community";
 
 // أيقونة من صورة شفافة (قناع) بلون currentColor — الأبعاد بوحدة المرجع cu
 export function CmIcon({
@@ -77,58 +75,4 @@ export function Avatar({ name, hue, size }: { name: string; hue: number; size?: 
 
 export function RankBadge({ points }: { points: number }) {
   return <span className={`cm-badge rank r${rankIndex(points)}`}>{rankName(points)}</span>;
-}
-
-// نافذة اختيار الاسم (أول مشاركة فقط)
-export function NameSheet({
-  onDone,
-  onClose,
-}: {
-  onDone: (id: Identity) => void;
-  onClose: () => void;
-}) {
-  const [name, setName] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-  const ok = name.trim().length >= 2 && name.trim().length <= 24;
-
-  async function save() {
-    if (!ok || busy) return;
-    setBusy(true);
-    setErr("");
-    try {
-      onDone(await registerIdentity(name));
-    } catch {
-      setErr(COPY.offline);
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div className="cm-overlay" onClick={onClose}>
-      <div className="cm-modal" onClick={(e) => e.stopPropagation()} dir="rtl">
-        <div className="cm-modal-head">
-          <h2>{COPY.nameTitle}</h2>
-          <button className="cm-x" type="button" onClick={onClose} aria-label="إغلاق">×</button>
-        </div>
-        <p className="cm-hint">{COPY.nameHint}</p>
-        <input
-          className="cm-input"
-          value={name}
-          maxLength={24}
-          placeholder={COPY.namePh}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && save()}
-          autoFocus
-        />
-        {err && <div className="cm-error">{err}</div>}
-        <div className="cm-modal-foot">
-          <span />
-          <button className="cm-submit" type="button" disabled={!ok || busy} onClick={save}>
-            {COPY.nameSave}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 }

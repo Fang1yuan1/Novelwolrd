@@ -1771,3 +1771,59 @@ body {
 .cm-composer .cm-submit { min-width: calc(140 * var(--cu)); height: calc(72 * var(--cu)); }
 .cm-actionbar { display: flex; align-items: center; margin-top: calc(24 * var(--cu)); font-size: calc(26 * var(--cu)); color: #adadad; }
 .cm-actionbar .cm-foot-time { flex: 1; }
+
+
+/* ════════ نافذة تسجيل الدخول (مقاسة من لقطة المرجع 828) ════════ */
+.au-overlay { --cu: calc(min(100vw, 640px) / 828); position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.6); font-family: "Tajawal", var(--font-sans); }
+.au-sheet { width: 100%; max-width: 640px; background: #fff; border-radius: calc(40 * var(--cu)) calc(40 * var(--cu)) 0 0; padding-bottom: calc(40 * var(--cu) + env(safe-area-inset-bottom, 0px)); color: #191919; }
+.au-head { position: relative; display: flex; align-items: center; justify-content: center; height: calc(111 * var(--cu)); border-bottom: calc(1 * var(--cu)) solid #ebebeb; }
+.au-head h2 { margin: 0; font-size: calc(36 * var(--cu)); font-weight: 500; color: #191919; }
+.au-back { position: absolute; inset-inline-start: calc(32 * var(--cu)); top: 50%; transform: translateY(-50%); background: none; border: 0; padding: calc(8 * var(--cu)); font-family: inherit; font-size: calc(28 * var(--cu)); color: #808080; }
+.au-circles { display: flex; gap: calc(40 * var(--cu)); padding: calc(83 * var(--cu)) calc(40 * var(--cu)) 0; }
+.au-circle { width: calc(96 * var(--cu)); height: calc(96 * var(--cu)); flex: none; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 50%; padding: 0; }
+.au-circle img { display: block; width: auto; height: auto; }
+.au-google { background: #f5f5f5; }
+.au-google img { height: calc(50 * var(--cu)); }
+.au-mail { background: #000; }
+.au-mail img { width: calc(46 * var(--cu)); }
+.au-msg { margin: calc(24 * var(--cu)) calc(40 * var(--cu)) 0; font-size: calc(26 * var(--cu)); color: #e5353e; }
+.au-agree { position: relative; display: flex; align-items: flex-start; gap: calc(22 * var(--cu)); margin: calc(55 * var(--cu)) calc(57 * var(--cu)) 0; font-size: calc(26 * var(--cu)); line-height: calc(40 * var(--cu)); color: #808080; cursor: pointer; }
+.au-agree input { position: absolute; opacity: 0; width: 0; height: 0; }
+.au-ring { flex: none; box-sizing: border-box; width: calc(26 * var(--cu)); height: calc(26 * var(--cu)); margin-top: calc(7 * var(--cu)); border: calc(2 * var(--cu)) solid #bdbdbd; border-radius: 50%; position: relative; }
+.au-agree input:checked + .au-ring { border-color: #e5353e; background: #e5353e; }
+.au-agree input:checked + .au-ring::after { content: ""; position: absolute; left: 50%; top: 45%; width: calc(7 * var(--cu)); height: calc(13 * var(--cu)); border: solid #fff; border-width: 0 calc(2.5 * var(--cu)) calc(2.5 * var(--cu)) 0; transform: translate(-50%, -50%) rotate(45deg); }
+.au-form { padding: calc(48 * var(--cu)) calc(40 * var(--cu)) 0; }
+.au-hint { margin: 0 0 calc(20 * var(--cu)); font-size: calc(26 * var(--cu)); color: #808080; line-height: 1.6; }
+.au-input { width: 100%; box-sizing: border-box; border: 0; outline: none; border-radius: calc(20 * var(--cu)); background: #f5f5f5; padding: calc(26 * var(--cu)) calc(28 * var(--cu)); font-family: inherit; font-size: calc(30 * var(--cu)); color: #191919; }
+.au-code { text-align: center; letter-spacing: calc(10 * var(--cu)); font-size: calc(36 * var(--cu)); }
+.au-btn { width: 100%; height: calc(88 * var(--cu)); margin-top: calc(28 * var(--cu)); border: 0; border-radius: 999px; background: #e5353e; color: #fff; font-family: inherit; font-size: calc(30 * var(--cu)); font-weight: 500; }
+.au-btn:disabled { background: #f1b3b6; }
+
+button.nw-promo-button { border: 0; font-family: inherit; cursor: pointer; }
+a.mobile-app-button { display: inline-block; text-decoration: none; }
+
+
+/* ════════ صفحة «حسابي» (مقاسة من لقطة المرجع 828 — الإحداثيات − 94 لشريط الحالة) ════════ */
+.ac-root { --cu: calc(min(100vw, 640px) / 828); min-height: 100vh; padding: env(safe-area-inset-top, 0px) 0 calc(160 * var(--cu)); background: linear-gradient(180deg, #ecedf4 0, #f3f0f2 calc(360 * var(--cu)), #f5f5f5 calc(430 * var(--cu))) #f5f5f5; color: #191919; font-family: "Tajawal", var(--font-sans); }
+.ac-top { position: relative; height: calc(280 * var(--cu)); }
+.ac-gear { position: absolute; top: calc(29 * var(--cu) - 12 * var(--cu)); inset-inline-start: calc(44 * var(--cu) - 12 * var(--cu)); width: calc(40 * var(--cu) + 24 * var(--cu)); height: calc(34 * var(--cu) + 24 * var(--cu)); display: flex; align-items: center; justify-content: center; background: none; border: 0; padding: 0; color: #191919; }
+.ac-gear svg { width: calc(40 * var(--cu)); height: calc(34 * var(--cu)); }
+.ac-who { position: absolute; top: calc(136 * var(--cu)); inset-inline: calc(32 * var(--cu)); height: calc(112 * var(--cu)); display: flex; align-items: center; gap: calc(30 * var(--cu)); }
+.ac-avatar { flex: none; width: calc(112 * var(--cu)); height: calc(112 * var(--cu)); border-radius: 50%; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; color: #fff; font-size: calc(48 * var(--cu)); font-weight: 700; box-shadow: 0 0 0 calc(2 * var(--cu)) rgba(255,255,255,.9); }
+.ac-id { display: flex; flex-direction: column; align-items: flex-start; gap: calc(20 * var(--cu)); min-width: 0; }
+.ac-name { max-width: calc(100vw - 220 * var(--cu)); font-size: calc(40 * var(--cu)); font-weight: 700; line-height: 1.1; color: #191919; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-level { display: inline-flex; align-items: center; height: calc(31 * var(--cu)); padding-inline: calc(10 * var(--cu)); border-radius: calc(6 * var(--cu)); background: #8fadc6; color: #fff; font-size: calc(22 * var(--cu)); line-height: 1; white-space: nowrap; }
+.ac-sub { font-size: calc(26 * var(--cu)); color: #808080; }
+.ac-card { margin: 0 calc(24 * var(--cu)); height: calc(212 * var(--cu)); padding: calc(33 * var(--cu)) calc(34 * var(--cu)) 0; box-sizing: border-box; border-radius: calc(20 * var(--cu)); background: #fff; }
+.ac-card h2 { margin: 0; height: calc(28 * var(--cu)); font-size: calc(30 * var(--cu)); font-weight: 700; line-height: calc(28 * var(--cu)); }
+.ac-stats { display: flex; gap: calc(40 * var(--cu)); margin-top: calc(36 * var(--cu)); }
+.ac-stat { display: flex; flex-direction: column; align-items: flex-start; }
+.ac-stat b { font-size: calc(42 * var(--cu)); font-weight: 700; line-height: calc(46 * var(--cu)); color: #191919; font-variant-numeric: tabular-nums; }
+.ac-stat span { margin-top: calc(14 * var(--cu)); font-size: calc(26 * var(--cu)); line-height: calc(30 * var(--cu)); color: #adadad; white-space: nowrap; }
+.ac-card-login { height: auto; padding: calc(40 * var(--cu)); }
+.ac-login-btn { width: 100%; height: calc(88 * var(--cu)); border: 0; border-radius: 999px; background: #e5353e; color: #fff; font-family: inherit; font-size: calc(30 * var(--cu)); font-weight: 500; }
+.ac-member { position: relative; display: flex; align-items: center; justify-content: space-between; margin: calc(20 * var(--cu)) calc(24 * var(--cu)) 0; height: calc(120 * var(--cu)); padding-inline: calc(33 * var(--cu)); border-radius: calc(20 * var(--cu)); background: linear-gradient(90deg, #ffedcb, #ffeac4); }
+.ac-member-text { display: flex; flex-direction: column; gap: calc(10 * var(--cu)); }
+.ac-member-text b { font-size: calc(32 * var(--cu)); font-weight: 700; color: #6f4721; line-height: 1.1; }
+.ac-member-text span { font-size: calc(26 * var(--cu)); color: #ba9d79; line-height: 1.2; }
+.ac-member-soon { font-size: calc(24 * var(--cu)); color: #ae8d65; }

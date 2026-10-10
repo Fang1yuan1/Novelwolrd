@@ -1,5 +1,6 @@
-import { getNovelById, getChapterByNumber, getAdjacentChapterNumbers } from "@/lib/novels";
-import { notFound } from "next/navigation";
+import { getNovelById, getChapterByNumber, getAdjacentChapterNumbers, getChapterPreview } from "@/lib/novels";
+import { notFound, redirect } from "next/navigation";
+import ReadingTracker from "@/components/chapter/ReadingTracker";
 import MobileChapterReader from "@/components/chapter/MobileChapterReader";
 
 export const revalidate = 86400; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
@@ -16,6 +17,14 @@ export default async function ChapterPage({
     getChapterByNumber(id, number),
   ]);
 
+  // «ابدأ القراءة» يفتح الفصل رقم 1 دائمًا؛ لو الرواية ما فيها فصل بهذا الرقم نحوّل لأول فصل موجود
+  if (novel && !chapter && number === "1") {
+    const preview = await getChapterPreview(id);
+    if (preview.first && preview.first.chapter_number !== 1) {
+      redirect(`/novel/${id}/chapter/${preview.first.chapter_number}`);
+    }
+  }
+
   if (!novel || !chapter) {
     notFound();
   }
@@ -28,11 +37,14 @@ export default async function ChapterPage({
 
   // صفحة القراءة واحدة لكل الأجهزة (جوال/آيباد/لابتوب) — نسخة الجوال
   return (
-    <MobileChapterReader
-      novel={novel}
-      chapter={chapter}
-      prevNumber={prevNumber}
-      nextNumber={nextNumber}
-    />
+    <>
+      <ReadingTracker novelId={novel.id} chapterId={chapter.id} />
+      <MobileChapterReader
+        novel={novel}
+        chapter={chapter}
+        prevNumber={prevNumber}
+        nextNumber={nextNumber}
+      />
+    </>
   );
 }

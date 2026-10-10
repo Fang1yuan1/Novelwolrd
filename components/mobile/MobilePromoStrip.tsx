@@ -1,3 +1,5 @@
+import { PromoAuthButton } from "@/components/auth/AuthButtons";
+
 export default function MobilePromoStrip() {
   return (
     <section className="mobile-reference-card nw-promo">
@@ -7,7 +9,7 @@ export default function MobilePromoStrip() {
         <strong>اقرأ مجانًا على موقعنا</strong>
         <span>مكتبة كبيرة من الروايات والفصول الجديدة</span>
       </div>
-      <a href="/categories" className="nw-promo-button">سجل الآن</a>
+      <PromoAuthButton />
     </section>
   );
 }

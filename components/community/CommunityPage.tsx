@@ -12,15 +12,14 @@ import {
   fetchPinned,
   fetchPosts,
   fetchStats,
-  getIdentity,
   kingdomLevel,
   toggleLike,
   type CommunityPost,
-  type Identity,
   type SortKey,
   type TabKey,
 } from "@/lib/community";
-import { BackIcon, CmIcon, NameSheet } from "./shared";
+import { BackIcon, CmIcon } from "./shared";
+import { useAuth } from "@/lib/auth";
 import PostCard from "./PostCard";
 import Composer from "./Composer";
 
@@ -30,6 +29,7 @@ const KIND_ORDER: (PostKind | "all")[] = ["all", "discussion", "review", "merch"
 
 export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
   const router = useRouter();
+  const { user, openLogin } = useAuth();
   const novelId = novel?.id ?? null;
 
   const [tab, setTab] = useState<TabKey>("feed");
@@ -49,7 +49,6 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [headOpen, setHeadOpen] = useState(false);
   const [introH, setIntroH] = useState(0);
-  const [nameFor, setNameFor] = useState<null | (() => void)>(null);
   const [composing, setComposing] = useState(false);
 
   const introRef = useRef<HTMLParagraphElement>(null);
@@ -57,6 +56,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
   const reqId = useRef(0);
 
   // ───── تحميل القوائم ─────
+  const uid = user?.id;
   const load = useCallback(
     async (from: number) => {
       const my = ++reqId.current;
@@ -74,7 +74,8 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
       setHasMore(rows.length === PAGE_SIZE);
       setLoading(false);
     },
-    [novelId, tab, kind, sort, q]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [novelId, tab, kind, sort, q, uid]
   );
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
     fetchStats(novelId).then(setStats);
     fetchPinned(novelId).then(setPinned);
     if (novelId != null) fetchCheckedIn(novelId).then(setChecked);
-  }, [novelId]);
+  }, [novelId, user?.id]);
 
   // تحميل تلقائي عند الوصول لآخر القائمة
   useEffect(() => {
@@ -107,8 +108,8 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
 
   // ───── الهوية ─────
   function withIdentity(action: () => void) {
-    if (getIdentity()) action();
-    else setNameFor(() => action);
+    if (user) action();
+    else openLogin(action);
   }
 
   // ───── الإجراءات ─────
@@ -341,18 +342,6 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
             <input className="cm-input" name="q" defaultValue={q} placeholder="ابحث في المنشورات…" autoFocus />
           </form>
         </div>
-      )}
-
-      {nameFor && (
-        <NameSheet
-          onClose={() => setNameFor(null)}
-          onDone={(id: Identity) => {
-            const next = nameFor;
-            setNameFor(null);
-            void id;
-            next();
-          }}
-        />
       )}
 
       {composing && novelId != null && (

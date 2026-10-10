@@ -1,4 +1,5 @@
 import AdSlot from "./AdSlot";
+import { DesktopAuthLinks } from "@/components/auth/AuthButtons";
 
 export default function Header() {
   return (
@@ -18,15 +19,7 @@ export default function Header() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <a
-              href="#"
-              className="rounded bg-brand px-3 py-1 font-medium text-white hover:bg-brand-dark"
-            >
-              تسجيل الدخول
-            </a>
-            <a href="#" className="hover:text-brand">
-              إنشاء حساب
-            </a>
+            <DesktopAuthLinks />
           </div>
         </div>
       </div>

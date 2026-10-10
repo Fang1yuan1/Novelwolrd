@@ -11,23 +11,23 @@ import {
   fetchMyLikes,
   fetchPost,
   formatWhen,
-  getIdentity,
   toggleLike,
   type CommunityComment,
   type CommunityPost,
 } from "@/lib/community";
-import { Avatar, BackIcon, CmIcon, CommentIcon, NameSheet, RankBadge } from "./shared";
+import { Avatar, BackIcon, CmIcon, CommentIcon, RankBadge } from "./shared";
+import { displayNameOf, useAuth } from "@/lib/auth";
 
 export default function PostDetail({ novelId, postId }: { novelId: number; postId: number }) {
   const router = useRouter();
+  const { user, openLogin } = useAuth();
   const [post, setPost] = useState<CommunityPost | null | undefined>(undefined);
   const [comments, setComments] = useState<CommunityComment[]>([]);
   const [liked, setLiked] = useState(false);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const [nameFor, setNameFor] = useState<null | (() => void)>(null);
-  const [myName, setMyName] = useState<string | null>(null);
+  const myName = user ? displayNameOf(user) : null;
 
   const load = useCallback(async () => {
     const [p, c, l] = await Promise.all([fetchPost(postId), fetchComments(postId), fetchMyLikes([postId])]);
@@ -38,12 +38,11 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
 
   useEffect(() => {
     load();
-    setMyName(getIdentity()?.name ?? null);
-  }, [load]);
+  }, [load, user?.id]);
 
   function withIdentity(action: () => void) {
-    if (getIdentity()) action();
-    else setNameFor(() => action);
+    if (user) action();
+    else openLogin(action);
   }
 
   function goBack() {
@@ -192,17 +191,6 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
         </>
       )}
 
-      {nameFor && (
-        <NameSheet
-          onClose={() => setNameFor(null)}
-          onDone={(id) => {
-            setMyName(id.name);
-            const next = nameFor;
-            setNameFor(null);
-            next();
-          }}
-        />
-      )}
     </div>
   );
 }

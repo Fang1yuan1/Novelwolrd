@@ -1,3 +1,5 @@
+import { HeaderAuthButton } from "@/components/auth/AuthButtons";
+
 export default function MobileHeader() {
   return (
     <header className="mobile-reference-header">
@@ -10,7 +12,7 @@ export default function MobileHeader() {
         <button type="button">كتب</button>
       </div>
 
-      <button className="mobile-app-button" type="button">تسجيل الدخول</button>
+      <HeaderAuthButton />
 
       <button className="mobile-search-icon" type="button" aria-label="بحث">
         <svg viewBox="0 0 24 24" aria-hidden="true">

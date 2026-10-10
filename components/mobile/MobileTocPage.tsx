@@ -323,7 +323,7 @@ export default function MobileTocPage({
               <span>تحميل</span>
             </button>
             <a
-              href={`/novel/${novelId}/chapter/${firstChapter!.number}`}
+              href={`/novel/${novelId}/chapter/1`}
               className="nw-toc-bar-go"
             >
               ابدأ القراءة

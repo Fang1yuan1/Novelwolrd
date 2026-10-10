@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import AuthProvider from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "عالم الروايات — بوابة القراءة (نموذج واجهة تجريبي)",
@@ -27,7 +28,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

@@ -106,7 +106,7 @@ export default function InfoCard({
         <div className="flex flex-wrap items-center gap-2">
           {lastChapter && (
             <a
-              href={`/novel/${novel.id}/chapter/${chapters[0]?.chapter_number ?? 1}`}
+              href={`/novel/${novel.id}/chapter/1`}
               className="rounded border border-brand px-3 py-1.5 text-[13px] font-medium text-brand hover:bg-brand/5"
             >
               قراءة تجريبية مجانية

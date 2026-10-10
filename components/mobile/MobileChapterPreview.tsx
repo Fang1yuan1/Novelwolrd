@@ -76,7 +76,7 @@ export default function MobileChapterPreview({
             تحميل
           </button>
           <a
-            href={`/novel/${novel.id}/chapter/${firstChapter.chapter_number}`}
+            href={`/novel/${novel.id}/chapter/1`}
             className="flex-1 rounded-full bg-brand py-2.5 text-center text-sm font-bold text-white"
           >
             ابدأ القراءة
