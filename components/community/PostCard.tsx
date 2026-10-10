@@ -28,7 +28,7 @@ export default function PostCard({
       style={{ cursor: "pointer" }}
     >
       <div className="cm-post-row">
-        <Avatar name={post.author_name} hue={post.author_hue} />
+        <Avatar src={post.author_avatar} />
         <div className="cm-post-main">
           <div className="cm-post-head">
             <span className="cm-name">{post.author_name}</span>

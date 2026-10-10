@@ -21,6 +21,7 @@ export type CommunityPost = {
   author_hue: number;
   author_title: string | null;
   author_points: number;
+  author_avatar: string | null;
 };
 
 export type CommunityComment = {
@@ -32,6 +33,7 @@ export type CommunityComment = {
   author_hue: number;
   author_title: string | null;
   author_points: number;
+  author_avatar: string | null;
 };
 
 export type SortKey = "activity" | "newest" | "likes";
@@ -65,6 +67,14 @@ async function ensureAuthor(): Promise<string> {
       p_title: null,
     });
     if (error) throw new Error(error.message);
+    // صورة/نبذة الحساب تنتقل لسجل المملكة (تفشل بصمت إن لم يُشغَّل ملف SQL الخاص بالملف الشخصي)
+    const m = (u.user_metadata ?? {}) as { avatar_url?: string; bio?: string };
+    await supabase
+      .rpc("community_set_profile", { p_name: displayNameOf(u), p_avatar_url: m.avatar_url ?? "", p_bio: m.bio ?? "" })
+      .then(
+        () => {},
+        () => {}
+      );
     try {
       localStorage.setItem(flag, "1");
     } catch {}

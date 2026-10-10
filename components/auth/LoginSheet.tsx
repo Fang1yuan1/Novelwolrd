@@ -41,15 +41,6 @@ export default function LoginSheet({ onClose }: { onClose: () => void }) {
     return true;
   }
 
-  async function google() {
-    if (!guard() || !supabase) return;
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.href },
-    });
-    if (error) setMsg(T.fail);
-  }
-
   async function sendCode() {
     if (!supabase) return;
     const e = email.trim();
@@ -90,10 +81,6 @@ export default function LoginSheet({ onClose }: { onClose: () => void }) {
         {step === "choose" && (
           <>
             <div className="au-circles">
-              <button type="button" className="au-circle au-google" onClick={google} aria-label="Google">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/icons/community/google.png" alt="" />
-              </button>
               <button
                 type="button"
                 className="au-circle au-mail"

@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { rankIndex, rankName } from "@/lib/community";
+import { DEFAULT_AVATAR } from "@/lib/profile";
 
 // أيقونة من صورة شفافة (قناع) بلون currentColor — الأبعاد بوحدة المرجع cu
 export function CmIcon({
@@ -11,7 +12,7 @@ export function CmIcon({
   className = "",
   style,
 }: {
-  name: "search" | "hash" | "chevron" | "like" | "tri" | "pencil" | "level" | "flame";
+  name: "search" | "chev" | "hash" | "chevron" | "like" | "tri" | "pencil" | "level" | "flame";
   w: number;
   h: number;
   className?: string;
@@ -57,19 +58,16 @@ export function BackIcon() {
   );
 }
 
-export function Avatar({ name, hue, size }: { name: string; hue: number; size?: number }) {
-  const initial = Array.from(name.trim())[0] ?? "؟";
+export function Avatar({ src, size }: { name?: string; hue?: number; src?: string | null; size?: number }) {
   return (
     <span
       className="cm-avatar"
       style={{
-        background: `linear-gradient(135deg, hsl(${hue} 46% 58%), hsl(${(hue + 28) % 360} 48% 44%))`,
+        backgroundImage: `url(${src || DEFAULT_AVATAR})`,
         ...(size ? { width: `calc(${size} * var(--cu))`, height: `calc(${size} * var(--cu))` } : null),
       }}
       aria-hidden
-    >
-      {initial}
-    </span>
+    />
   );
 }
 

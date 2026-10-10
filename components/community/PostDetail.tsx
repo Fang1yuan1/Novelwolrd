@@ -114,7 +114,7 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
         <>
           <article className="cm-detail">
             <div className="cm-post-row">
-              <Avatar name={post.author_name} hue={post.author_hue} />
+              <Avatar src={post.author_avatar} />
               <div className="cm-post-main">
                 <div className="cm-post-head">
                   <span className="cm-name">{post.author_name}</span>
@@ -155,7 +155,7 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
             {comments.length === 0 && <div className="cm-state" style={{ padding: "24px 0" }}>{COPY.noComments}</div>}
             {comments.map((c) => (
               <div key={c.id} className="cm-comment">
-                <Avatar name={c.author_name} hue={c.author_hue} size={56} />
+                <Avatar src={c.author_avatar} size={56} />
                 <div className="cm-post-main">
                   <div className="cm-post-head">
                     <span className="cm-name">{c.author_name}</span>
