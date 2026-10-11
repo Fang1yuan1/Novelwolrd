@@ -12,7 +12,7 @@ export function CmIcon({
   className = "",
   style,
 }: {
-  name: "search" | "chev" | "hash" | "chevron" | "like" | "tri" | "pencil" | "level" | "flame";
+  name: "search" | "chev" | "hash" | "chevron" | "like" | "tri" | "pencil" | "level" | "flame" | "tb-smile" | "tb-image" | "tb-film" | "tb-book" | "tb-at" | "tb-hash" | "tb-poll" | "tb-bold" | "tb-link";
   w: number;
   h: number;
   className?: string;
