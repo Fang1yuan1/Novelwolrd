@@ -93,10 +93,9 @@ export const COPY = {
     "هنا يلتقي قرّاء كل الروايات: آخر ما كُتب في الممالك، من كل مكان.",
 } as const;
 
-export type PostKind = "all" | "discussion" | "review" | "merch" | "share" | "fanwork" | "other";
-// تصنيفات النشر = نفس خانات المملكة: من يكتب والخانة «الكل» محددة يظهر منشوره بكل الخانات
+export type PostKind = "discussion" | "review" | "merch" | "share" | "fanwork" | "other";
+// تصنيفات النشر: المنشور يظهر بخانته وبخانة «الكل» تلقائيًا
 export const POST_KINDS: PostKind[] = [
-  "all",
   "discussion",
   "review",
   "merch",

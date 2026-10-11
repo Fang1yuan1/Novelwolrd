@@ -347,7 +347,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
       {composing && novelId != null && (
         <Composer
           novelId={novelId}
-          defaultKind={kind}
+          defaultKind={kind === "all" ? "discussion" : kind}
           onClose={() => setComposing(false)}
           onPosted={() => {
             setComposing(false);
