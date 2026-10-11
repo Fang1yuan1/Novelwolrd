@@ -175,8 +175,9 @@ export async function fetchPosts(q: FeedQuery): Promise<CommunityPost[]> {
   let query = supabase.from("community_posts_public").select("*");
   if (q.novelId != null) query = query.eq("novel_id", q.novelId);
   if (q.tab === "featured") query = query.eq("is_featured", true);
-  if (q.tab === "fanwork") query = query.eq("kind", "fanwork");
-  if (q.tab === "feed" && q.kind !== "all") query = query.eq("kind", q.kind);
+  // منشور «الكل» يظهر بكل التصنيفات
+  if (q.tab === "fanwork") query = query.in("kind", ["fanwork", "all"]);
+  if (q.tab === "feed" && q.kind !== "all") query = query.in("kind", [q.kind, "all"]);
   // المثبّتة تظهر بصف خاص بالأعلى فتُستثنى من القائمة العادية (إلا أثناء البحث)
   if (q.tab === "feed" && !q.q) query = query.eq("is_pinned", false);
   if (q.q) query = query.or(`title.ilike.%${q.q}%,body.ilike.%${q.q}%`);

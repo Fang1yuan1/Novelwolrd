@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { COPY } from "@/lib/community-copy";
 import { formatWhen, type CommunityPost } from "@/lib/community";
 import { Avatar, CmIcon, CommentIcon, RankBadge } from "./shared";
+import Rich from "./Rich";
 
 export default function PostCard({
   post,
@@ -38,7 +39,7 @@ export default function PostCard({
           </div>
           <div className="cm-body">
             {post.title && <b>{post.title}{"\n"}</b>}
-            {post.body}
+            <Rich text={post.body} />
           </div>
           {showNovel && (
             <div className="cm-novel-line">

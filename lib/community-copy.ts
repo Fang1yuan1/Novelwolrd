@@ -22,7 +22,7 @@ export const COPY = {
     all: "الكل",
     discussion: "نقاشات",
     review: "مراجعات",
-    merch: "مقتنيات",
+    merch: "منتجات",
     share: "مشاركات",
     fanwork: "إبداعات",
     other: "أخرى",
@@ -45,15 +45,27 @@ export const COPY = {
   emptyBody: "كن أول من يترك أثرًا في هذه المملكة.",
   offline: "تعذّر الاتصال بالمملكة الآن، حاول بعد قليل.",
 
-  // الكتابة
-  composeTitle: "منشور جديد",
-  composeKind: "التصنيف",
-  composeTitlePh: "عنوان (اختياري)",
-  composeBodyPh: "ماذا شعرت وأنت تقرأ؟ شاركه مع بقية القرّاء…",
+  // كتابة منشور (مقابل صفحة 发帖)
+  composeTitlePh: "العنوان",
+  composeBullets: [
+    "اكتب ما يدور في بالك، توصية كان أو مراجعة",
+    "المنشورات المميّزة تُعرض في تبويب المختارات",
+    "كن لطيفًا مع القرّاء، وحذّر قبل أي حرق للأحداث",
+  ],
   composeSend: "نشر",
-  composeSending: "جارٍ النشر…",
+  composeSending: "…",
   composeTooShort: "اكتب كلمتين على الأقل.",
   composeLimit: "وصلت للحد المؤقت للنشر، جرّب بعد قليل.",
+  soon: "هذه الميزة قريبًا",
+  linkAsk: "الصق الرابط (يبدأ بـ https://)",
+
+  // كتابة تعليق / الرد (مقابل 发表评论)
+  commentTitle: "كتابة تعليق",
+  replyTitle: (n: string) => `الرد على ${n}`,
+  commentPh: "اكتب رأيك… ودع النقاش يبدأ",
+  replyPh: (n: string) => `اكتب ردّك على ${n}…`,
+  commentBar: "اكتب تعليقك…",
+  replyBtn: "رد",
 
   // الهوية
   nameTitle: "ما اسمك في المملكة؟",
@@ -64,8 +76,6 @@ export const COPY = {
   // المنشور والتعليقات
   postTitle: "المنشور",
   comments: "التعليقات",
-  commentPh: "اكتب ردّك…",
-  commentSend: "إرسال",
   noComments: "لا توجد تعليقات بعد — ابدأ الحديث.",
   deleteOwn: "حذف",
   deleteConfirm: "حذف هذا المنشور نهائيًا؟",
@@ -83,8 +93,10 @@ export const COPY = {
     "هنا يلتقي قرّاء كل الروايات: آخر ما كُتب في الممالك، من كل مكان.",
 } as const;
 
-export type PostKind = "discussion" | "review" | "merch" | "share" | "fanwork" | "other";
+export type PostKind = "all" | "discussion" | "review" | "merch" | "share" | "fanwork" | "other";
+// تصنيفات النشر = نفس خانات المملكة: من يكتب والخانة «الكل» محددة يظهر منشوره بكل الخانات
 export const POST_KINDS: PostKind[] = [
+  "all",
   "discussion",
   "review",
   "merch",

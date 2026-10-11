@@ -74,3 +74,39 @@ export function Avatar({ src, size }: { name?: string; hue?: number; src?: strin
 export function RankBadge({ points }: { points: number }) {
   return <span className={`cm-badge rank r${rankIndex(points)}`}>{rankName(points)}</span>;
 }
+
+// لوحة الإيموجي البسيطة (بدل لوحة المفاتيح عند الضغط على الوجه المبتسم)
+const EMOJIS = ["😀","😂","🥹","😍","🥰","😎","🤔","😭","😡","😱","🥲","😴","🤯","🙏","👍","👎","👏","🔥","💔","❤️","✨","🎉","💯","😏","😅","🤣","😬","🙄","😤","🥳","😇","🤝","👀","💪","🌹","⭐","📖","⚔️","🐉","🌙"];
+
+export function EmojiPanel({ onPick }: { onPick: (e: string) => void }) {
+  return (
+    <div className="cm-emoji" dir="ltr">
+      {EMOJIS.map((e) => (
+        <button key={e} type="button" onClick={() => onPick(e)}>{e}</button>
+      ))}
+    </div>
+  );
+}
+
+// إدراج نص عند مؤشر الكتابة (أو تغليف المحدد) داخل textarea متحكَّم به
+export function applyEdit(
+  el: HTMLTextAreaElement | null,
+  value: string,
+  max: number,
+  edit: { insert?: string; wrap?: string }
+): { value: string; caret: number } {
+  const start = el?.selectionStart ?? value.length;
+  const end = el?.selectionEnd ?? value.length;
+  let next = value;
+  let caret = start;
+  if (edit.wrap) {
+    const sel = value.slice(start, end) || "نص";
+    next = value.slice(0, start) + edit.wrap + sel + edit.wrap + value.slice(end);
+    caret = start + edit.wrap.length + sel.length + edit.wrap.length;
+  } else if (edit.insert) {
+    next = value.slice(0, start) + edit.insert + value.slice(end);
+    caret = start + edit.insert.length;
+  }
+  if (next.length > max) return { value, caret: start };
+  return { value: next, caret };
+}

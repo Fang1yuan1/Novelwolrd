@@ -16,6 +16,8 @@ import {
   type CommunityPost,
 } from "@/lib/community";
 import { Avatar, BackIcon, CmIcon, CommentIcon, RankBadge } from "./shared";
+import Rich from "./Rich";
+import CommentSheet from "./CommentSheet";
 import { displayNameOf, useAuth } from "@/lib/auth";
 
 export default function PostDetail({ novelId, postId }: { novelId: number; postId: number }) {
@@ -24,9 +26,7 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
   const [post, setPost] = useState<CommunityPost | null | undefined>(undefined);
   const [comments, setComments] = useState<CommunityComment[]>([]);
   const [liked, setLiked] = useState(false);
-  const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+  const [sheet, setSheet] = useState<null | { replyTo?: string }>(null);
   const myName = user ? displayNameOf(user) : null;
 
   const load = useCallback(async () => {
@@ -61,22 +61,14 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
     });
   }
 
-  function send() {
-    const body = text.trim();
-    if (!body || busy) return;
-    withIdentity(async () => {
-      setBusy(true);
-      setErr("");
-      try {
-        await createComment(postId, body);
-        setText("");
-        await load();
-      } catch (e) {
-        const m = e instanceof Error ? e.message : "";
-        setErr(m.includes("rate_limited") ? COPY.composeLimit : COPY.offline);
-      }
-      setBusy(false);
-    });
+  // فتح نافذة التعليق (تطلب حسابًا أولًا)
+  function openSheet(replyTo?: string) {
+    withIdentity(() => setSheet({ replyTo }));
+  }
+
+  async function sendComment(body: string) {
+    await createComment(postId, body);
+    await load();
   }
 
   async function removePost() {
@@ -131,7 +123,7 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
               </div>
             </div>
             {post.title && <h2 className="cm-detail-title">{post.title}</h2>}
-            <div className="cm-body">{post.body}</div>
+            <div className="cm-body"><Rich text={post.body} /></div>
             <div className="cm-actionbar">
               <span className="cm-foot-time">{formatWhen(post.created_at)}</span>
               {mine(post.author_name) && (
@@ -162,9 +154,10 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
                     <RankBadge points={c.author_points} />
                     {c.author_title && <span className="cm-badge title">{c.author_title}</span>}
                   </div>
-                  <div className="cm-body">{c.body}</div>
+                  <div className="cm-body"><Rich text={c.body} /></div>
                   <div className="cm-foot">
                     <span className="cm-foot-time">{formatWhen(c.created_at)}</span>
+                    <button className="cm-link-btn" type="button" onClick={() => openSheet(c.author_name)}>{COPY.replyBtn}</button>
                     {mine(c.author_name) && (
                       <button className="cm-link-btn" type="button" onClick={() => removeComment(c.id)}>{COPY.deleteOwn}</button>
                     )}
@@ -175,22 +168,14 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
           </section>
 
           <div className="cm-composer">
-            <input
-              className="cm-input"
-              value={text}
-              maxLength={1500}
-              placeholder={COPY.commentPh}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && send()}
-            />
-            <button className="cm-submit" type="button" disabled={!text.trim() || busy} onClick={send}>
-              {COPY.commentSend}
+            <button className="cm-fake" type="button" onClick={() => openSheet()}>
+              {COPY.commentBar}
             </button>
           </div>
-          {err && <div className="cm-error" style={{ position: "fixed", bottom: 80, insetInline: 16, textAlign: "center" }}>{err}</div>}
         </>
       )}
 
+      {sheet && <CommentSheet replyTo={sheet.replyTo} onClose={() => setSheet(null)} onSend={sendComment} />}
     </div>
   );
 }
