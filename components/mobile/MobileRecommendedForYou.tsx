@@ -12,7 +12,7 @@ function pickBatch(novels: Novel[], count: number, excludeIds: number[]): Novel[
 }
 
 export default function MobileRecommendedForYou({ novels }: { novels: Novel[] }) {
-  const [batch, setBatch] = useState<Novel[]>(() => pickBatch(novels, 3, []));
+  const [batch, setBatch] = useState<Novel[]>(() => novels.slice(0, 3));
 
   if (novels.length === 0) return null;
 

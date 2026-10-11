@@ -1,9 +1,7 @@
-import { getNovels } from "@/lib/novels";
+import type { Novel } from "@/lib/novels";
 import NovelListItem from "./NovelListItem";
 
-export default async function MobileFreshList() {
-  const all = await getNovels();
-  const fresh = all.filter((n) => n.status !== "completed").slice(0, 3);
+export default function MobileFreshList({ novels: fresh }: { novels: Novel[] }) {
 
   if (fresh.length === 0) return null;
 

@@ -1,9 +1,7 @@
-import { getNovels } from "@/lib/novels";
+import type { Novel } from "@/lib/novels";
 import NovelListItem from "./NovelListItem";
 
-export default async function MobileBestsellerList() {
-  const all = await getNovels();
-  const completed = all.filter((n) => n.status === "completed").slice(0, 3);
+export default function MobileBestsellerList({ novels: completed }: { novels: Novel[] }) {
 
   if (completed.length === 0) return null;
 

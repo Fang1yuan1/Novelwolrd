@@ -1,9 +1,7 @@
-import { getNovels } from "@/lib/novels";
+import type { Novel } from "@/lib/novels";
 import ScrollRow from "./ScrollRow";
 
-export default async function MobileLightNovels() {
-  const all = await getNovels();
-  const items = all.slice(0, 8);
+export default function MobileLightNovels({ novels: items }: { novels: Novel[] }) {
 
   if (items.length === 0) return null;
 

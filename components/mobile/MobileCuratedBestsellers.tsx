@@ -1,10 +1,7 @@
-import { getNovels } from "@/lib/novels";
+import type { Novel } from "@/lib/novels";
 import NovelListItem from "./NovelListItem";
 
-export default async function MobileCuratedBestsellers() {
-  const all = await getNovels();
-  // دفعة مختلفة عن قسم "الأكثر مبيعاً" (الذي يعرض المكتملة فقط) — هنا مزيج عام
-  const picks = all.slice(3, 6);
+export default function MobileCuratedBestsellers({ novels: picks }: { novels: Novel[] }) {
 
   if (picks.length === 0) return null;
 
