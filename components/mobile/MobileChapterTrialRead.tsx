@@ -1,5 +1,5 @@
 import type { Novel } from "@/lib/novels";
-import { getChapterByNumber } from "@/lib/novels";
+import { getChapterByNumber, getAdjacentChapterNumbers } from "@/lib/novels";
 import { getTrialReadSettings } from "@/lib/trial-read-settings";
 import { splitChapterParagraphs } from "@/lib/chapter-text";
 import MobileChapterTrialReadClient from "./MobileChapterTrialReadClient";
@@ -14,6 +14,9 @@ export default async function MobileChapterTrialRead({ novel }: { novel: Novel }
   ]);
   if (!chapter || !chapter.content) return null;
 
+  // رقم الفصل التالي الفعلي (قد لا يكون الرقم + 1 إن كان الترقيم بفجوات)
+  const { next } = await getAdjacentChapterNumbers(novel.id, chapter.chapter_number);
+
   const paragraphs = splitChapterParagraphs(chapter.content);
 
   return (
@@ -21,6 +24,7 @@ export default async function MobileChapterTrialRead({ novel }: { novel: Novel }
       novelId={novel.id}
       chapterNumber={chapter.chapter_number}
       chapterTitle={chapter.title}
+      nextNumber={next}
       paragraphs={paragraphs}
       settings={settings}
     />

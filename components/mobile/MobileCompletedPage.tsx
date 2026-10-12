@@ -1,6 +1,7 @@
 import { getNovels } from "@/lib/novels";
 import MobileGenderHeader from "./MobileGenderHeader";
 import NovelListItem from "./NovelListItem";
+import MobileCoverRow from "./MobileCoverRow";
 
 
 // الصفحة دي معمولة بالكامل من عناصر موجودة أصلاً بالصفحة الرئيسية
@@ -32,45 +33,8 @@ export default async function MobileCompletedPage() {
           <p className="mobile-category-empty">لا توجد أعمال مكتملة حاليًا.</p>
         ) : (
           <>
-            {/* 1) صف أفقي علوي — نفس ستايل "روايات قصيرة" بالرئيسية */}
-            {popular.length > 0 && (
-              <section className="mobile-reference-card px-3 py-3">
-                <div className="mobile-reference-section-heading">
-                  <span className="mobile-reference-heading-group">
-                    <h2>الأكثر شعبية</h2>
-                    <span className="mobile-reference-badge-pill">
-                      أعمال مكتملة مميزة
-                    </span>
-                  </span>
-                </div>
-                <ul className="scroll-thin flex gap-3 overflow-x-auto pb-1">
-                  {popular.slice(0, 8).map((n) => (
-                    <li key={n.id} className="w-[110px] shrink-0">
-                      <a href={`/novel/${n.id}`} className="block">
-                        {n.cover_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={n.cover_url}
-                            alt={n.title}
-                            className="aspect-[0.72] w-full rounded-lg object-cover"
-                          />
-                        ) : (
-                          <span className="ph-block aspect-[0.72] block w-full rounded-lg text-[10px]">
-                            الغلاف
-                          </span>
-                        )}
-                        <span className="line-clamp-2 mt-1.5 block text-[12px] font-semibold leading-snug text-ink-900">
-                          {n.title}
-                        </span>
-                        <span className="line-clamp-1 mt-0.5 block text-[11px] text-ink-400">
-                          {n.author || "—"}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            {/* 1) صف أفقي علوي — بنفس هندسة «مجاني لفترة محدودة» */}
+            <MobileCoverRow title="الأكثر شعبية" badge="أعمال مكتملة مميزة" novels={popular.slice(0, 8)} />
 
             {/* 2) الأحدث اكتمالًا — نفس ستايل "الأكثر مبيعاً" بالرئيسية */}
             {newest.length > 0 && (

@@ -36,12 +36,14 @@ export default function MobileChapterTrialReadClient({
   novelId,
   chapterNumber,
   chapterTitle,
+  nextNumber,
   paragraphs,
   settings,
 }: {
   novelId: number | string;
   chapterNumber: number;
   chapterTitle: string | null;
+  nextNumber: number | null;
   paragraphs: string[];
   settings: TrialReadSettings;
 }) {
@@ -174,14 +176,41 @@ export default function MobileChapterTrialReadClient({
         </button>
       )}
 
+      {/* نهاية الفصل — مقاسة من لقطة المرجع: زران بعرض متساوٍ (الفصل التالي + فتح القراءة الكاملة) وسطر حقوق */}
       {expanded && (
-        <a
-          href={`/novel/${novelId}/chapter/${chapterNumber}`}
-          className="mt-4 block text-center text-[13px]"
-          style={{ color: mounted ? p.chipActiveText : "#e5353e" }}
-        >
-          فتح صفحة القراءة الكاملة ←
-        </a>
+        <div className="mt-7">
+          <div className="flex gap-2">
+            {nextNumber != null && (
+              <a
+                href={`/novel/${novelId}/chapter/${nextNumber}`}
+                className="flex h-12 flex-1 items-center justify-center rounded-full text-[16px] font-bold"
+                style={{ backgroundColor: "#ffe6e7", color: "#e5353e" }}
+              >
+                الفصل التالي
+              </a>
+            )}
+            <a
+              href={`/novel/${novelId}/chapter/${chapterNumber}`}
+              className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full text-white"
+              style={{ backgroundColor: "#e5353e" }}
+            >
+              <span className="flex flex-col items-center leading-[1.25]">
+                <span className="text-[15px] font-bold">فتح القراءة الكاملة</span>
+                <span className="text-[11px]" style={{ opacity: 0.9 }}>
+                  بقية الفصول متاحة مجانًا
+                </span>
+              </span>
+              <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden className="shrink-0">
+                <path d="M7 1 1 7l6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          </div>
+          <p className="mt-[30px] text-center text-[12.5px] leading-[19px]" style={{ color: "#999999" }}>
+            تُقدَّم هذه الترجمة على عالم الروايات
+            <br />
+            <span style={{ color: "#cccccc" }}>حقوق العمل الأصلي محفوظة لأصحابها</span>
+          </p>
+        </div>
       )}
 
       {/* تعتيم السطوع — نفس تقنية صفحة القراءة (brightness) */}

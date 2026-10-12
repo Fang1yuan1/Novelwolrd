@@ -1,12 +1,20 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { backTarget } from "@/lib/nav-memory";
+
 export default function MobileBackHeader({ title }: { title: string }) {
+  const router = useRouter();
   return (
     <header className="sticky top-0 z-20 flex items-center gap-1 border-b border-ink-300/10 bg-white px-2 py-2.5">
       <button
         type="button"
         onClick={() => {
-          if (window.history.length > 1) {
+          // يرجع للمكان الذي جئت منه (الرئيسية/التصنيف…) وليس لآخر فصل قرأته
+          const target = backTarget(window.location.pathname);
+          if (target) {
+            router.push(target);
+          } else if (window.history.length > 1) {
             window.history.back();
           } else {
             window.location.href = "/";
