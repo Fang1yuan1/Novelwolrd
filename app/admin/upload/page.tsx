@@ -60,10 +60,22 @@ export default function UploadChaptersPage() {
       addLog('خطأ: الملف مو JSON صحيح');
       return;
     }
+    // أرقام الفصول المكررة بنفس الملف تُفشل الدفعة كلها («cannot affect row a second time») — نُبقي النسخة الأطول من كل رقم
+    const byNumber = new Map<number, any>();
+    const dupes = new Set<number>();
+    for (const c of chapters) {
+      const prev = byNumber.get(c.chapter_number);
+      if (prev) {
+        dupes.add(c.chapter_number);
+        if ((c.content || '').length <= (prev.content || '').length) continue;
+      }
+      byNumber.set(c.chapter_number, c);
+    }
+    chapters = Array.from(byNumber.values());
     setTotal(chapters.length);
     setRunning(true);
     setProgress(0);
-    setLog([]);
+    setLog(dupes.size ? [`تنبيه: أرقام فصول مكررة بالملف (${Array.from(dupes).join('، ')}) — أُخذت النسخة الأطول من كل رقم`] : []);
 
     let failedCount = 0;
     let size = BATCH_SIZE;

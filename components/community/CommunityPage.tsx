@@ -7,6 +7,7 @@ import {
   PAGE_SIZE,
   checkIn,
   compactCount,
+  fetchChapterPostCount,
   fetchCheckedIn,
   fetchMyLikes,
   fetchPinned,
@@ -27,7 +28,7 @@ type NovelInfo = { id: number; title: string; cover_url: string | null };
 
 const KIND_ORDER: (PostKind | "all")[] = ["all", "discussion", "review", "merch", "share", "fanwork", "other"];
 
-export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
+export default function CommunityPage({ novel, chapter = null }: { novel: NovelInfo | null; chapter?: number | null }) {
   const router = useRouter();
   const { user, openLogin } = useAuth();
   const novelId = novel?.id ?? null;
@@ -61,7 +62,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
     async (from: number) => {
       const my = ++reqId.current;
       setLoading(true);
-      const rows = await fetchPosts({ novelId, tab, kind, sort, from, q });
+      const rows = await fetchPosts({ novelId, tab, kind, sort, from, q, chapter });
       if (my !== reqId.current) return;
       const likes = await fetchMyLikes(rows.map((r) => r.id));
       if (my !== reqId.current) return;
@@ -75,7 +76,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
       setLoading(false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [novelId, tab, kind, sort, q, uid]
+    [novelId, tab, kind, sort, q, uid, chapter]
   );
 
   useEffect(() => {
@@ -83,10 +84,14 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
   }, [load]);
 
   useEffect(() => {
-    fetchStats(novelId).then(setStats);
-    fetchPinned(novelId).then(setPinned);
+    fetchStats(novelId).then((st) => {
+      // بصفحة فصل: عدد المنشورات يخص الفصل فقط
+      if (novelId != null && chapter != null) fetchChapterPostCount(novelId, chapter).then((c) => setStats({ ...st, posts: c }));
+      else setStats(st);
+    });
+    if (chapter == null) fetchPinned(novelId).then(setPinned);
     if (novelId != null) fetchCheckedIn(novelId).then(setChecked);
-  }, [novelId, user?.id]);
+  }, [novelId, user?.id, chapter]);
 
   // تحميل تلقائي عند الوصول لآخر القائمة
   useEffect(() => {
@@ -150,7 +155,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
     else router.push(novelId != null ? `/novel/${novelId}` : "/");
   }
 
-  const title = novel ? COPY.kingdomOf(novel.title) : COPY.globalTitle;
+  const title = novel ? (chapter != null ? COPY.chapterTitle(chapter, novel.title) : COPY.kingdomOf(novel.title)) : COPY.globalTitle;
   const level = kingdomLevel(stats.posts);
   const sortLabel = COPY.sorts[sort];
   const showChips = tab === "feed";
@@ -208,7 +213,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
             </span>
           </div>
 
-          <p className="cm-intro" ref={introRef}>{novel ? COPY.intro(novel.title) : COPY.introGlobal}</p>
+          <p className="cm-intro" ref={introRef}>{novel ? (chapter != null ? COPY.introChapter(chapter, novel.title) : COPY.intro(novel.title)) : COPY.introGlobal}</p>
 
           <button className="cm-expand" type="button" aria-label="المزيد" aria-expanded={headOpen} onClick={() => setHeadOpen((v) => !v)}>
             <CmIcon name="chevron" w={34} h={14} />
@@ -347,6 +352,7 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
       {composing && novelId != null && (
         <Composer
           novelId={novelId}
+          chapter={chapter}
           defaultKind={kind === "all" ? "discussion" : kind}
           onClose={() => setComposing(false)}
           onPosted={() => {
@@ -355,7 +361,10 @@ export default function CommunityPage({ novel }: { novel: NovelInfo | null }) {
             setKind("all");
             setQ("");
             load(0);
-            fetchStats(novelId).then(setStats);
+            fetchStats(novelId).then((st) => {
+              if (chapter != null) fetchChapterPostCount(novelId, chapter).then((c) => setStats({ ...st, posts: c }));
+              else setStats(st);
+            });
           }}
         />
       )}

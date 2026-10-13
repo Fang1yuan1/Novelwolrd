@@ -401,6 +401,7 @@ export default function MobileChapterReader({
           setBrightness={setBrightness}
           onClose={() => setShowSheet(false)}
           onCustomize={() => setShowSheet(false)}
+          commentsHref={`/novel/${novel.id}/community?chapter=${chapter.chapter_number}`}
         />
       )}
     </div>

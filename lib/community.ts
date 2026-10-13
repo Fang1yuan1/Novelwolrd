@@ -22,6 +22,7 @@ export type CommunityPost = {
   author_title: string | null;
   author_points: number;
   author_avatar: string | null;
+  chapter_number?: number | null;
 };
 
 export type CommunityComment = {
@@ -168,12 +169,14 @@ export type FeedQuery = {
   sort: SortKey;
   from: number;
   q?: string;
+  chapter?: number | null;
 };
 
 export async function fetchPosts(q: FeedQuery): Promise<CommunityPost[]> {
   if (!supabase) return [];
   let query = supabase.from("community_posts_public").select("*");
   if (q.novelId != null) query = query.eq("novel_id", q.novelId);
+  if (q.chapter != null) query = query.eq("chapter_number", q.chapter);
   if (q.tab === "featured") query = query.eq("is_featured", true);
   if (q.tab === "fanwork") query = query.eq("kind", "fanwork");
   // خانة «الكل» بلا فلتر فتعرض كل المنشورات، وكل منشور يظهر أيضًا بخانته
@@ -224,6 +227,17 @@ export async function fetchStats(novelId: number | null): Promise<{ posts: numbe
   return { posts: Number(d.posts ?? 0), members: Number(d.members ?? 0) };
 }
 
+// عدد منشورات فصل معيّن
+export async function fetchChapterPostCount(novelId: number, chapter: number): Promise<number> {
+  if (!supabase) return 0;
+  const { count } = await supabase
+    .from("community_posts_public")
+    .select("id", { count: "exact", head: true })
+    .eq("novel_id", novelId)
+    .eq("chapter_number", chapter);
+  return count ?? 0;
+}
+
 export async function fetchMyLikes(ids: number[]): Promise<Set<number>> {
   const u = await sessionUser();
   if (!supabase || !u || ids.length === 0) return new Set();
@@ -249,15 +263,19 @@ export async function createPost(input: {
   kind: PostKind;
   title: string;
   body: string;
+  chapterNumber?: number | null;
 }): Promise<number> {
   const { key } = await need();
-  const { data, error } = await supabase!.rpc("community_create_post", {
+  const args: Record<string, unknown> = {
     p_key: key,
     p_novel_id: input.novelId,
     p_kind: input.kind,
     p_title: input.title,
     p_body: input.body,
-  });
+  };
+  // يُرسل رقم الفصل فقط عند وجوده (فيعمل النشر العادي حتى قبل تشغيل ملف SQL الخاص بالفصول)
+  if (input.chapterNumber != null) args.p_chapter = input.chapterNumber;
+  const { data, error } = await supabase!.rpc("community_create_post", args);
   if (error) throw new Error(error.message);
   return Number(data);
 }

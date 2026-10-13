@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthProvider from "@/lib/auth";
 import NavTracker from "@/components/NavTracker";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "عالم الروايات — بوابة القراءة (نموذج واجهة تجريبي)",
@@ -34,6 +35,7 @@ export default function RootLayout({
           <NavTracker />
           {children}
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

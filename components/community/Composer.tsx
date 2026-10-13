@@ -9,11 +9,13 @@ import { CmIcon, EmojiPanel, applyEdit } from "./shared";
 // صفحة كتابة منشور — مقاسة من لقطة 发帖 (828 عرض)
 export default function Composer({
   novelId,
+  chapter,
   defaultKind,
   onClose,
   onPosted,
 }: {
   novelId: number;
+  chapter?: number | null;
   defaultKind: PostKind;
   onClose: () => void;
   onPosted: () => void;
@@ -53,7 +55,7 @@ export default function Composer({
     if (!ok) return;
     setBusy(true);
     try {
-      await createPost({ novelId, kind, title, body });
+      await createPost({ novelId, kind, title, body, chapterNumber: chapter ?? null });
       onPosted();
     } catch (e) {
       const m = e instanceof Error ? e.message : "";

@@ -6,6 +6,10 @@ export const COPY = {
   kingdom: "مملكة القراء",
   kingdomOf: (title: string) => `مملكة قرّاء ${title}`,
   globalTitle: "مجتمع القرّاء",
+  chapterTitle: (n: number, title: string) => `تعليقات الفصل ${n} · ${title}`,
+  chapterTag: (n: number) => `الفصل ${n}`,
+  introChapter: (n: number, title: string) =>
+    `هنا تعليقات القرّاء على الفصل ${n} من «${title}». شاركهم انطباعك بلطف، وضع تحذير «حرق» قبل أي كشف لأحداث الفصول القادمة.`,
 
   // الهيدر
   checkIn: "حضور",

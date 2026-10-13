@@ -183,8 +183,10 @@ export default function MobileReaderSettingsSheet({
   setBrightness,
   onClose,
   onCustomize,
+  commentsHref,
   variant = "phone",
 }: {
+  commentsHref?: string;
   theme: ReaderTheme;
   setTheme: (t: ReaderTheme) => void;
   fontIdx: number;
@@ -262,9 +264,15 @@ export default function MobileReaderSettingsSheet({
           <div className="nw-rs-t-glass nw-rs-t-top" style={{ background: glass }}>
             <div className="nw-rs-head">
               <h2 className="nw-rs-title">الثيمات والإعدادات</h2>
-              <button type="button" onClick={handleClose} aria-label="إغلاق" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
-                {T("close", 34, 33)}
-              </button>
+              {commentsHref ? (
+                <a href={commentsHref} aria-label="تعليقات الفصل" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
+                  {T("chapter-comment", 40, 36)}
+                </a>
+              ) : (
+                <button type="button" onClick={handleClose} aria-label="إغلاق" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
+                  {T("close", 34, 33)}
+                </button>
+              )}
             </div>
 
             <div dir="ltr">
@@ -416,15 +424,26 @@ export default function MobileReaderSettingsSheet({
         {/* العنوان وزر الإغلاق (بقيا بمكانهما) */}
         <div className="nw-rs-head">
           <h2 className="nw-rs-title">الثيمات والإعدادات</h2>
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="إغلاق"
-            className="nw-rs-close"
-            style={{ backgroundColor: closeTint, color: mutedInk }}
-          >
-            <IconClose />
-          </button>
+          {commentsHref ? (
+            <a
+              href={commentsHref}
+              aria-label="تعليقات الفصل"
+              className="nw-rs-close"
+              style={{ backgroundColor: closeTint, color: mutedInk }}
+            >
+              <MaskIcon name="chapter-comment" w={32} h={29} />
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={handleClose}
+              aria-label="إغلاق"
+              className="nw-rs-close"
+              style={{ backgroundColor: closeTint, color: mutedInk }}
+            >
+              <IconClose />
+            </button>
+          )}
         </div>
 
         {/* الأدوات بترتيب المرجع بالضبط (يسار→يمين) لذلك dir=ltr */}

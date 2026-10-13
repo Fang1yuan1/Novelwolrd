@@ -112,7 +112,8 @@ export default function PostDetail({ novelId, postId }: { novelId: number; postI
                   <span className="cm-name">{post.author_name}</span>
                   <RankBadge points={post.author_points} />
                   {post.author_title && <span className="cm-badge title">{post.author_title}</span>}
-                  {post.is_featured && <span className="cm-badge feat">{COPY.featured}</span>}
+                  {post.chapter_number != null && <span className="cm-badge chap">{COPY.chapterTag(Number(post.chapter_number))}</span>}
+            {post.is_featured && <span className="cm-badge feat">{COPY.featured}</span>}
                 </div>
                 <div className="cm-novel-line">
                   {COPY.inNovel}{" "}

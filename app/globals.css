@@ -1895,3 +1895,5 @@ a.mobile-app-button { display: inline-block; text-decoration: none; }
 .cm-fake { flex: 1; height: calc(72 * var(--cu)); padding-inline: calc(32 * var(--cu)); border: 0; border-radius: 999px; background: #f5f5f5; color: #adadad; font-family: inherit; font-size: calc(28 * var(--cu)); text-align: start; }
 .cm-mention { color: #4a8fe0; }
 .cm-link { color: #4a8fe0; text-decoration: none; word-break: break-all; }
+
+.cm-badge.chap { background: #f2f2f2; color: #808080; }
