@@ -25,7 +25,6 @@ function MaskIcon({ name, w, h, dir = "reader" }: { name: string; w: number; h: 
     />
   );
 }
-const IconLayout = () => <MaskIcon name="layout" w={49} h={48} />;
 const IconAppearance = () => <MaskIcon name="appearance" w={46} h={46} />;
 const IconClose = () => <MaskIcon name="close" w={30} h={30} />;
 const IconAsterisk = () => <MaskIcon name="asterisk" w={21} h={23} />;
@@ -186,7 +185,7 @@ export default function MobileReaderSettingsSheet({
   commentsHref,
   variant = "phone",
 }: {
-  commentsHref?: string;
+  commentsHref: string;
   theme: ReaderTheme;
   setTheme: (t: ReaderTheme) => void;
   fontIdx: number;
@@ -264,15 +263,9 @@ export default function MobileReaderSettingsSheet({
           <div className="nw-rs-t-glass nw-rs-t-top" style={{ background: glass }}>
             <div className="nw-rs-head">
               <h2 className="nw-rs-title">الثيمات والإعدادات</h2>
-              {commentsHref ? (
-                <a href={commentsHref} aria-label="تعليقات الفصل" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
-                  {T("chapter-comment", 40, 36)}
-                </a>
-              ) : (
-                <button type="button" onClick={handleClose} aria-label="إغلاق" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
-                  {T("close", 34, 33)}
-                </button>
-              )}
+              <button type="button" onClick={handleClose} aria-label="إغلاق" className="nw-rs-close" style={{ backgroundColor: tClose, color: mutedInk }}>
+                {T("close", 34, 33)}
+              </button>
             </div>
 
             <div dir="ltr">
@@ -305,9 +298,9 @@ export default function MobileReaderSettingsSheet({
 
                 {/* بالمرجع: أيقونتا التخطيط والمظهر داخل كبسولة واحدة */}
                 <div className="nw-rs-pill nw-rs-pill--icons2" style={{ backgroundColor: tPill, color: ink }}>
-                  <button type="button" className="nw-rs-icon-btn" aria-label="التخطيط">
-                    {T("layout", 47, 48)}
-                  </button>
+                  <a href={commentsHref} className="nw-rs-icon-btn" aria-label="تعليقات الفصل">
+                    {T("chapter-comment", 50, 45)}
+                  </a>
                   <button
                     type="button"
                     onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
@@ -424,26 +417,15 @@ export default function MobileReaderSettingsSheet({
         {/* العنوان وزر الإغلاق (بقيا بمكانهما) */}
         <div className="nw-rs-head">
           <h2 className="nw-rs-title">الثيمات والإعدادات</h2>
-          {commentsHref ? (
-            <a
-              href={commentsHref}
-              aria-label="تعليقات الفصل"
-              className="nw-rs-close"
-              style={{ backgroundColor: closeTint, color: mutedInk }}
-            >
-              <MaskIcon name="chapter-comment" w={32} h={29} />
-            </a>
-          ) : (
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label="إغلاق"
-              className="nw-rs-close"
-              style={{ backgroundColor: closeTint, color: mutedInk }}
-            >
-              <IconClose />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="إغلاق"
+            className="nw-rs-close"
+            style={{ backgroundColor: closeTint, color: mutedInk }}
+          >
+            <IconClose />
+          </button>
         </div>
 
         {/* الأدوات بترتيب المرجع بالضبط (يسار→يمين) لذلك dir=ltr */}
@@ -475,9 +457,9 @@ export default function MobileReaderSettingsSheet({
               </button>
             </div>
 
-            <button type="button" className="nw-rs-pill nw-rs-pill--icon" style={{ backgroundColor: pillTint, color: ink }} aria-label="التخطيط">
-              <IconLayout />
-            </button>
+            <a href={commentsHref} className="nw-rs-pill nw-rs-pill--icon" style={{ backgroundColor: pillTint, color: ink }} aria-label="تعليقات الفصل">
+              <MaskIcon name="chapter-comment" w={54} h={48} />
+            </a>
             <button
               type="button"
               onClick={() => setTheme(theme === "quiet" ? "original" : "quiet")}
