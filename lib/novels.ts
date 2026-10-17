@@ -19,6 +19,7 @@ export type Novel = {
   // حقول اختيارية — لو أضفتها لجدول novels في Supabase هتظهر تلقائيًا،
   // ولو مش موجودة الواجهة بتتعامل معاها بأمان (تخفي القسم أو تعرض بديل).
   author?: string | null;
+  title_en?: string | null; // الاسم الإنجليزي: للبحث ولجوجل فقط
   status?: "ongoing" | "completed" | string | null;
   tags?: string | null; // نص مفصول بفواصل، مثال: "VIP,روايات خفيفة,خيال أصلي"
   // أعداد محسوبة ومخزّنة تلقائيًا بقاعدة البيانات (تريجر) بدل حسابها من كل الفصول في كل صفحة — أسرع بكتير
@@ -549,4 +550,42 @@ export function formatChapterStamp(iso: string): string {
       ? ""
       : ` ${d.getUTCFullYear()}`;
   return `${d.getUTCDate()} ${ARABIC_MONTHS[d.getUTCMonth()]}${year} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+}
+
+
+// تطبيع نص البحث: يلغي التشكيل والتطويل ويوحّد (أ إ آ ← ا) و(ى ← ي) و(ة ← ه) ويصغّر الإنجليزي
+export function normalizeSearch(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// بحث بالاسم العربي أو الإنجليزي أو المؤلف أو الوسوم (كل كلمات البحث لازم تكون موجودة)
+export async function searchNovels(query: string, limit = 60): Promise<Novel[]> {
+  const q = normalizeSearch(query);
+  if (!q) return [];
+  const tokens = q.split(" ");
+  const all = await getNovels();
+  const scored: { n: Novel; score: number }[] = [];
+  for (const n of all) {
+    const title = normalizeSearch(n.title || "");
+    const en = normalizeSearch(n.title_en || "");
+    const hay = `${title} ${en} ${normalizeSearch(n.author || "")} ${normalizeSearch(n.tags || "")}`;
+    if (!tokens.every((t) => hay.includes(t))) continue;
+    let score = 0;
+    if (title === q || en === q) score = 3;
+    else if (title.startsWith(q) || en.startsWith(q)) score = 2;
+    else if (title.includes(q) || en.includes(q)) score = 1;
+    scored.push({ n, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((x) => x.n);
 }

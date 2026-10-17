@@ -19,6 +19,7 @@ type Novel = {
   cover_url: string | null;
   category: string | null;
   author: string | null;
+  title_en?: string | null;
   status: string | null;
   tags: string | null;
 };
@@ -43,6 +44,8 @@ export default function EditNovelPage() {
 
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [titleEn, setTitleEn] = useState('');
+  const [origTitleEn, setOrigTitleEn] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'ongoing' | 'completed'>('ongoing');
   const [tags, setTags] = useState('');
@@ -329,6 +332,8 @@ export default function EditNovelPage() {
       const n = novel as Novel;
       setTitle(n.title || '');
       setAuthor(n.author || '');
+      setTitleEn(n.title_en || '');
+      setOrigTitleEn(n.title_en || '');
       setDescription(n.description || '');
       setStatus((n.status as 'ongoing' | 'completed') || 'ongoing');
       setTags(n.tags || '');
@@ -426,6 +431,7 @@ export default function EditNovelPage() {
         cover_url: finalCoverUrl || null,
         category: selectedCategories.join(',') || null,
         author: author.trim() || null,
+        ...(titleEn.trim() || origTitleEn ? { title_en: titleEn.trim() || null } : {}),
         status,
         tags: tags.trim() || null,
       })
@@ -487,6 +493,15 @@ export default function EditNovelPage() {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+          />
+        </Field>
+
+        <Field label="الاسم الإنجليزي (للبحث ولجوجل فقط — لا يظهر للقرّاء)">
+          <input
+            value={titleEn}
+            onChange={(e) => setTitleEn(e.target.value)}
+            dir="ltr"
             className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
           />
         </Field>

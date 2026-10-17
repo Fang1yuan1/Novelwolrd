@@ -3,11 +3,23 @@ import "./globals.css";
 import AuthProvider from "@/lib/auth";
 import NavTracker from "@/components/NavTracker";
 import { Analytics } from "@vercel/analytics/next";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "عالم الروايات — بوابة القراءة (نموذج واجهة تجريبي)",
-  description:
-    "تخطيط واجهة أمامية تجريبي مستوحى من بنية الصفحة الرئيسية لبوابة قراءة روايات. كل النصوص والشعارات والصور محتوى بديل (Placeholder).",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "عالم الروايات — اقرأ الروايات المترجمة",
+    template: "%s — عالم الروايات",
+  },
+  description: "اقرأ آلاف الفصول من الروايات المترجمة إلى العربية: خيال وفنون قتالية وحياة حضرية وغيرها، مع مملكة قرّاء لكل رواية.",
+  applicationName: "عالم الروايات",
+  openGraph: {
+    type: "website",
+    siteName: "عالم الروايات",
+    locale: "ar_AR",
+    url: SITE_URL,
+  },
+  alternates: { canonical: "/" },
 };
 
 export const viewport: Viewport = {

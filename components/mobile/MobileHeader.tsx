@@ -14,13 +14,14 @@ export default function MobileHeader() {
 
       <HeaderAuthButton />
 
-      <button className="mobile-search-icon" type="button" aria-label="بحث">
+      <a className="mobile-search-icon" href="/search" aria-label="بحث">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
           <path d="m16.5 16.5 4 4" />
         </svg>
-      </button>
+      </a>
 
+      <form action="/search" method="get" style={{ display: "contents" }}>
       <label className="mobile-reference-search" htmlFor="mobile-site-search">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
@@ -28,10 +29,13 @@ export default function MobileHeader() {
         </svg>
         <input
           id="mobile-site-search"
+          name="q"
           type="search"
+          enterKeyHint="search"
           placeholder="ابحث عن عنوان أو مؤلف"
         />
       </label>
+      </form>
     </header>
   );
 }

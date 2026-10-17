@@ -2,8 +2,25 @@ import { getNovelById, getChapterByNumber, getAdjacentChapterNumbers, getChapter
 import { notFound, redirect } from "next/navigation";
 import ReadingTracker from "@/components/chapter/ReadingTracker";
 import MobileChapterReader from "@/components/chapter/MobileChapterReader";
+import type { Metadata } from "next";
 
 export const revalidate = 86400; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; number: string }>;
+}): Promise<Metadata> {
+  const { id, number } = await params;
+  const [novel, chapter] = await Promise.all([getNovelById(id), getChapterByNumber(id, number)]);
+  if (!novel || !chapter) return {};
+  const name = novel.title_en ? `${novel.title} | ${novel.title_en}` : novel.title;
+  return {
+    title: `${name} — الفصل ${chapter.chapter_number}${chapter.title ? `: ${chapter.title}` : ""}`,
+    description: `اقرأ الفصل ${chapter.chapter_number} من رواية ${novel.title} مترجمًا إلى العربية.`,
+    alternates: { canonical: `/novel/${novel.id}/chapter/${chapter.chapter_number}` },
+  };
+}
 
 export default async function ChapterPage({
   params,

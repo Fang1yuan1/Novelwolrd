@@ -17,6 +17,7 @@ export default function AddNovelPage() {
 
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
+  const [titleEn, setTitleEn] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'ongoing' | 'completed'>('ongoing');
   const [tags, setTags] = useState('');
@@ -117,6 +118,7 @@ export default function AddNovelPage() {
         cover_url: finalCoverUrl || null,
         category: finalCategory || null,
         author: author.trim() || null,
+        ...(titleEn.trim() ? { title_en: titleEn.trim() } : {}),
         status,
         tags: tags.trim() || null,
       })
@@ -172,6 +174,16 @@ export default function AddNovelPage() {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
             placeholder="اسم الرواية"
+          />
+        </Field>
+
+        <Field label="الاسم الإنجليزي (للبحث ولجوجل فقط — لا يظهر للقرّاء)">
+          <input
+            value={titleEn}
+            onChange={(e) => setTitleEn(e.target.value)}
+            dir="ltr"
+            className="w-full rounded border border-ink-300/40 px-3 py-2 text-sm outline-none focus:border-brand"
+            placeholder="English title"
           />
         </Field>
 
