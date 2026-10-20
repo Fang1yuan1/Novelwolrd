@@ -9,7 +9,7 @@ import { SITE_URL } from "@/lib/site";
 import MobileNovelDetail from "@/components/mobile/MobileNovelDetail";
 import PhoneFrame from "@/components/PhoneFrame";
 
-export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
+export const revalidate = 21600; // ISR: كل 6 ساعات (ما فيها فصول جديدة يظهر خلال 6 ساعات، أو فورًا عبر /api/revalidate)
 
 // عنوان الصفحة لجوجل: الاسم العربي ثم الإنجليزي (الإنجليزي بالعنوان والبيانات المنظمة فقط، لا يظهر للقارئ بالصفحة)
 export async function generateMetadata({

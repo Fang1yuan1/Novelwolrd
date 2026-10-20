@@ -13,7 +13,7 @@ import {
   groupChaptersByVolume,
 } from "@/lib/novels";
 
-export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
+export const revalidate = 21600; // ISR: كل 6 ساعات (ما فيها فصول جديدة يظهر خلال 6 ساعات، أو فورًا عبر /api/revalidate)
 
 export default async function NovelTocPage({
   params,

@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import { getChapterCount, getNovels } from "@/lib/novels";
 import MobileRankingsPage from "@/components/mobile/MobileRankingsPage";
 
-export const revalidate = 300; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
+export const revalidate = 3600; // ISR: تُبنى مرة وتتجدد كل ساعة (لتقليل ISR Writes بخطة Vercel المجانية)
 
 export default async function RankingsPage() {
   const novels = await getNovels();

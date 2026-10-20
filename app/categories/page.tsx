@@ -6,7 +6,7 @@ import { getCategories } from "@/lib/categories";
 import { getCategoriesWithCounts } from "@/lib/novels";
 import MobileCategoriesPage from "@/components/mobile/MobileCategoriesPage";
 
-export const revalidate = 600; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
+export const revalidate = 3600; // ISR: تُبنى مرة وتتجدد كل ساعة (لتقليل ISR Writes بخطة Vercel المجانية)
 
 export default async function CategoriesIndexPage() {
   const [categories, counts] = await Promise.all([

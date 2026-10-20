@@ -4,7 +4,7 @@ import ReadingTracker from "@/components/chapter/ReadingTracker";
 import MobileChapterReader from "@/components/chapter/MobileChapterReader";
 import type { Metadata } from "next";
 
-export const revalidate = 86400; // مخزّنة ISR: تُبنى مرة وتُخدم بدون CPU، وتتجدد بالخلفية بعد هذه المدة (ثواني)
+export const revalidate = 2592000; // ISR: 30 يومًا (نص الفصل نادرًا يتغير). تعديل فصل يظهر فورًا عبر /api/revalidate
 
 export async function generateMetadata({
   params,
