@@ -43,6 +43,12 @@ export default function AdminDashboard() {
       icon: '🧑‍🤝‍🧑',
     },
     {
+      href: '/admin/r2',
+      title: 'نقل الفصول إلى R2',
+      desc: 'نقل نصوص الفصول من قاعدة البيانات إلى Cloudflare R2 لتوفير المساحة (يحتاج ADMIN_API_SECRET)',
+      icon: '☁️',
+    },
+    {
       href: '/admin/community',
       title: 'مملكة القراء (الإشراف)',
       desc: 'تثبيت/تمييز/حذف منشورات القرّاء بكل الروايات (يحتاج كلمة سر الإشراف من ملف SQL)',

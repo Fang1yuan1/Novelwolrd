@@ -11,6 +11,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "@vercel/analytics": "^1.5.0",
+    "aws4fetch": "^1.0.20",
     "jszip": "^3.10.1",
     "next": "latest",
     "pdfjs-dist": "^4.6.82",

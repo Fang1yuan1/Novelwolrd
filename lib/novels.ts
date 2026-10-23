@@ -284,7 +284,20 @@ export async function getChapterByNumber(
     .eq("chapter_number", chapterNumber)
     .single();
   if (error || !data) return null;
-  return data as Chapter;
+  const ch = data as Chapter;
+  // بعد نقل الفصول إلى R2 يكون عمود content فارغًا بقاعدة البيانات، فيُقرأ النص من R2
+  if (!ch.content) {
+    try {
+      const { r2GetChapter, r2Configured } = await import("./r2");
+      if (r2Configured()) {
+        const text = await r2GetChapter(novelId, ch.chapter_number);
+        if (text != null) ch.content = text;
+      }
+    } catch {
+      // فشل القراءة: يبقى الفصل بدون نص (تُعاد المحاولة عند التحديث التالي للصفحة)
+    }
+  }
+  return ch;
 }
 
 // رقم الفصل السابق/التالي الفعليين (أقرب رقم موجود فعلاً بقاعدة البيانات، مو current±1) —
