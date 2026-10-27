@@ -6,6 +6,19 @@ const bucket = process.env.R2_BUCKET;
 const accessKeyId = process.env.R2_ACCESS_KEY_ID;
 const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
 
+// فحص شكل المتغيرات بدون كشف قيمها (أطوال وصيغة فقط) لاكتشاف خطأ لصق أو حرف غريب
+export function r2Diagnostics() {
+  return {
+    bucket: bucket ?? null,
+    accountIdLen: accountId?.length ?? 0,
+    accessKeyLen: accessKeyId?.length ?? 0,
+    accessKeyHex: /^[0-9a-f]{32}$/.test(accessKeyId ?? ""),
+    secretLen: secretAccessKey?.length ?? 0,
+    secretHex: /^[0-9a-f]{64}$/.test(secretAccessKey ?? ""),
+    hasSpaces: [accountId, bucket, accessKeyId, secretAccessKey].some((v) => (v ?? "") !== (v ?? "").trim()),
+  };
+}
+
 export function r2Configured(): boolean {
   return Boolean(accountId && bucket && accessKeyId && secretAccessKey);
 }
@@ -41,6 +54,8 @@ async function withRetry<T>(fn: () => Promise<T>, tries = 3): Promise<T> {
       return await fn();
     } catch (e) {
       last = e;
+      // أخطاء 4xx (صلاحيات/مفاتيح) لا تُعاد محاولتها: النتيجة نفسها
+      if (e instanceof Error && /R2 \w+ 4\d\d/.test(e.message)) throw e;
       await new Promise((r) => setTimeout(r, 300 * (i + 1)));
     }
   }
@@ -55,7 +70,7 @@ export async function r2Put(key: string, text: string): Promise<void> {
       headers: { "content-type": "text/plain; charset=utf-8" },
       cache: "no-store",
     });
-    if (!res.ok) throw new Error(`R2 PUT ${res.status}`);
+    if (!res.ok) throw new Error(`R2 PUT ${res.status} ${(await res.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 220)}`);
   });
 }
 

@@ -33,6 +33,10 @@ export default function AdminR2Page() {
     say('فحص الاتصال بـR2…');
     const j = await call('/api/r2-test', {});
     say(j.ok ? '✅ الاتصال سليم: كُتب ملف تجريبي وقُرئ وحُذف.' : `❌ ${j.error || 'فشل الفحص'}`);
+    if (j.diag) {
+      const d = j.diag;
+      say(`تشخيص: المخزن=${d.bucket} | طول رقم الحساب=${d.accountIdLen} (المفروض 32) | مفتاح الوصول: طول ${d.accessKeyLen} وصيغة ${d.accessKeyHex ? 'سليمة' : 'غير سليمة ⚠'} | السر: طول ${d.secretLen} وصيغة ${d.secretHex ? 'سليمة' : 'غير سليمة ⚠'}${d.hasSpaces ? ' | ⚠ فراغ زائد بإحدى القيم' : ''}`);
+    }
     setBusy(false);
   }
 

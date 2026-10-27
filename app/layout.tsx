@@ -47,7 +47,8 @@ export default function RootLayout({
           <NavTracker />
           {children}
         </AuthProvider>
-        <Analytics />
+        {/* تحليلات Vercel تعمل فقط على Vercel؛ على Cloudflare نفعّل Web Analytics من لوحتها */}
+        {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>
   );

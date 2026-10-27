@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:deploy": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.0.0",
     "@supabase/supabase-js": "^2.45.4",
     "@vercel/analytics": "^1.5.0",
     "aws4fetch": "^1.0.20",
@@ -27,6 +30,7 @@
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
-    "eslint-config-next": "15.0.3"
+    "eslint-config-next": "15.0.3",
+    "wrangler": "^4.0.0"
   }
 }
