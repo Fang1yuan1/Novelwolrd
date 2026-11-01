@@ -9,7 +9,8 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const db = url && anon ? createClient(url, anon, { auth: { persistSession: false } }) : null;
 
-const BATCH = 25;
+// دفعة صغيرة: خطة Cloudflare Workers المجانية تحدّ كل طلب بـ50 اتصالًا خارجيًا وبـ10ms معالج
+const BATCH = 5;
 const CONCURRENCY = 5;
 
 type Row = { id: number; chapter_number: number; content: string; word_count: number | null };
